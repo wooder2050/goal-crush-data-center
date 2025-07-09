@@ -26,9 +26,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
     data: lineups = {},
     isLoading,
     error,
-  } = useGoalQuery(getMatchLineups, [match.match_id], {
-    staleTime: DEFAULT_STALE_TIME,
-  });
+  } = useGoalQuery(getMatchLineups, [match.match_id]);
 
   const homeTeamKey = `${match.match_id}_${match.home_team_id}`;
   const awayTeamKey = `${match.match_id}_${match.away_team_id}`;

@@ -19,9 +19,7 @@ const PilotSeasonResults: React.FC<PilotSeasonResultsProps> = ({
     data: matches = [],
     isLoading,
     error,
-  } = useGoalQuery(getPilotSeasonMatches, [], {
-    staleTime: DEFAULT_STALE_TIME,
-  });
+  } = useGoalQuery(getPilotSeasonMatches, []);
 
   if (isLoading) {
     return (

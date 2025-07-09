@@ -20,7 +20,7 @@ export default function SeasonsPage() {
     data: seasons = [],
     isLoading: loading,
     error,
-  } = useGoalQuery(getAllSeasons, [], { staleTime: DEFAULT_STALE_TIME });
+  } = useGoalQuery(getAllSeasons, []);
 
   const getStatusBadge = (status?: string) => {
     switch (status) {

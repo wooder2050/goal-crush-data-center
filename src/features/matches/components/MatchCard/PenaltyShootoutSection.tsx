@@ -31,7 +31,6 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
     isLoading,
     error,
   } = useGoalQuery(getPenaltyShootoutDetails, [match.match_id], {
-    staleTime: DEFAULT_STALE_TIME,
     enabled: hasPenaltyShootout(match),
   });
 

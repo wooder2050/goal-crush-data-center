@@ -23,9 +23,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ matchId, className = '' }) => {
     data: match,
     isLoading: matchLoading,
     error: matchError,
-  } = useGoalQuery(getMatchDetails, [matchId], {
-    staleTime: DEFAULT_STALE_TIME,
-  });
+  } = useGoalQuery(getMatchDetails, [matchId]);
 
   // 로딩 상태 체크
   const isLoading = matchLoading;

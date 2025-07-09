@@ -17,9 +17,7 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
     data: goals = [],
     isLoading,
     error,
-  } = useGoalQuery(getMatchGoals, [match.match_id], {
-    staleTime: DEFAULT_STALE_TIME,
-  });
+  } = useGoalQuery(getMatchGoals, [match.match_id]);
 
   // 득점이 없으면 렌더링하지 않음
   if (goals.length === 0 && !isLoading && !error) {
@@ -94,7 +92,7 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
               <span className="ml-1 text-gray-500">
                 {goal.goal_time}'{' '}
                 {goal.goal_type === 'penalty'
-                  ? '��'
+                  ? '🎯'
                   : goal.goal_type === 'own_goal'
                     ? '🔄'
                     : '⚽'}

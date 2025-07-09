@@ -11,7 +11,7 @@ import {
 } from '@tanstack/react-query';
 
 /**
- * 일반 쿼리 훅 (Goal 프로젝트용)
+ * 일반 쿼리 훅
  */
 export function useGoalQuery<
   TQueryFn extends (...args: any[]) => Promise<any>,
@@ -33,7 +33,7 @@ export function useGoalQuery<
 }
 
 /**
- * Suspense 쿼리 훅 (Goal 프로젝트용)
+ * Suspense 쿼리 훅
  */
 export function useGoalSuspenseQuery<
   TQueryFn extends (...args: any[]) => Promise<any>,

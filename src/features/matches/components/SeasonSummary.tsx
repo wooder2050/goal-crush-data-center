@@ -28,9 +28,7 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
     data: matches = [],
     isLoading,
     error,
-  } = useGoalQuery(getMatchesBySeason, [seasonId], {
-    staleTime: DEFAULT_STALE_TIME,
-  });
+  } = useGoalQuery(getMatchesBySeason, [seasonId]);
 
   // 로딩 상태
   if (isLoading) {

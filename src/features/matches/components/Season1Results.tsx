@@ -19,7 +19,7 @@ const Season1Results: React.FC<Season1ResultsProps> = ({ className }) => {
     data: matches = [],
     isLoading: matchesLoading,
     error: matchesError,
-  } = useGoalQuery(getSeason1Matches, [], { staleTime: DEFAULT_STALE_TIME });
+  } = useGoalQuery(getSeason1Matches, []);
 
   const getMatchGroup = (match: MatchWithTeams) => {
     const description = match.description || '';
