@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { MatchWithTeams } from '@/lib/types/database';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getPenaltyShootoutDetails } from '../../api';
 import { hasPenaltyShootout } from '../../lib/matchUtils';
+import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface PenaltyShootoutSectionProps {
   match: MatchWithTeams;
@@ -29,11 +30,9 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
     data: penaltyRecords = [],
     isLoading,
     error,
-  } = useQuery({
-    queryKey: ['match', 'penalty', match.match_id],
-    queryFn: () => getPenaltyShootoutDetails(match.match_id),
-    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
-    enabled: hasPenaltyShootout(match), // 승부차기가 있을 때만 호출
+  } = useGoalQuery(getPenaltyShootoutDetails, [match.match_id], {
+    staleTime: DEFAULT_STALE_TIME,
+    enabled: hasPenaltyShootout(match),
   });
 
   const homeRecords = penaltyRecords.filter(

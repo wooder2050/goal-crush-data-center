@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { MatchWithTeams } from '@/lib/types/database';
 import { Badge } from '@/components/ui/badge';
 import { getMatchLineups } from '../../api';
@@ -10,6 +10,7 @@ import {
   getPositionText,
   getPositionOrder,
 } from '../../lib/matchUtils';
+import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface TeamLineupsSectionProps {
   match: MatchWithTeams;
@@ -25,10 +26,8 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
     data: lineups = {},
     isLoading,
     error,
-  } = useQuery({
-    queryKey: ['match', 'lineups', match.match_id],
-    queryFn: () => getMatchLineups(match.match_id),
-    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+  } = useGoalQuery(getMatchLineups, [match.match_id], {
+    staleTime: DEFAULT_STALE_TIME,
   });
 
   const homeTeamKey = `${match.match_id}_${match.home_team_id}`;

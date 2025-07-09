@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { MatchWithTeams } from '@/lib/types/database';
 import { getMatchGoals } from '../../api';
+import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface GoalSectionProps {
   match: MatchWithTeams;
@@ -16,10 +17,8 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
     data: goals = [],
     isLoading,
     error,
-  } = useQuery({
-    queryKey: ['match', 'goals', match.match_id],
-    queryFn: () => getMatchGoals(match.match_id),
-    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+  } = useGoalQuery(getMatchGoals, [match.match_id], {
+    staleTime: DEFAULT_STALE_TIME,
   });
 
   // 득점이 없으면 렌더링하지 않음
@@ -95,7 +94,7 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
               <span className="ml-1 text-gray-500">
                 {goal.goal_time}'{' '}
                 {goal.goal_type === 'penalty'
-                  ? '🎯'
+                  ? '��'
                   : goal.goal_type === 'own_goal'
                     ? '🔄'
                     : '⚽'}

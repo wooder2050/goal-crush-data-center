@@ -2,10 +2,11 @@
 
 import React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useQuery } from '@tanstack/react-query';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { getPilotSeasonMatches } from '../api';
 import MatchCard from './MatchCard/MatchCard';
 import SeasonSummary from './SeasonSummary';
+import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface PilotSeasonResultsProps {
   className?: string;
@@ -18,10 +19,8 @@ const PilotSeasonResults: React.FC<PilotSeasonResultsProps> = ({
     data: matches = [],
     isLoading,
     error,
-  } = useQuery({
-    queryKey: ['matches', 'pilot-season'],
-    queryFn: getPilotSeasonMatches,
-    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+  } = useGoalQuery(getPilotSeasonMatches, [], {
+    staleTime: DEFAULT_STALE_TIME,
   });
 
   if (isLoading) {

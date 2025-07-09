@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getMatchesBySeason } from '../api';
+import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface SeasonSummaryProps {
   seasonId: number;
@@ -27,10 +28,8 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
     data: matches = [],
     isLoading,
     error,
-  } = useQuery({
-    queryKey: ['season-summary', seasonId],
-    queryFn: () => getMatchesBySeason(seasonId),
-    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
+  } = useGoalQuery(getMatchesBySeason, [seasonId], {
+    staleTime: DEFAULT_STALE_TIME,
   });
 
   // 로딩 상태
