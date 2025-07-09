@@ -2,11 +2,12 @@
 
 import React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useQuery } from '@tanstack/react-query';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { getSeason1Matches } from '../api';
 import { MatchWithTeams } from '@/lib/types/database';
 import MatchCard from './MatchCard/MatchCard';
 import SeasonSummary from './SeasonSummary';
+import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface Season1ResultsProps {
   className?: string;
@@ -18,11 +19,7 @@ const Season1Results: React.FC<Season1ResultsProps> = ({ className }) => {
     data: matches = [],
     isLoading: matchesLoading,
     error: matchesError,
-  } = useQuery({
-    queryKey: ['season1', 'matches'],
-    queryFn: getSeason1Matches,
-    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
-  });
+  } = useGoalQuery(getSeason1Matches, []);
 
   const getMatchGroup = (match: MatchWithTeams) => {
     const description = match.description || '';

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -13,7 +14,7 @@ export function Providers({ children }: ProvidersProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 5 * 60 * 1000, // 5분
+            staleTime: DEFAULT_STALE_TIME, // 5분
             refetchOnWindowFocus: false,
             retry: 1,
           },

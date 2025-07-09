@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -13,17 +13,14 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Calendar, ChevronRight, Trophy, Users, ArrowLeft } from 'lucide-react';
 import { getAllSeasons, getSeasonRoute } from '@/features/seasons/api';
+import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 export default function SeasonsPage() {
   const {
     data: seasons = [],
     isLoading: loading,
     error,
-  } = useQuery({
-    queryKey: ['seasons', 'all'],
-    queryFn: getAllSeasons,
-    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
-  });
+  } = useGoalQuery(getAllSeasons, []);
 
   const getStatusBadge = (status?: string) => {
     switch (status) {

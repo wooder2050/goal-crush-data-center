@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { Card, CardContent } from '@/components/ui/card';
 import { getMatchDetails } from '../../api';
 import MatchHeader from './MatchHeader';
@@ -10,6 +10,7 @@ import PenaltyShootoutSection from './PenaltyShootoutSection';
 import GoalSection from './GoalSection';
 import TeamLineupsSection from './TeamLineupsSection';
 import MatchFooter from './MatchFooter';
+import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface MatchCardProps {
   matchId: number;
@@ -22,11 +23,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ matchId, className = '' }) => {
     data: match,
     isLoading: matchLoading,
     error: matchError,
-  } = useQuery({
-    queryKey: ['match', 'details', matchId],
-    queryFn: () => getMatchDetails(matchId),
-    staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
-  });
+  } = useGoalQuery(getMatchDetails, [matchId]);
 
   // 로딩 상태 체크
   const isLoading = matchLoading;
