@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
+
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { MatchWithTeams } from '@/lib/types/database';
+
 import { getMatchGoals } from '../../api';
-import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface GoalSectionProps {
   match: MatchWithTeams;
@@ -90,7 +91,7 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
               <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
               <span className="font-medium">{goal.player?.name}</span>
               <span className="ml-1 text-gray-500">
-                {goal.goal_time}'{' '}
+                {goal.goal_time}&apos;{' '}
                 {goal.goal_type === 'penalty'
                   ? '🎯'
                   : goal.goal_type === 'own_goal'
@@ -117,7 +118,7 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
               <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></div>
               <span className="font-medium">{goal.player?.name}</span>
               <span className="ml-1 text-gray-500">
-                {goal.goal_time}'{' '}
+                {goal.goal_time}&apos;{' '}
                 {goal.goal_type === 'penalty'
                   ? '🎯'
                   : goal.goal_type === 'own_goal'

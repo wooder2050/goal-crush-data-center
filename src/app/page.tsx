@@ -1,6 +1,16 @@
 'use client';
 
+import {
+  BarChart3,
+  Calendar,
+  Database,
+  List,
+  Trophy,
+  Users,
+} from 'lucide-react';
 import Link from 'next/link';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -9,15 +19,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  Database,
-  Users,
-  Trophy,
-  Calendar,
-  BarChart3,
-  List,
-} from 'lucide-react';
 
 export default function HomePage() {
   return (

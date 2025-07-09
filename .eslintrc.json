@@ -1,16 +1,22 @@
 {
+  "root": true,
   "extends": [
     "next/core-web-vitals",
     "eslint:recommended",
-    "@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended",
     "prettier"
   ],
-  "plugins": ["prettier"],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["simple-import-sort", "import"],
   "rules": {
-    "prettier/prettier": "error",
-    "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/no-explicit-any": "warn",
-    "react/prop-types": "off",
-    "react/react-in-jsx-scope": "off"
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    "import/first": "error",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error"
+  },
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": "latest"
   }
 }

@@ -1,16 +1,17 @@
 'use client';
 
 import React from 'react';
+
+import { Badge } from '@/components/ui/badge';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { MatchWithTeams } from '@/lib/types/database';
-import { Badge } from '@/components/ui/badge';
+
 import { getMatchLineups } from '../../api';
 import {
   getPositionColor,
-  getPositionText,
   getPositionOrder,
+  getPositionText,
 } from '../../lib/matchUtils';
-import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface TeamLineupsSectionProps {
   match: MatchWithTeams;

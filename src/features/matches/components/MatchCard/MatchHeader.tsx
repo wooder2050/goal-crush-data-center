@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
-import { CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import React from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { CardHeader } from '@/components/ui/card';
 import { MatchWithTeams } from '@/lib/types/database';
 
 interface MatchHeaderProps {

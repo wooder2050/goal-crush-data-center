@@ -1,7 +1,9 @@
 'use client';
 
+import { ArrowLeft, Calendar, ChevronRight, Trophy, Users } from 'lucide-react';
 import Link from 'next/link';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -10,10 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, ChevronRight, Trophy, Users, ArrowLeft } from 'lucide-react';
 import { getAllSeasons, getSeasonRoute } from '@/features/seasons/api';
-import { DEFAULT_STALE_TIME } from '@/constants/query';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
 
 export default function SeasonsPage() {
   const {

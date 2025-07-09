@@ -1,12 +1,13 @@
 'use client';
 
 import React from 'react';
+
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
+
 import { getPilotSeasonMatches } from '../api';
 import MatchCard from './MatchCard/MatchCard';
 import SeasonSummary from './SeasonSummary';
-import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface PilotSeasonResultsProps {
   className?: string;

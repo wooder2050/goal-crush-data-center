@@ -1,13 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+
 import { useGoalQuery } from '@/hooks/useGoalQuery';
-import { getSeason1Matches } from '../api';
 import { MatchWithTeams } from '@/lib/types/database';
+
+import { getSeason1Matches } from '../api';
 import MatchCard from './MatchCard/MatchCard';
 import SeasonSummary from './SeasonSummary';
-import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface Season1ResultsProps {
   className?: string;

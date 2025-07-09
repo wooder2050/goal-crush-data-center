@@ -1,5 +1,15 @@
 import { supabase } from '@/lib/supabase/client';
-import { Team, TeamInput, TeamUpdate } from '@/lib/types/database';
+import {
+  Player,
+  PlayerTeamHistory,
+  Team,
+  TeamInput,
+  TeamUpdate,
+} from '@/lib/types/database';
+
+export type PlayerWithTeamHistory = Player & {
+  player_team_history: PlayerTeamHistory[];
+};
 
 // Get all teams
 export const getTeams = async (): Promise<Team[]> => {
@@ -69,7 +79,9 @@ export const getTeamsBySeason = async (seasonId: number): Promise<Team[]> => {
 };
 
 // Get team players
-export const getTeamPlayers = async (teamId: number): Promise<any[]> => {
+export const getTeamPlayers = async (
+  teamId: number
+): Promise<PlayerWithTeamHistory[]> => {
   const { data, error } = await supabase
     .from('players')
     .select(
@@ -89,7 +101,6 @@ export const getTeamPlayers = async (teamId: number): Promise<any[]> => {
   if (error) {
     throw new Error(`Failed to fetch team players: ${error.message}`);
   }
-
   return data || [];
 };
 
@@ -108,7 +119,7 @@ export const createTeam = async (teamData: TeamInput): Promise<Team> => {
   return data;
 };
 
-// Update team information
+// Update team
 export const updateTeam = async (
   teamId: number,
   teamData: TeamUpdate

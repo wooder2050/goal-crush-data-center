@@ -1,7 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+
 import { Button } from '@/components/ui/button';
 import Season1Results from '@/features/matches/components/Season1Results';
 
