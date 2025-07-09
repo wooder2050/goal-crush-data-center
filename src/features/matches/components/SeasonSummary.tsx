@@ -1,10 +1,11 @@
 'use client';
 
 import React from 'react';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
+
 import { getMatchesBySeason } from '../api';
-import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface SeasonSummaryProps {
   seasonId: number;

@@ -1,13 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
-import { MatchWithTeams } from '@/lib/types/database';
-import { Button } from '@/components/ui/button';
+
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
+import {
+  MatchWithTeams,
+  PenaltyShootoutDetailWithPlayers,
+} from '@/lib/types/database';
+
 import { getPenaltyShootoutDetails } from '../../api';
 import { hasPenaltyShootout } from '../../lib/matchUtils';
-import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface PenaltyShootoutSectionProps {
   match: MatchWithTeams;
@@ -20,11 +24,6 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // 승부차기가 없는 경우 렌더링하지 않음
-  if (!hasPenaltyShootout(match)) {
-    return null;
-  }
-
   // 승부차기 상세 기록을 React Query로 호출
   const {
     data: penaltyRecords = [],
@@ -34,17 +33,26 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
     enabled: hasPenaltyShootout(match),
   });
 
+  // 승부차기가 없는 경우 렌더링하지 않음
+  if (!hasPenaltyShootout(match)) {
+    return null;
+  }
+
   const homeRecords = penaltyRecords.filter(
-    (record: any) => record.team?.team_id === match.home_team_id
+    (record: PenaltyShootoutDetailWithPlayers) =>
+      record.team?.team_id === match.home_team_id
   );
   const awayRecords = penaltyRecords.filter(
-    (record: any) => record.team?.team_id === match.away_team_id
+    (record: PenaltyShootoutDetailWithPlayers) =>
+      record.team?.team_id === match.away_team_id
   );
 
   // 성공률 계산
-  const getSuccessRate = (records: any[]) => {
+  const getSuccessRate = (records: PenaltyShootoutDetailWithPlayers[]) => {
     const total = records.length;
-    const success = records.filter((r: any) => r.is_successful).length;
+    const success = records.filter(
+      (r: PenaltyShootoutDetailWithPlayers) => r.is_successful
+    ).length;
     return `${success}/${total}`;
   };
 
@@ -148,39 +156,49 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                   </div>
                   <div className="space-y-2">
                     {homeRecords
-                      .sort((a: any, b: any) => a.kicker_order - b.kicker_order)
-                      .map((record: any, index: number) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between bg-white rounded p-2 border border-blue-100"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <Badge
-                              variant="outline"
-                              className="text-xs px-1 py-0 bg-blue-600 text-white border-blue-600"
-                            >
-                              {record.kicker_order}
-                            </Badge>
-                            <span className="text-sm font-medium text-gray-900">
-                              {record.kicker?.name}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              vs {record.goalkeeper?.name}
-                            </span>
-                          </div>
-                          <div className="flex items-center">
-                            {record.is_successful ? (
-                              <Badge className="text-xs bg-green-100 text-green-800 border-green-300">
-                                ⚽ 성공
+                      .sort(
+                        (
+                          a: PenaltyShootoutDetailWithPlayers,
+                          b: PenaltyShootoutDetailWithPlayers
+                        ) => a.kicker_order - b.kicker_order
+                      )
+                      .map(
+                        (
+                          record: PenaltyShootoutDetailWithPlayers,
+                          index: number
+                        ) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between bg-white rounded p-2 border border-blue-100"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <Badge
+                                variant="outline"
+                                className="text-xs px-1 py-0 bg-blue-600 text-white border-blue-600"
+                              >
+                                {record.kicker_order}
                               </Badge>
-                            ) : (
-                              <Badge className="text-xs bg-red-100 text-red-800 border-red-300">
-                                ❌ 실패
-                              </Badge>
-                            )}
+                              <span className="text-sm font-medium text-gray-900">
+                                {record.kicker?.name}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                vs {record.goalkeeper?.name}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              {record.is_successful ? (
+                                <Badge className="text-xs bg-green-100 text-green-800 border-green-300">
+                                  ⚽ 성공
+                                </Badge>
+                              ) : (
+                                <Badge className="text-xs bg-red-100 text-red-800 border-red-300">
+                                  ❌ 실패
+                                </Badge>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
                   </div>
                 </div>
 
@@ -200,39 +218,49 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                   </div>
                   <div className="space-y-2">
                     {awayRecords
-                      .sort((a: any, b: any) => a.kicker_order - b.kicker_order)
-                      .map((record: any, index: number) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between bg-white rounded p-2 border border-red-100"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <Badge
-                              variant="outline"
-                              className="text-xs px-1 py-0 bg-red-600 text-white border-red-600"
-                            >
-                              {record.kicker_order}
-                            </Badge>
-                            <span className="text-sm font-medium text-gray-900">
-                              {record.kicker?.name}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              vs {record.goalkeeper?.name}
-                            </span>
-                          </div>
-                          <div className="flex items-center">
-                            {record.is_successful ? (
-                              <Badge className="text-xs bg-green-100 text-green-800 border-green-300">
-                                ⚽ 성공
+                      .sort(
+                        (
+                          a: PenaltyShootoutDetailWithPlayers,
+                          b: PenaltyShootoutDetailWithPlayers
+                        ) => a.kicker_order - b.kicker_order
+                      )
+                      .map(
+                        (
+                          record: PenaltyShootoutDetailWithPlayers,
+                          index: number
+                        ) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between bg-white rounded p-2 border border-red-100"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <Badge
+                                variant="outline"
+                                className="text-xs px-1 py-0 bg-red-600 text-white border-red-600"
+                              >
+                                {record.kicker_order}
                               </Badge>
-                            ) : (
-                              <Badge className="text-xs bg-red-100 text-red-800 border-red-300">
-                                ❌ 실패
-                              </Badge>
-                            )}
+                              <span className="text-sm font-medium text-gray-900">
+                                {record.kicker?.name}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                vs {record.goalkeeper?.name}
+                              </span>
+                            </div>
+                            <div className="flex items-center">
+                              {record.is_successful ? (
+                                <Badge className="text-xs bg-green-100 text-green-800 border-green-300">
+                                  ⚽ 성공
+                                </Badge>
+                              ) : (
+                                <Badge className="text-xs bg-red-100 text-red-800 border-red-300">
+                                  ❌ 실패
+                                </Badge>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
                   </div>
                 </div>
               </div>

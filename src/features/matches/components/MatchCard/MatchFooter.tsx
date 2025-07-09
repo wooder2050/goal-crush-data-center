@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+
 import { MatchWithTeams } from '@/lib/types/database';
 
 interface MatchFooterProps {

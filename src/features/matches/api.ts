@@ -1,12 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// TODO: 추후 리팩토링 필요
 import { supabase } from '@/lib/supabase/client';
 import {
   Match,
-  MatchInput,
-  MatchUpdate,
   MatchWithTeams,
-  SubstitutionInput,
-  Substitution,
   PenaltyShootoutDetailWithPlayers,
+  Substitution,
+  SubstitutionInput,
 } from '@/lib/types/database';
 
 // ============== Basic Match CRUD Operations ==============

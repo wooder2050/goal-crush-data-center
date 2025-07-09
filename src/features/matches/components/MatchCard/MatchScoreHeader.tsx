@@ -1,11 +1,13 @@
 'use client';
 
 import React from 'react';
+
 import { MatchWithTeams } from '@/lib/types/database';
+
 import {
   getMatchResult,
-  hasPenaltyShootout,
   getWinnerTeam,
+  hasPenaltyShootout,
 } from '../../lib/matchUtils';
 
 interface MatchScoreHeaderProps {

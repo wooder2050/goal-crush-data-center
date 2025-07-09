@@ -1,16 +1,17 @@
 'use client';
 
 import React from 'react';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+
 import { Card, CardContent } from '@/components/ui/card';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
+
 import { getMatchDetails } from '../../api';
+import GoalSection from './GoalSection';
+import MatchFooter from './MatchFooter';
 import MatchHeader from './MatchHeader';
 import MatchScoreHeader from './MatchScoreHeader';
 import PenaltyShootoutSection from './PenaltyShootoutSection';
-import GoalSection from './GoalSection';
 import TeamLineupsSection from './TeamLineupsSection';
-import MatchFooter from './MatchFooter';
-import { DEFAULT_STALE_TIME } from '@/constants/query';
 
 interface MatchCardProps {
   matchId: number;

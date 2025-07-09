@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import {
+  QueryKey,
   useQuery,
   UseQueryOptions,
-  QueryKey,
   UseQueryResult,
   useSuspenseQuery,
   UseSuspenseQueryOptions,
