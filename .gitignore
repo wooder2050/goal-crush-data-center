@@ -46,3 +46,6 @@ next-env.d.ts
 .DS_Store
 Thumbs.db
 node_modules
+
+# Supabase migration SQL 파일 무시
+supabase/migrations/*.sql
