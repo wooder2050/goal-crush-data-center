@@ -3,9 +3,16 @@
 export interface Player {
   player_id: number;
   name: string;
-  birth_date: Date | null;
-  position: string | null;
-  created_at: Date;
+  position?: string;
+  birth_date?: string;
+  nationality?: string;
+  height_cm?: number;
+  weight_kg?: number;
+  bio?: string;
+  profile_image_url?: string;
+  jersey_number?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Team {
@@ -41,7 +48,13 @@ export interface Match {
   away_team_id: number;
   home_score: number | null;
   away_score: number | null;
+  penalty_home_score: number | null;
+  penalty_away_score: number | null;
   location: string | null;
+  status: string | null;
+  description: string | null;
+  created_at: Date | null;
+  updated_at: Date | null;
 }
 
 export interface PlayerMatchStats {
@@ -51,6 +64,7 @@ export interface PlayerMatchStats {
   team_id: number;
   goals: number;
   played: boolean;
+  position?: string;
 }
 
 export interface PlayerSeasonStats {
@@ -87,6 +101,69 @@ export interface Standing {
   last_updated: Date;
 }
 
+export interface Goal {
+  goal_id: number;
+  match_id: number;
+  player_id: number;
+  goal_time?: number;
+  goal_type: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Substitution {
+  substitution_id: number;
+  match_id: number;
+  player_in_id: number;
+  player_out_id: number;
+  team_id: number;
+  substitution_time?: number;
+  substitution_reason?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface SubstitutionInput {
+  match_id: number;
+  player_in_id: number;
+  player_out_id: number;
+  team_id: number;
+  substitution_time?: number;
+  substitution_reason?: string;
+}
+
+export interface SubstitutionUpdate {
+  substitution_time?: number;
+  substitution_reason?: string;
+}
+
+export interface SubstitutionWithDetails extends Substitution {
+  player_in: Player;
+  player_out: Player;
+  team: Team;
+  match: Match;
+}
+
+export interface PenaltyShootoutDetail {
+  penalty_detail_id: number;
+  match_id: number;
+  team_id: number;
+  goalkeeper_id: number | null;
+  kicker_order: number;
+  kicker_id: number;
+  is_successful: boolean;
+  kick_description: string | null;
+  created_at: string;
+}
+
+export interface PenaltyShootoutDetailWithPlayers
+  extends PenaltyShootoutDetail {
+  goalkeeper: Player | null;
+  kicker: Player;
+  team: Team;
+}
+
 // Input types (for auto-generated IDs)
 export type PlayerInput = Omit<Player, 'player_id' | 'created_at'>;
 export type TeamInput = Omit<Team, 'team_id'>;
@@ -98,6 +175,7 @@ export type PlayerMatchStatsInput = Omit<PlayerMatchStats, 'id'>;
 export type PlayerSeasonStatsInput = Omit<PlayerSeasonStats, 'id'>;
 export type TeamSeasonStatsInput = Omit<TeamSeasonStats, 'id'>;
 export type StandingInput = Omit<Standing, 'id' | 'last_updated'>;
+export type GoalInput = Omit<Goal, 'goal_id' | 'created_at' | 'updated_at'>;
 
 // Update types (all fields optional)
 export type PlayerUpdate = Partial<Omit<Player, 'player_id' | 'created_at'>>;
@@ -110,6 +188,9 @@ export type PlayerMatchStatsUpdate = Partial<Omit<PlayerMatchStats, 'id'>>;
 export type PlayerSeasonStatsUpdate = Partial<Omit<PlayerSeasonStats, 'id'>>;
 export type TeamSeasonStatsUpdate = Partial<Omit<TeamSeasonStats, 'id'>>;
 export type StandingUpdate = Partial<Omit<Standing, 'id' | 'last_updated'>>;
+export type GoalUpdate = Partial<
+  Omit<Goal, 'goal_id' | 'created_at' | 'updated_at'>
+>;
 
 // Joined data types
 export interface PlayerWithTeam extends Player {
@@ -144,6 +225,11 @@ export interface StandingWithDetails extends Standing {
   season: Season;
 }
 
+export interface GoalWithDetails extends Goal {
+  player: Player;
+  match: MatchWithTeams;
+}
+
 // Table name types
 export type TableName =
   | 'players'
@@ -155,7 +241,9 @@ export type TableName =
   | 'player_match_stats'
   | 'player_season_stats'
   | 'team_season_stats'
-  | 'standings';
+  | 'standings'
+  | 'goals'
+  | 'substitutions';
 
 // Database schema types
 export interface Database {
@@ -210,6 +298,16 @@ export interface Database {
         Row: Standing;
         Insert: StandingInput;
         Update: StandingUpdate;
+      };
+      goals: {
+        Row: Goal;
+        Insert: GoalInput;
+        Update: GoalUpdate;
+      };
+      substitutions: {
+        Row: Substitution;
+        Insert: SubstitutionInput;
+        Update: SubstitutionUpdate;
       };
     };
     Views: {

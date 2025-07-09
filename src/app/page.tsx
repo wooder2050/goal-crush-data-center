@@ -1,88 +1,166 @@
-'use client'
+'use client';
 
-import Image from 'next/image'
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import {
+  Database,
+  Users,
+  Trophy,
+  Calendar,
+  BarChart3,
+  List,
+} from 'lucide-react';
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Goal Crush Data Center에 오신 것을 환영합니다!
+    <div className="container mx-auto py-8">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold mb-4">골 크러시 데이터 센터</h1>
+        <p className="text-xl text-gray-600 mb-6">
+          골때리는 그녀들 데이터 관리 시스템
         </p>
+        <Badge variant="outline" className="text-lg px-4 py-2">
+          SBS 예능 프로그램 데이터 분석
+        </Badge>
       </div>
 
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="https://picsum.photos/180/37?random=1"
-          alt="Goal Crush Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* 시즌별 기록 보기 - 메인 기능 */}
+        <Card className="hover:shadow-lg transition-shadow border-2 border-blue-200 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-blue-700">
+              <List className="h-5 w-5" />
+              시즌별 기록 보기
+            </CardTitle>
+            <CardDescription>
+              골때리는 그녀들 시즌별 경기 결과를 확인합니다.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/seasons">
+              <Button className="w-full">시즌 목록 보기</Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        {/* 선수 관리 */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              선수 관리
+            </CardTitle>
+            <CardDescription>
+              선수 정보 조회 및 관리 기능입니다.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full" disabled>
+              개발 예정
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* 팀 관리 */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Trophy className="h-5 w-5" />팀 관리
+            </CardTitle>
+            <CardDescription>
+              팀 정보 및 팀 구성 관리 기능입니다.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full" disabled>
+              개발 예정
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* 통계 분석 */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              통계 분석
+            </CardTitle>
+            <CardDescription>선수 및 팀 통계 분석 기능입니다.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full" disabled>
+              개발 예정
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* 데이터베이스 */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="h-5 w-5" />
+              데이터베이스
+            </CardTitle>
+            <CardDescription>
+              데이터베이스 관리 및 백업 기능입니다.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" className="w-full" disabled>
+              개발 예정
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* 빠른 접근 - 최신 시즌 */}
+        <Card className="hover:shadow-lg transition-shadow border-green-200 bg-green-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-green-700">
+              <Calendar className="h-5 w-5" />
+              빠른 접근
+            </CardTitle>
+            <CardDescription>최신 시즌 결과에 바로 접근합니다.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Link href="/seasons/season-1">
+              <Button variant="outline" size="sm" className="w-full">
+                시즌 1 결과
+              </Button>
+            </Link>
+            <Link href="/seasons/pilot-season">
+              <Button variant="outline" size="sm" className="w-full">
+                파일럿 시즌
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="/docs"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            문서{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            프로젝트 문서와 가이드를 확인하세요.
-          </p>
-        </a>
-
-        <a
-          href="/api"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            API{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            API 엔드포인트를 탐색하세요.
-          </p>
-        </a>
-
-        <a
-          href="/dashboard"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            대시보드{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            데이터 센터 대시보드를 확인하세요.
-          </p>
-        </a>
-
-        <a
-          href="/settings"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            설정{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            애플리케이션 설정을 관리하세요.
-          </p>
-        </a>
+      <div className="mt-12 text-center">
+        <h2 className="text-2xl font-bold mb-4">프로젝트 정보</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <h3 className="font-semibold mb-2">기술 스택</h3>
+            <p>Next.js, TypeScript, Supabase</p>
+          </div>
+          <div className="p-4 bg-green-50 rounded-lg">
+            <h3 className="font-semibold mb-2">아키텍처</h3>
+            <p>Feature Sliced Design</p>
+          </div>
+          <div className="p-4 bg-purple-50 rounded-lg">
+            <h3 className="font-semibold mb-2">데이터 관리</h3>
+            <p>수동 입력 및 관리</p>
+          </div>
+        </div>
       </div>
-    </main>
-  )
+    </div>
+  );
 }
