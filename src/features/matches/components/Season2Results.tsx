@@ -2,52 +2,45 @@
 
 import React from 'react';
 
+import { getMatchesBySeasonId } from '@/features/matches/api';
+import { MatchCard } from '@/features/matches/components/MatchCard';
+import SeasonSummary from '@/features/matches/components/SeasonSummary';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { MatchWithTeams } from '@/lib/types';
 
-import { getMatchesBySeasonId } from '../api';
-import MatchCard from './MatchCard/MatchCard';
-import SeasonSummary from './SeasonSummary';
-
-interface Season1ResultsProps {
+interface Season2ResultsProps {
   className?: string;
 }
 
-const Season1Results: React.FC<Season1ResultsProps> = ({ className }) => {
-  // 매치 목록만 가져오기 - 나머지는 MatchCard 처리
-  const {
-    data: matches = [],
-    isLoading: matchesLoading,
-    error: matchesError,
-  } = useGoalQuery(getMatchesBySeasonId, [4]); // 시즌 1은 season_id = 4
+const Season2Results: React.FC<Season2ResultsProps> = ({ className }) => {
+  const { data: matches, isLoading, error } = useGoalQuery(
+    getMatchesBySeasonId,
+    [5] // 시즌 2는 season_id = 5
+  );
 
   const getMatchGroup = (match: MatchWithTeams) => {
     const description = match.description || '';
 
     // description에서 그룹 정보 추출
-    if (description.includes('조별리그 A조')) {
-      return '조별리그 A조';
-    } else if (description.includes('조별리그 B조')) {
-      return '조별리그 B조';
-    } else if (description.includes('토너먼트 4강 1경기')) {
-      return '4강 1경기';
-    } else if (description.includes('토너먼트 4강 2경기')) {
-      return '4강 2경기';
-    } else if (description.includes('토너먼트 3·4위전')) {
-      return '3·4위전';
-    } else if (description.includes('토너먼트 결승전')) {
-      return '결승전';
-    } else if (description.includes('토너먼트')) {
-      return '토너먼트';
-    } else if (description.includes('조별리그')) {
-      return '조별리그';
+    if (description.includes('1라운드')) {
+      return '1라운드';
+    } else if (description.includes('2라운드')) {
+      return '2라운드';
+    } else if (description.includes('3라운드')) {
+      return '3라운드';
+    } else if (description.includes('4라운드')) {
+      return '4라운드';
+    } else if (description.includes('5라운드')) {
+      return '5라운드 (최종)';
+    } else if (description.includes('리그')) {
+      return '리그전';
     }
 
     // fallback: description이 없거나 패턴이 맞지 않는 경우 기본값
     return '기타 경기';
   };
 
-  if (matchesLoading) {
+  if (isLoading) {
     return (
       <div className={`p-6 ${className || ''}`}>
         <div className="flex items-center justify-center h-32">
@@ -57,14 +50,14 @@ const Season1Results: React.FC<Season1ResultsProps> = ({ className }) => {
     );
   }
 
-  if (matchesError) {
+  if (error) {
     return (
       <div className={`p-6 ${className || ''}`}>
         <div className="flex items-center justify-center h-32">
           <div className="text-red-500">
             오류 발생:{' '}
-            {matchesError instanceof Error
-              ? matchesError.message
+            {error instanceof Error
+              ? error.message
               : 'Failed to fetch data'}
           </div>
         </div>
@@ -76,13 +69,13 @@ const Season1Results: React.FC<Season1ResultsProps> = ({ className }) => {
     <div className={`p-6 ${className || ''}`}>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          골때리는 그녀들 시즌 1
+          골때리는 그녀들 시즌 2
         </h1>
-        <p className="text-gray-600">2021년</p>
+        <p className="text-gray-600">2021년 10월 13일 ~ 2022년 9월 14일</p>
       </div>
 
       {/* 경기가 없는 경우 안내 메시지 */}
-      {matches.length === 0 ? (
+      {!matches || matches.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-gray-500 mb-4">
             <svg
@@ -100,10 +93,10 @@ const Season1Results: React.FC<Season1ResultsProps> = ({ className }) => {
             </svg>
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            시즌 1 경기 데이터가 아직 없습니다
+            시즌 2 경기 데이터가 아직 없습니다
           </h3>
           <p className="text-gray-500">
-            시즌 1 경기 데이터가 입력되면 여기에 표시됩니다.
+            시즌 2 경기 데이터가 입력되면 여기에 표시됩니다.
           </p>
         </div>
       ) : (
@@ -112,7 +105,7 @@ const Season1Results: React.FC<Season1ResultsProps> = ({ className }) => {
           <div className="space-y-8">
             {/* 그룹별로 경기를 분류 */}
             {Object.entries(
-              matches.reduce(
+              (matches || []).reduce(
                 (groups, match) => {
                   const group = getMatchGroup(match);
                   if (!groups[group]) {
@@ -125,16 +118,14 @@ const Season1Results: React.FC<Season1ResultsProps> = ({ className }) => {
               )
             )
               .sort(([a], [b]) => {
-                // 정렬 순서: 조별리그 A조 → 조별리그 B조 → 4강 1경기 → 4강 2경기 → 3·4위전 → 결승전 → 토너먼트 → 기타 경기
+                // 정렬 순서: 1라운드 → 2라운드 → 3라운드 → 4라운드 → 5라운드 (최종) → 리그전 → 기타 경기
                 const order = [
-                  '조별리그 A조',
-                  '조별리그 B조',
-                  '4강 1경기',
-                  '4강 2경기',
-                  '3·4위전',
-                  '결승전',
-                  '토너먼트',
-                  '조별리그',
+                  '1라운드',
+                  '2라운드',
+                  '3라운드',
+                  '4라운드',
+                  '5라운드 (최종)',
+                  '리그전',
                   '기타 경기',
                 ];
                 const indexA = order.indexOf(a);
@@ -172,11 +163,11 @@ const Season1Results: React.FC<Season1ResultsProps> = ({ className }) => {
           </div>
 
           {/* Season Summary */}
-          <SeasonSummary seasonId={4} seasonName="시즌 1" className="mt-8" />
+          <SeasonSummary seasonId={5} seasonName="시즌 2" className="mt-8" />
         </>
       )}
     </div>
   );
 };
 
-export default Season1Results;
+export default Season2Results;
