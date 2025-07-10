@@ -9,7 +9,6 @@ import { MatchWithTeams } from '@/lib/types/database';
 import { getMatchLineups } from '../../api';
 import {
   getPositionColor,
-  getPositionOrder,
   getPositionText,
 } from '../../lib/matchUtils';
 
@@ -89,10 +88,6 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
             <div className="space-y-1">
               {homeLineups
                 .filter((player) => player.participation_status === 'starting')
-                .sort(
-                  (a, b) =>
-                    getPositionOrder(a.position) - getPositionOrder(b.position)
-                )
                 .map((player, index) => (
                   <div
                     key={index}
@@ -258,10 +253,6 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
             <div className="space-y-1">
               {awayLineups
                 .filter((player) => player.participation_status === 'starting')
-                .sort(
-                  (a, b) =>
-                    getPositionOrder(a.position) - getPositionOrder(b.position)
-                )
                 .map((player, index) => (
                   <div
                     key={index}

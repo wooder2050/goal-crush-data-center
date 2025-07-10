@@ -131,12 +131,17 @@ export default function HomePage() {
             <CardDescription>최신 시즌 결과에 바로 접근합니다.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Link href="/seasons/season-1">
+            <Link href="/season-2">
+              <Button variant="outline" size="sm" className="w-full">
+                시즌 2 결과
+              </Button>
+            </Link>
+            <Link href="/season-1">
               <Button variant="outline" size="sm" className="w-full">
                 시즌 1 결과
               </Button>
             </Link>
-            <Link href="/seasons/pilot-season">
+            <Link href="/pilot-season">
               <Button variant="outline" size="sm" className="w-full">
                 파일럿 시즌
               </Button>
