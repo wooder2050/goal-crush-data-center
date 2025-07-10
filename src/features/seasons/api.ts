@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
-import { Season, SeasonInput, SeasonUpdate } from '@/lib/types/database';
+import { Season } from '@/lib/types/database';
 
 // 확장된 시즌 타입 정의
 export interface SeasonWithStats extends Season {
@@ -162,52 +162,4 @@ export const searchSeasonsByName = async (name: string): Promise<Season[]> => {
   }
 
   return data || [];
-};
-
-// Create season
-export const createSeason = async (
-  seasonData: SeasonInput
-): Promise<Season> => {
-  const { data, error } = await supabase
-    .from('seasons')
-    .insert(seasonData)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to create season: ${error.message}`);
-  }
-
-  return data;
-};
-
-// Update season information
-export const updateSeason = async (
-  seasonId: number,
-  seasonData: SeasonUpdate
-): Promise<Season> => {
-  const { data, error } = await supabase
-    .from('seasons')
-    .update(seasonData)
-    .eq('season_id', seasonId)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to update season: ${error.message}`);
-  }
-
-  return data;
-};
-
-// Delete season
-export const deleteSeason = async (seasonId: number): Promise<void> => {
-  const { error } = await supabase
-    .from('seasons')
-    .delete()
-    .eq('season_id', seasonId);
-
-  if (error) {
-    throw new Error(`Failed to delete season: ${error.message}`);
-  }
 };

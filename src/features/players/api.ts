@@ -1,10 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
-import {
-  Player,
-  PlayerInput,
-  PlayerUpdate,
-  PlayerWithTeam,
-} from '@/lib/types/database';
+import { Player, PlayerWithTeam } from '@/lib/types/database';
 
 // Get all players
 export const getPlayers = async (): Promise<Player[]> => {
@@ -98,52 +93,4 @@ export const getPlayersByPosition = async (
   }
 
   return data || [];
-};
-
-// Create player
-export const createPlayer = async (
-  playerData: PlayerInput
-): Promise<Player> => {
-  const { data, error } = await supabase
-    .from('players')
-    .insert(playerData)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to create player: ${error.message}`);
-  }
-
-  return data;
-};
-
-// Update player information
-export const updatePlayer = async (
-  playerId: number,
-  playerData: PlayerUpdate
-): Promise<Player> => {
-  const { data, error } = await supabase
-    .from('players')
-    .update(playerData)
-    .eq('player_id', playerId)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to update player: ${error.message}`);
-  }
-
-  return data;
-};
-
-// Delete player
-export const deletePlayer = async (playerId: number): Promise<void> => {
-  const { error } = await supabase
-    .from('players')
-    .delete()
-    .eq('player_id', playerId);
-
-  if (error) {
-    throw new Error(`Failed to delete player: ${error.message}`);
-  }
 };

@@ -1,11 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
-import {
-  Player,
-  PlayerTeamHistory,
-  Team,
-  TeamInput,
-  TeamUpdate,
-} from '@/lib/types/database';
+import { Player, PlayerTeamHistory, Team } from '@/lib/types/database';
 
 export type PlayerWithTeamHistory = Player & {
   player_team_history: PlayerTeamHistory[];
@@ -41,21 +35,6 @@ export const getTeamById = async (teamId: number): Promise<Team | null> => {
   }
 
   return data;
-};
-
-// Search teams by name
-export const searchTeamsByName = async (name: string): Promise<Team[]> => {
-  const { data, error } = await supabase
-    .from('teams')
-    .select('*')
-    .ilike('team_name', `%${name}%`)
-    .order('team_name');
-
-  if (error) {
-    throw new Error(`Failed to search teams: ${error.message}`);
-  }
-
-  return data || [];
 };
 
 // Get teams by season
@@ -102,47 +81,4 @@ export const getTeamPlayers = async (
     throw new Error(`Failed to fetch team players: ${error.message}`);
   }
   return data || [];
-};
-
-// Create team
-export const createTeam = async (teamData: TeamInput): Promise<Team> => {
-  const { data, error } = await supabase
-    .from('teams')
-    .insert(teamData)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to create team: ${error.message}`);
-  }
-
-  return data;
-};
-
-// Update team
-export const updateTeam = async (
-  teamId: number,
-  teamData: TeamUpdate
-): Promise<Team> => {
-  const { data, error } = await supabase
-    .from('teams')
-    .update(teamData)
-    .eq('team_id', teamId)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to update team: ${error.message}`);
-  }
-
-  return data;
-};
-
-// Delete team
-export const deleteTeam = async (teamId: number): Promise<void> => {
-  const { error } = await supabase.from('teams').delete().eq('team_id', teamId);
-
-  if (error) {
-    throw new Error(`Failed to delete team: ${error.message}`);
-  }
 };

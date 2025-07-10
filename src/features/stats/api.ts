@@ -1,17 +1,9 @@
 import { supabase } from '@/lib/supabase/client';
 import {
   PlayerMatchStats,
-  PlayerMatchStatsInput,
-  PlayerMatchStatsUpdate,
   PlayerSeasonStats,
-  PlayerSeasonStatsInput,
-  PlayerSeasonStatsUpdate,
   Standing,
-  StandingInput,
-  StandingUpdate,
   TeamSeasonStats,
-  TeamSeasonStatsInput,
-  TeamSeasonStatsUpdate,
 } from '@/lib/types/database';
 
 // ========== Player Match Statistics ==========
@@ -51,46 +43,6 @@ export const getPlayerMatchStatsByPlayer = async (
   }
 
   return data || [];
-};
-
-// Create player match statistics
-export const createPlayerMatchStats = async (
-  statsData: PlayerMatchStatsInput
-): Promise<PlayerMatchStats> => {
-  const { data, error } = await supabase
-    .from('player_match_stats')
-    .insert(statsData)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(
-      `Failed to create player match statistics: ${error.message}`
-    );
-  }
-
-  return data;
-};
-
-// Update player match statistics
-export const updatePlayerMatchStats = async (
-  statsId: number,
-  statsData: PlayerMatchStatsUpdate
-): Promise<PlayerMatchStats> => {
-  const { data, error } = await supabase
-    .from('player_match_stats')
-    .update(statsData)
-    .eq('id', statsId)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(
-      `Failed to update player match statistics: ${error.message}`
-    );
-  }
-
-  return data;
 };
 
 // ========== Player Season Statistics ==========
@@ -152,46 +104,6 @@ export const getTopScorers = async (
   return data || [];
 };
 
-// Create player season statistics
-export const createPlayerSeasonStats = async (
-  statsData: PlayerSeasonStatsInput
-): Promise<PlayerSeasonStats> => {
-  const { data, error } = await supabase
-    .from('player_season_stats')
-    .insert(statsData)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(
-      `Failed to create player season statistics: ${error.message}`
-    );
-  }
-
-  return data;
-};
-
-// Update player season statistics
-export const updatePlayerSeasonStats = async (
-  statsId: number,
-  statsData: PlayerSeasonStatsUpdate
-): Promise<PlayerSeasonStats> => {
-  const { data, error } = await supabase
-    .from('player_season_stats')
-    .update(statsData)
-    .eq('id', statsId)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(
-      `Failed to update player season statistics: ${error.message}`
-    );
-  }
-
-  return data;
-};
-
 // ========== Team Season Statistics ==========
 
 // Get team season statistics by season
@@ -228,46 +140,6 @@ export const getTeamSeasonStatsByTeam = async (
   return data || [];
 };
 
-// Create team season statistics
-export const createTeamSeasonStats = async (
-  statsData: TeamSeasonStatsInput
-): Promise<TeamSeasonStats> => {
-  const { data, error } = await supabase
-    .from('team_season_stats')
-    .insert(statsData)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(
-      `Failed to create team season statistics: ${error.message}`
-    );
-  }
-
-  return data;
-};
-
-// Update team season statistics
-export const updateTeamSeasonStats = async (
-  statsId: number,
-  statsData: TeamSeasonStatsUpdate
-): Promise<TeamSeasonStats> => {
-  const { data, error } = await supabase
-    .from('team_season_stats')
-    .update(statsData)
-    .eq('id', statsId)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(
-      `Failed to update team season statistics: ${error.message}`
-    );
-  }
-
-  return data;
-};
-
 // ========== Standings ==========
 
 // Get standings by season
@@ -283,52 +155,4 @@ export const getStandings = async (seasonId: number): Promise<Standing[]> => {
   }
 
   return data || [];
-};
-
-// Create standing
-export const createStanding = async (
-  standingData: StandingInput
-): Promise<Standing> => {
-  const { data, error } = await supabase
-    .from('standings')
-    .insert(standingData)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to create standing: ${error.message}`);
-  }
-
-  return data;
-};
-
-// Update standing
-export const updateStanding = async (
-  standingId: number,
-  standingData: StandingUpdate
-): Promise<Standing> => {
-  const { data, error } = await supabase
-    .from('standings')
-    .update(standingData)
-    .eq('id', standingId)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Failed to update standing: ${error.message}`);
-  }
-
-  return data;
-};
-
-// Delete standing
-export const deleteStanding = async (standingId: number): Promise<void> => {
-  const { error } = await supabase
-    .from('standings')
-    .delete()
-    .eq('id', standingId);
-
-  if (error) {
-    throw new Error(`Failed to delete standing: ${error.message}`);
-  }
 };
