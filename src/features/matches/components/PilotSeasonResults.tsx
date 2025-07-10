@@ -5,7 +5,7 @@ import React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
-import { getPilotSeasonMatches } from '../api';
+import { getMatchesBySeasonId } from '../api';
 import MatchCard from './MatchCard/MatchCard';
 import SeasonSummary from './SeasonSummary';
 
@@ -20,7 +20,7 @@ const PilotSeasonResults: React.FC<PilotSeasonResultsProps> = ({
     data: matches = [],
     isLoading,
     error,
-  } = useGoalQuery(getPilotSeasonMatches, []);
+  } = useGoalQuery(getMatchesBySeasonId, [3]); // 파일럿 시즌은 season_id = 3
 
   if (isLoading) {
     return (

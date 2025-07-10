@@ -154,8 +154,92 @@ export const getUpcomingMatches = async (): Promise<Match[]> => {
 
 // ============== Season-Specific Match Lists ==============
 
-// Get pilot season matches with teams and season info
+// Universal function to get matches by season ID with teams and season info
+export const getMatchesBySeasonId = async (
+  seasonId: number
+): Promise<MatchWithTeams[]> => {
+  try {
+    // Get all matches for the specified season
+    const { data: matches, error: matchesError } = await supabase
+      .from('matches')
+      .select('*')
+      .eq('season_id', seasonId)
+      .order('match_date', { ascending: true });
+
+    if (matchesError) {
+      console.error('Matches query error:', matchesError);
+      throw new Error(`Failed to fetch matches: ${matchesError.message}`);
+    }
+
+    if (!matches || matches.length === 0) {
+      console.log(`No matches found for season ${seasonId}`);
+      return [];
+    }
+
+    // Get all teams
+    const { data: teams, error: teamsError } = await supabase
+      .from('teams')
+      .select('*');
+
+    if (teamsError) {
+      console.error('Teams query error:', teamsError);
+      throw new Error(`Failed to fetch teams: ${teamsError.message}`);
+    }
+
+    // Get season info
+    const { data: season, error: seasonError } = await supabase
+      .from('seasons')
+      .select('*')
+      .eq('season_id', seasonId)
+      .single();
+
+    if (seasonError) {
+      console.error('Season query error:', seasonError);
+      throw new Error(`Failed to fetch season: ${seasonError.message}`);
+    }
+
+    // Manually join the data
+    const matchesWithTeams: MatchWithTeams[] = matches.map((match) => {
+      const homeTeam = teams?.find((t) => t.team_id === match.home_team_id);
+      const awayTeam = teams?.find((t) => t.team_id === match.away_team_id);
+
+      if (!homeTeam || !awayTeam) {
+        throw new Error(`Team not found for match ${match.match_id}`);
+      }
+
+      return {
+        ...match,
+        home_team: homeTeam,
+        away_team: awayTeam,
+        season: season,
+      };
+    });
+
+    console.log(`Processed season ${seasonId} matches:`, matchesWithTeams);
+    return matchesWithTeams;
+  } catch (error) {
+    console.error(`getMatchesBySeasonId error for season ${seasonId}:`, error);
+    throw error;
+  }
+};
+
+// Legacy functions - kept for backward compatibility, but now use the universal function
 export const getPilotSeasonMatches = async (): Promise<MatchWithTeams[]> => {
+  return getMatchesBySeasonId(3);
+};
+
+export const getSeason1Matches = async (): Promise<MatchWithTeams[]> => {
+  return getMatchesBySeasonId(4);
+};
+
+export const getSeason2Matches = async (): Promise<MatchWithTeams[]> => {
+  return getMatchesBySeasonId(5);
+};
+
+// Original getPilotSeasonMatches implementation (now replaced)
+export const getPilotSeasonMatchesOriginal = async (): Promise<
+  MatchWithTeams[]
+> => {
   try {
     // Get all matches for pilot season (season_id = 3)
     const { data: matches, error: matchesError } = await supabase
@@ -250,73 +334,6 @@ export const getMatchesBySeasonName = async (
   }
 };
 
-// Get season 1 matches with teams and season info
-export const getSeason1Matches = async (): Promise<MatchWithTeams[]> => {
-  try {
-    // Get all matches for season 1 (season_id = 4)
-    const { data: matches, error: matchesError } = await supabase
-      .from('matches')
-      .select('*')
-      .eq('season_id', 4)
-      .order('match_date', { ascending: true });
-
-    if (matchesError) {
-      console.error('Matches query error:', matchesError);
-      throw new Error(`Failed to fetch matches: ${matchesError.message}`);
-    }
-
-    if (!matches || matches.length === 0) {
-      console.log('No matches found for season 1');
-      return [];
-    }
-
-    // Get all teams
-    const { data: teams, error: teamsError } = await supabase
-      .from('teams')
-      .select('*');
-
-    if (teamsError) {
-      console.error('Teams query error:', teamsError);
-      throw new Error(`Failed to fetch teams: ${teamsError.message}`);
-    }
-
-    // Get season info
-    const { data: season, error: seasonError } = await supabase
-      .from('seasons')
-      .select('*')
-      .eq('season_id', 4)
-      .single();
-
-    if (seasonError) {
-      console.error('Season query error:', seasonError);
-      throw new Error(`Failed to fetch season: ${seasonError.message}`);
-    }
-
-    // Manually join the data
-    const matchesWithTeams: MatchWithTeams[] = matches.map((match) => {
-      const homeTeam = teams?.find((t) => t.team_id === match.home_team_id);
-      const awayTeam = teams?.find((t) => t.team_id === match.away_team_id);
-
-      if (!homeTeam || !awayTeam) {
-        throw new Error(`Team not found for match ${match.match_id}`);
-      }
-
-      return {
-        ...match,
-        home_team: homeTeam,
-        away_team: awayTeam,
-        season: season,
-      };
-    });
-
-    console.log('Processed season 1 matches:', matchesWithTeams);
-    return matchesWithTeams;
-  } catch (error) {
-    console.error('getSeason1Matches error:', error);
-    throw error;
-  }
-};
-
 // ============== Substitution Management ==============
 
 /**
@@ -398,26 +415,24 @@ export async function getMatchDetails(
  */
 export async function getMatchGoals(matchId: number): Promise<any[]> {
   try {
-    const { data: goals, error } = await supabase
+    const { data: goals, error: goalsError } = await supabase
       .from('goals')
       .select(
         `
         goal_id,
         match_id,
         player_id,
+        goal_time,
         goal_type,
-        description,
         player:players(
-          player_id,
-          name,
-          jersey_number
+          name
         )
       `
       )
       .eq('match_id', matchId);
 
-    if (error) {
-      throw new Error(`Failed to fetch match goals: ${error.message}`);
+    if (goalsError) {
+      throw new Error(`Failed to fetch match goals: ${goalsError.message}`);
     }
 
     // Get player match stats to determine which team each player was playing for
@@ -464,17 +479,23 @@ export async function getMatchGoals(matchId: number): Promise<any[]> {
  * Position 값을 정규화하는 함수
  */
 const normalizePosition = (position: string): string => {
-  switch (position?.toLowerCase()) {
+  if (!position) return 'Unknown';
+  const lowerPos = position.toLowerCase();
+  switch (lowerPos) {
     case 'goalkeeper':
+    case 'gk':
       return 'Goalkeeper';
     case 'defender':
+    case 'df':
       return 'Defender';
     case 'midfielder':
+    case 'mf':
       return 'Midfielder';
     case 'forward':
+    case 'fw':
       return 'Forward';
     default:
-      return position || 'Unknown';
+      return position;
   }
 };
 
@@ -630,6 +651,22 @@ export async function getMatchLineups(
       }
     });
 
+
+    const getPositionOrder = (position: string): number => {
+      switch (position) {
+        case 'Forward':
+          return 0;
+        case 'Midfielder':
+          return 1;
+        case 'Defender':
+          return 2;
+        case 'Goalkeeper':
+          return 3;
+        default:
+          return 4;
+      }
+    };
+
     // Sort lineups: starting players first, then substitutes, then bench
     Object.keys(lineupsByMatch).forEach((key) => {
       lineupsByMatch[key].sort((a, b) => {
@@ -643,7 +680,14 @@ export async function getMatchLineups(
           return aOrder - bOrder;
         }
 
-        // Within same status, sort by player name
+        // Within same status, sort by position
+        const positionOrderA = getPositionOrder(a.position);
+        const positionOrderB = getPositionOrder(b.position);
+        if (positionOrderA !== positionOrderB) {
+          return positionOrderA - positionOrderB;
+        }
+
+        // Within same position, sort by player name
         return (a.player_name || '').localeCompare(b.player_name || '', 'ko');
       });
     });

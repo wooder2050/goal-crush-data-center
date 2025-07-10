@@ -83,23 +83,25 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
           <div className="text-xs font-semibold text-gray-600 mb-1">
             {match.home_team?.team_name}
           </div>
-          {homeTeamGoals.map((goal, index) => (
-            <div
-              key={index}
-              className="flex items-center text-xs text-gray-700"
-            >
-              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
-              <span className="font-medium">{goal.player?.name}</span>
-              <span className="ml-1 text-gray-500">
-                {goal.goal_time}&apos;{' '}
-                {goal.goal_type === 'penalty'
-                  ? '🎯'
-                  : goal.goal_type === 'own_goal'
-                    ? '🔄'
-                    : '⚽'}
-              </span>
-            </div>
-          ))}
+          {homeTeamGoals
+            .sort((a, b) => (a.goal_time || 999) - (b.goal_time || 999))
+            .map((goal, index) => (
+              <div
+                key={index}
+                className="flex items-center text-xs text-gray-700"
+              >
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
+                <span className="font-medium">{goal.player?.name}</span>
+                <span className="ml-1 text-gray-500">
+                  {goal.goal_time && `${goal.goal_time}' `}
+                  {goal.goal_type === 'penalty'
+                    ? '🎯'
+                    : goal.goal_type === 'own_goal'
+                      ? '🔄'
+                      : '⚽'}
+                </span>
+              </div>
+            ))}
           {homeTeamGoals.length === 0 && (
             <div className="text-xs text-blue-600 italic">득점 없음</div>
           )}
@@ -110,23 +112,25 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
           <div className="text-xs font-semibold text-gray-600 mb-1">
             {match.away_team?.team_name}
           </div>
-          {awayTeamGoals.map((goal, index) => (
-            <div
-              key={index}
-              className="flex items-center text-xs text-gray-700"
-            >
-              <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></div>
-              <span className="font-medium">{goal.player?.name}</span>
-              <span className="ml-1 text-gray-500">
-                {goal.goal_time}&apos;{' '}
-                {goal.goal_type === 'penalty'
-                  ? '🎯'
-                  : goal.goal_type === 'own_goal'
-                    ? '🔄'
-                    : '⚽'}
-              </span>
-            </div>
-          ))}
+          {awayTeamGoals
+            .sort((a, b) => (a.goal_time || 999) - (b.goal_time || 999))
+            .map((goal, index) => (
+              <div
+                key={index}
+                className="flex items-center text-xs text-gray-700"
+              >
+                <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></div>
+                <span className="font-medium">{goal.player?.name}</span>
+                <span className="ml-1 text-gray-500">
+                  {goal.goal_time && `${goal.goal_time}' `}
+                  {goal.goal_type === 'penalty'
+                    ? '🎯'
+                    : goal.goal_type === 'own_goal'
+                      ? '🔄'
+                      : '⚽'}
+                </span>
+              </div>
+            ))}
           {awayTeamGoals.length === 0 && (
             <div className="text-xs text-red-600 italic">득점 없음</div>
           )}
