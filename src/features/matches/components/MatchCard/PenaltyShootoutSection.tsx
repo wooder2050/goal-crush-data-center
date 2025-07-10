@@ -47,6 +47,19 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
       record.team?.team_id === match.away_team_id
   );
 
+  // 각 팀의 골키퍼를 명시적으로 찾습니다.
+  // 홈 팀 골키퍼는 어웨이 팀의 슈팅 기록에서 찾을 수 있습니다.
+  const homeTeamGoalkeeper = penaltyRecords.find(
+    (r: PenaltyShootoutDetailWithPlayers) =>
+      r.team?.team_id === match.away_team_id
+  )?.goalkeeper;
+
+  // 어웨이 팀 골키퍼는 홈 팀의 슈팅 기록에서 찾을 수 있습니다.
+  const awayTeamGoalkeeper = penaltyRecords.find(
+    (r: PenaltyShootoutDetailWithPlayers) =>
+      r.team?.team_id === match.home_team_id
+  )?.goalkeeper;
+
   // 성공률 계산
   const getSuccessRate = (records: PenaltyShootoutDetailWithPlayers[]) => {
     const total = records.length;
@@ -182,7 +195,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                                 {record.kicker?.name}
                               </span>
                               <span className="text-xs text-gray-500">
-                                vs {record.goalkeeper?.name}
+                                vs {awayTeamGoalkeeper?.name}
                               </span>
                             </div>
                             <div className="flex items-center">
@@ -244,7 +257,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                                 {record.kicker?.name}
                               </span>
                               <span className="text-xs text-gray-500">
-                                vs {record.goalkeeper?.name}
+                                vs {homeTeamGoalkeeper?.name}
                               </span>
                             </div>
                             <div className="flex items-center">
