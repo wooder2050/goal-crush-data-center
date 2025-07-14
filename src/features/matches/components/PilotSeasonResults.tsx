@@ -3,6 +3,8 @@
 import React from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { getStandingsWithTeam } from '@/features/stats/api';
+import StandingsTable from '@/features/stats/components/StandingsTable';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
 import { getMatchesBySeasonId } from '../api';
@@ -21,6 +23,13 @@ const PilotSeasonResults: React.FC<PilotSeasonResultsProps> = ({
     isLoading,
     error,
   } = useGoalQuery(getMatchesBySeasonId, [3]); // 파일럿 시즌은 season_id = 3
+
+  // standings 데이터 fetch
+  const {
+    data: standings = [],
+    isLoading: standingsLoading,
+    error: standingsError,
+  } = useGoalQuery(getStandingsWithTeam, [3]);
 
   if (isLoading) {
     return (
@@ -108,6 +117,14 @@ const PilotSeasonResults: React.FC<PilotSeasonResultsProps> = ({
       </div>
 
       <SeasonSummary seasonId={3} seasonName="파일럿 시즌" className="mt-8" />
+      {/* standings 테이블 노출 */}
+      <div className="mt-8">
+        <StandingsTable
+          standings={standings}
+          standingsLoading={standingsLoading}
+          standingsError={!!standingsError}
+        />
+      </div>
     </div>
   );
 };
