@@ -28,26 +28,18 @@ interface StandingsTableProps {
 }
 
 function getRankEmoji(position: number) {
-  switch (position) {
-    case 1:
-      return '🥇 1';
-    case 2:
-      return '🥈 2';
-    case 3:
-      return '🥉 3';
-    default:
-      return position;
+  if (position === 1) {
+    return '🥇 1';
+  } else if (position === 2) {
+    return '🥈 2';
+  } else if (position === 3) {
+    return '🥉 3';
+  } else {
+    return position;
   }
 }
 
 const StandingsTable: FC<StandingsTableProps> = ({ standings, className }) => {
-  if (!standings || standings.length === 0) {
-    return (
-      <div className="text-center text-gray-500 py-8">
-        순위표 데이터가 없습니다.
-      </div>
-    );
-  }
   return (
     <div className={className}>
       <h3 className="text-lg font-bold mb-2">순위표</h3>
@@ -66,19 +58,27 @@ const StandingsTable: FC<StandingsTableProps> = ({ standings, className }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {standings.map((row) => (
-            <TableRow key={row.team.team_id}>
-              <TableCell>{getRankEmoji(row.position)}</TableCell>
-              <TableCell>{row.team.team_name}</TableCell>
-              <TableCell>{row.matches_played}</TableCell>
-              <TableCell>{row.wins}</TableCell>
-              <TableCell>{row.losses}</TableCell>
-              <TableCell>{row.goals_for}</TableCell>
-              <TableCell>{row.goals_against}</TableCell>
-              <TableCell>{row.goal_difference}</TableCell>
-              <TableCell>{row.points}</TableCell>
+          {standings.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={9} className="text-center text-gray-500 py-8">
+                순위표 데이터가 없습니다.
+              </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            standings.map((row) => (
+              <TableRow key={row.team.team_id}>
+                <TableCell>{getRankEmoji(row.position)}</TableCell>
+                <TableCell>{row.team.team_name}</TableCell>
+                <TableCell>{row.matches_played}</TableCell>
+                <TableCell>{row.wins}</TableCell>
+                <TableCell>{row.losses}</TableCell>
+                <TableCell>{row.goals_for}</TableCell>
+                <TableCell>{row.goals_against}</TableCell>
+                <TableCell>{row.goal_difference}</TableCell>
+                <TableCell>{row.points}</TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>
