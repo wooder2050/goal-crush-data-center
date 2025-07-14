@@ -25,6 +25,8 @@ interface StandingsTableProps {
     points: number;
   }>;
   className?: string;
+  standingsLoading?: boolean;
+  standingsError?: boolean;
 }
 
 function getRankEmoji(position: number) {
@@ -39,7 +41,32 @@ function getRankEmoji(position: number) {
   }
 }
 
-const StandingsTable: FC<StandingsTableProps> = ({ standings, className }) => {
+const StandingsTable: FC<StandingsTableProps> = ({
+  standings,
+  className,
+  standingsLoading,
+  standingsError,
+}) => {
+  if (standingsLoading) {
+    return (
+      <div className={className}>
+        <h3 className="text-lg font-bold mb-2">순위표</h3>
+        <div className="text-center text-gray-500 py-8">
+          순위표를 불러오는 중...
+        </div>
+      </div>
+    );
+  }
+  if (standingsError) {
+    return (
+      <div className={className}>
+        <h3 className="text-lg font-bold mb-2">순위표</h3>
+        <div className="text-center text-red-500 py-8">
+          순위표를 불러오지 못했습니다.
+        </div>
+      </div>
+    );
+  }
   return (
     <div className={className}>
       <h3 className="text-lg font-bold mb-2">순위표</h3>

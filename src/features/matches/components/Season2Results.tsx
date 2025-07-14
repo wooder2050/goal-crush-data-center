@@ -177,17 +177,11 @@ const Season2Results: React.FC<Season2ResultsProps> = ({ className }) => {
           <SeasonSummary seasonId={5} seasonName="시즌 2" className="mt-8" />
           {/* standings 테이블 노출 */}
           <div className="mt-8">
-            {standingsLoading ? (
-              <div className="text-center text-gray-500">
-                순위표를 불러오는 중...
-              </div>
-            ) : standingsError ? (
-              <div className="text-center text-red-500">
-                순위표를 불러오지 못했습니다.
-              </div>
-            ) : (
-              <StandingsTable standings={standings} />
-            )}
+            <StandingsTable
+              standings={standings}
+              standingsLoading={standingsLoading}
+              standingsError={!!standingsError}
+            />
           </div>
         </>
       )}
