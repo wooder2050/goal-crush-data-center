@@ -5,7 +5,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
-import { getMatchesBySeason } from '../api';
+import { getSeasonSummarie } from '../api';
 
 interface SeasonSummaryProps {
   seasonId: number;
@@ -24,12 +24,13 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
   seasonName,
   className,
 }) => {
-  // 시즌별 매치 데이터를 React Query로 직접 호출
+  // 시즌별 요약 데이터를 React Query로 호출
   const {
-    data: matches = [],
+    data: summaryArr = [],
     isLoading,
     error,
-  } = useGoalQuery(getMatchesBySeason, [seasonId]);
+  } = useGoalQuery(getSeasonSummarie, [seasonId]);
+  const summary = summaryArr[0];
 
   // 로딩 상태
   if (isLoading) {
@@ -66,42 +67,45 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
     );
   }
 
-  // 통계 계산
-  const totalMatches = matches.length;
-  const completedMatches = matches.filter(
-    (match) => match.home_score !== null && match.away_score !== null
-  ).length;
-  const completionRate =
-    totalMatches > 0 ? (completedMatches / totalMatches) * 100 : 0;
-
-  // 참여 팀 수 계산 (중복 제거)
-  const participatingTeams = new Set<number>();
-  matches.forEach((match) => {
-    if (typeof match.home_team_id === 'number')
-      participatingTeams.add(match.home_team_id);
-    if (typeof match.away_team_id === 'number')
-      participatingTeams.add(match.away_team_id);
-  });
-
-  // 승부차기 경기 수 계산
-  const penaltyMatches = matches.filter(
-    (match) =>
-      typeof match.penalty_home_score === 'number' &&
-      typeof match.penalty_away_score === 'number'
-  ).length;
+  if (!summary) {
+    return (
+      <Card className={className}>
+        <CardHeader>
+          <CardTitle>{seasonName} 시즌 요약</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4">
+            <div className="text-gray-500">시즌 요약 데이터가 없습니다.</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const summaryItems: SummaryItem[] = [
-    { label: '총 경기 수', value: totalMatches, color: 'text-blue-600' },
+    {
+      label: '총 경기 수',
+      value: summary.total_matches,
+      color: 'text-blue-600',
+    },
     {
       label: '참여 팀 수',
-      value: participatingTeams.size,
+      value: summary.participating_teams,
       color: 'text-green-600',
     },
-    { label: '완료된 경기', value: completedMatches, color: 'text-purple-600' },
-    { label: '승부차기 경기', value: penaltyMatches, color: 'text-orange-600' },
+    {
+      label: '완료된 경기',
+      value: summary.completed_matches,
+      color: 'text-purple-600',
+    },
+    {
+      label: '승부차기 경기',
+      value: summary.penalty_matches,
+      color: 'text-orange-600',
+    },
     {
       label: '진행률',
-      value: `${completionRate.toFixed(1)}%`,
+      value: `${Number(summary.completion_rate).toFixed(1)}%`,
       color: 'text-red-600',
     },
   ];
