@@ -5,7 +5,6 @@ import React from 'react';
 import { getMatchesBySeasonId } from '@/features/matches/api';
 import { MatchCard } from '@/features/matches/components/MatchCard';
 import SeasonSummary from '@/features/matches/components/SeasonSummary';
-import { getStandingsWithTeam } from '@/features/stats/api';
 import StandingsTable from '@/features/stats/components/StandingsTable';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { MatchWithTeams } from '@/lib/types';
@@ -23,13 +22,6 @@ const Season2Results: React.FC<Season2ResultsProps> = ({ className }) => {
     getMatchesBySeasonId,
     [5] // 시즌 2는 season_id = 5
   );
-
-  // standings 데이터 fetch
-  const {
-    data: standings = [],
-    isLoading: standingsLoading,
-    error: standingsError,
-  } = useGoalQuery(getStandingsWithTeam, [5]);
 
   const getMatchGroup = (match: MatchWithTeams) => {
     const description = match.description || '';
@@ -177,11 +169,7 @@ const Season2Results: React.FC<Season2ResultsProps> = ({ className }) => {
           <SeasonSummary seasonId={5} seasonName="시즌 2" className="mt-8" />
           {/* standings 테이블 노출 */}
           <div className="mt-8">
-            <StandingsTable
-              standings={standings}
-              standingsLoading={standingsLoading}
-              standingsError={!!standingsError}
-            />
+            <StandingsTable seasonId={5} />
           </div>
         </>
       )}

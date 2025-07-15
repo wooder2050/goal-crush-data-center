@@ -10,23 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { getStandingsWithTeam } from '@/features/stats/api';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
 
 interface StandingsTableProps {
-  standings: Array<{
-    position: number;
-    team: { team_id: number; team_name: string };
-    matches_played: number;
-    wins: number;
-    draws: number;
-    losses: number;
-    goals_for: number;
-    goals_against: number;
-    goal_difference: number;
-    points: number;
-  }>;
+  seasonId: number;
   className?: string;
-  standingsLoading?: boolean;
-  standingsError?: boolean;
 }
 
 function getRankEmoji(position: number) {
@@ -55,13 +44,14 @@ function isValidStandingRow(row: unknown): row is {
   return !!row && typeof row === 'object' && 'position' in row && 'team' in row;
 }
 
-const StandingsTable: FC<StandingsTableProps> = ({
-  standings,
-  className,
-  standingsLoading,
-  standingsError,
-}) => {
-  if (standingsLoading) {
+const StandingsTable: FC<StandingsTableProps> = ({ seasonId, className }) => {
+  const {
+    data: standings = [],
+    isLoading,
+    error,
+  } = useGoalQuery(() => getStandingsWithTeam(seasonId), []);
+
+  if (isLoading) {
     return (
       <div className={className}>
         <h3 className="text-lg font-bold mb-2">순위표</h3>
@@ -71,7 +61,7 @@ const StandingsTable: FC<StandingsTableProps> = ({
       </div>
     );
   }
-  if (standingsError) {
+  if (error) {
     return (
       <div className={className}>
         <h3 className="text-lg font-bold mb-2">순위표</h3>
