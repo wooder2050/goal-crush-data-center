@@ -159,64 +159,31 @@ export const getMatchesBySeasonId = async (
   seasonId: number
 ): Promise<MatchWithTeams[]> => {
   try {
-    // Get all matches for the specified season
-    const { data: matches, error: matchesError } = await supabase
+    // 관계형 조인 쿼리로 한 번에 모든 정보 조회
+    const { data, error } = await supabase
       .from('matches')
-      .select('*')
+      .select(
+        `
+        *,
+        home_team:teams!matches_home_team_id_fkey(*),
+        away_team:teams!matches_away_team_id_fkey(*),
+        season:seasons(*)
+      `
+      )
       .eq('season_id', seasonId)
       .order('match_date', { ascending: true });
 
-    if (matchesError) {
-      console.error('Matches query error:', matchesError);
-      throw new Error(`Failed to fetch matches: ${matchesError.message}`);
+    if (error) {
+      console.error('Matches query error:', error);
+      throw new Error(`Failed to fetch matches: ${error.message}`);
     }
 
-    if (!matches || matches.length === 0) {
+    if (!data || data.length === 0) {
       console.log(`No matches found for season ${seasonId}`);
       return [];
     }
 
-    // Get all teams
-    const { data: teams, error: teamsError } = await supabase
-      .from('teams')
-      .select('*');
-
-    if (teamsError) {
-      console.error('Teams query error:', teamsError);
-      throw new Error(`Failed to fetch teams: ${teamsError.message}`);
-    }
-
-    // Get season info
-    const { data: season, error: seasonError } = await supabase
-      .from('seasons')
-      .select('*')
-      .eq('season_id', seasonId)
-      .single();
-
-    if (seasonError) {
-      console.error('Season query error:', seasonError);
-      throw new Error(`Failed to fetch season: ${seasonError.message}`);
-    }
-
-    // Manually join the data
-    const matchesWithTeams: MatchWithTeams[] = matches.map((match) => {
-      const homeTeam = teams?.find((t) => t.team_id === match.home_team_id);
-      const awayTeam = teams?.find((t) => t.team_id === match.away_team_id);
-
-      if (!homeTeam || !awayTeam) {
-        throw new Error(`Team not found for match ${match.match_id}`);
-      }
-
-      return {
-        ...match,
-        home_team: homeTeam,
-        away_team: awayTeam,
-        season: season,
-      };
-    });
-
-    console.log(`Processed season ${seasonId} matches:`, matchesWithTeams);
-    return matchesWithTeams;
+    return data as MatchWithTeams[];
   } catch (error) {
     console.error(`getMatchesBySeasonId error for season ${seasonId}:`, error);
     throw error;
@@ -650,7 +617,6 @@ export async function getMatchLineups(
         lineupsByMatch[teamKey].push(playerData);
       }
     });
-
 
     const getPositionOrder = (position: string): number => {
       switch (position) {
