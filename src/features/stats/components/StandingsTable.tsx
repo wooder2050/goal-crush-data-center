@@ -95,7 +95,7 @@ const StandingsTable: FC<StandingsTableProps> = ({
             standings.map((row) => (
               <TableRow key={row.team.team_id}>
                 <TableCell>{getRankEmoji(row.position)}</TableCell>
-                <TableCell>{row.team.team_name}</TableCell>
+                <TableCell>{row.team?.team_name ?? '-'}</TableCell>
                 <TableCell>{row.matches_played}</TableCell>
                 <TableCell>{row.wins}</TableCell>
                 <TableCell>{row.losses}</TableCell>
