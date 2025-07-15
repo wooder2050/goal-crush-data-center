@@ -70,23 +70,6 @@ export const getMatchWithTeams = async (
   return data as MatchWithTeams;
 };
 
-// Get matches by season
-export const getMatchesBySeason = async (
-  seasonId: number
-): Promise<Match[]> => {
-  const { data, error } = await supabase
-    .from('matches')
-    .select('*')
-    .eq('season_id', seasonId)
-    .order('match_date', { ascending: false });
-
-  if (error) {
-    throw new Error(`Failed to fetch matches by season: ${error.message}`);
-  }
-
-  return data || [];
-};
-
 // Get matches by team (home or away)
 export const getMatchesByTeam = async (teamId: number): Promise<Match[]> => {
   const { data, error } = await supabase
@@ -701,3 +684,46 @@ export async function getMatchPenaltyDetails(matchId: number): Promise<any[]> {
     throw error;
   }
 }
+
+// 시즌별 통계 요약 테이블 조회
+export const getSeasonSummaries = async () => {
+  const { data, error } = await supabase
+    .from('season_summaries')
+    .select('*')
+    .order('season_id', { ascending: true });
+
+  if (error) {
+    throw new Error(`Failed to fetch season summaries: ${error.message}`);
+  }
+
+  return data || [];
+};
+
+// 시즌별 요약만 반환 (season_summaries 뷰 활용)
+export const getSeasonSummaryBySeasonId = async (seasonId: number) => {
+  const { data, error } = await supabase
+    .from('season_summaries')
+    .select('*')
+    .eq('season_id', seasonId)
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to fetch season summary: ${error.message}`);
+  }
+
+  return data;
+};
+
+// 특정 시즌 요약만 배열로 반환 (season_summaries 뷰 활용)
+export const getSeasonSummarie = async (seasonId: number) => {
+  const { data, error } = await supabase
+    .from('season_summaries')
+    .select('*')
+    .eq('season_id', seasonId);
+
+  if (error) {
+    throw new Error(`Failed to fetch season summary: ${error.message}`);
+  }
+
+  return data || [];
+};

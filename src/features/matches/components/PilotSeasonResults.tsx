@@ -22,7 +22,7 @@ const PilotSeasonResults: React.FC<PilotSeasonResultsProps> = ({
     data: matches = [],
     isLoading,
     error,
-  } = useGoalQuery(getMatchesBySeasonId, [3]); // 파일럿 시즌은 season_id = 3
+  } = useGoalQuery(getMatchesBySeasonId, [3]);
 
   // standings 데이터 fetch
   const {
