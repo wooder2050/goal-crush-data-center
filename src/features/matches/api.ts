@@ -382,7 +382,7 @@ export async function getMatchDetails(
  */
 export async function getMatchGoals(matchId: number): Promise<any[]> {
   try {
-    const { data: goals, error: goalsError } = await supabase
+    const { data, error } = await supabase
       .from('goals')
       .select(
         `
@@ -391,48 +391,22 @@ export async function getMatchGoals(matchId: number): Promise<any[]> {
         player_id,
         goal_time,
         goal_type,
-        player:players(
-          name
+        player:players(name),
+        player_match_stats!inner(
+          team:teams(team_id, team_name)
         )
       `
       )
       .eq('match_id', matchId);
 
-    if (goalsError) {
-      throw new Error(`Failed to fetch match goals: ${goalsError.message}`);
+    if (error) {
+      throw new Error(`Failed to fetch match goals: ${error.message}`);
     }
-
-    // Get player match stats to determine which team each player was playing for
-    const { data: playerStats, error: statsError } = await supabase
-      .from('player_match_stats')
-      .select(
-        `
-        match_id,
-        player_id,
-        team_id,
-        team:teams(
-          team_id,
-          team_name
-        )
-      `
-      )
-      .eq('match_id', matchId);
-
-    if (statsError) {
-      throw new Error(`Failed to fetch player stats: ${statsError.message}`);
-    }
-
-    // Create lookup for player-team mapping by match
-    const playerTeamLookup: Record<number, any> = {};
-    playerStats?.forEach((stat) => {
-      playerTeamLookup[stat.player_id] = stat.team;
-    });
-
-    // Add team info to goals
+    // player_match_stats는 배열로 반환될 수 있으므로 첫 번째 값만 사용
     const goalsWithTeam =
-      goals?.map((goal) => ({
+      data?.map((goal) => ({
         ...goal,
-        team: playerTeamLookup[goal.player_id] || null,
+        team: extractTeam(goal.player_match_stats),
       })) || [];
 
     return goalsWithTeam;
@@ -440,6 +414,20 @@ export async function getMatchGoals(matchId: number): Promise<any[]> {
     console.error('Error in getMatchGoals:', error);
     throw error;
   }
+}
+
+function extractTeam(
+  pms: unknown
+): { team_id: number; team_name: string } | null {
+  if (Array.isArray(pms)) {
+    return pms[0]?.team ?? null;
+  }
+  if (pms && typeof pms === 'object' && 'team' in pms) {
+    return (
+      (pms as { team: { team_id: number; team_name: string } }).team ?? null
+    );
+  }
+  return null;
 }
 
 /**
