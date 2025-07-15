@@ -77,14 +77,17 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
   // 참여 팀 수 계산 (중복 제거)
   const participatingTeams = new Set<number>();
   matches.forEach((match) => {
-    participatingTeams.add(match.home_team_id);
-    participatingTeams.add(match.away_team_id);
+    if (typeof match.home_team_id === 'number')
+      participatingTeams.add(match.home_team_id);
+    if (typeof match.away_team_id === 'number')
+      participatingTeams.add(match.away_team_id);
   });
 
   // 승부차기 경기 수 계산
   const penaltyMatches = matches.filter(
     (match) =>
-      match.penalty_home_score !== null && match.penalty_away_score !== null
+      typeof match.penalty_home_score === 'number' &&
+      typeof match.penalty_away_score === 'number'
   ).length;
 
   const summaryItems: SummaryItem[] = [
