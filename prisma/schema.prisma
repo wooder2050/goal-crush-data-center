@@ -1,0 +1,258 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  player_id          Int       @id @default(autoincrement())
+  name               String
+  position           String?
+  birth_date         String?
+  nationality        String?
+  height_cm          Int?
+  weight_kg          Int?
+  bio                String?
+  profile_image_url  String?
+  jersey_number      Int?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+  // Relations
+  player_team_history    PlayerTeamHistory[]
+  player_match_stats     PlayerMatchStats[]
+  player_season_stats    PlayerSeasonStats[]
+  goals                  Goal[]
+  substitutions_in       Substitution[] @relation("PlayerIn")
+  substitutions_out      Substitution[] @relation("PlayerOut")
+  penalty_kicks          PenaltyShootoutDetail[] @relation("Kicker")
+  penalty_goalkeeping    PenaltyShootoutDetail[] @relation("Goalkeeper")
+
+  @@map("players")
+}
+
+model Team {
+  team_id    Int    @id @default(autoincrement())
+  team_name  String
+
+  // Relations
+  team_seasons           TeamSeason[]
+  player_team_history    PlayerTeamHistory[]
+  home_matches           Match[] @relation("HomeTeam")
+  away_matches           Match[] @relation("AwayTeam")
+  player_match_stats     PlayerMatchStats[]
+  player_season_stats    PlayerSeasonStats[]
+  team_season_stats      TeamSeasonStats[]
+  standings              Standing[]
+  substitutions          Substitution[]
+  penalty_shootout_details PenaltyShootoutDetail[]
+
+  @@map("teams")
+}
+
+model Season {
+  season_id    Int    @id @default(autoincrement())
+  season_name  String
+  year         Int
+
+  // Relations
+  team_seasons        TeamSeason[]
+  matches             Match[]
+  player_season_stats PlayerSeasonStats[]
+  team_season_stats   TeamSeasonStats[]
+  standings           Standing[]
+
+  @@map("seasons")
+}
+
+model TeamSeason {
+  id        Int @id @default(autoincrement())
+  team_id   Int
+  season_id Int
+
+  // Relations
+  team   Team   @relation(fields: [team_id], references: [team_id])
+  season Season @relation(fields: [season_id], references: [season_id])
+
+  @@unique([team_id, season_id])
+  @@map("team_seasons")
+}
+
+model PlayerTeamHistory {
+  id         Int       @id @default(autoincrement())
+  player_id  Int
+  team_id    Int
+  start_date DateTime
+  end_date   DateTime?
+
+  // Relations
+  player Player @relation(fields: [player_id], references: [player_id])
+  team   Team   @relation(fields: [team_id], references: [team_id])
+
+  @@map("player_team_history")
+}
+
+model Match {
+  match_id             Int       @id @default(autoincrement())
+  match_date           DateTime
+  season_id            Int
+  home_team_id         Int
+  away_team_id         Int
+  home_score           Int?
+  away_score           Int?
+  penalty_home_score   Int?
+  penalty_away_score   Int?
+  location             String?
+  status               String?
+  description          String?
+  created_at           DateTime? @default(now())
+  updated_at           DateTime? @updatedAt
+
+  // Relations
+  season                   Season @relation(fields: [season_id], references: [season_id])
+  home_team                Team   @relation("HomeTeam", fields: [home_team_id], references: [team_id])
+  away_team                Team   @relation("AwayTeam", fields: [away_team_id], references: [team_id])
+  player_match_stats       PlayerMatchStats[]
+  goals                    Goal[]
+  substitutions            Substitution[]
+  penalty_shootout_details PenaltyShootoutDetail[]
+
+  @@map("matches")
+}
+
+model PlayerMatchStats {
+  id        Int     @id @default(autoincrement())
+  match_id  Int
+  player_id Int
+  team_id   Int
+  goals     Int
+  played    Boolean
+  position  String?
+
+  // Relations
+  match  Match  @relation(fields: [match_id], references: [match_id])
+  player Player @relation(fields: [player_id], references: [player_id])
+  team   Team   @relation(fields: [team_id], references: [team_id])
+
+  @@unique([match_id, player_id])
+  @@map("player_match_stats")
+}
+
+model PlayerSeasonStats {
+  id             Int  @id @default(autoincrement())
+  player_id      Int
+  season_id      Int
+  team_id        Int
+  total_matches  Int
+  total_goals    Int
+  total_assists  Int?
+  minutes_played Int?
+
+  // Relations
+  player Player @relation(fields: [player_id], references: [player_id])
+  season Season @relation(fields: [season_id], references: [season_id])
+  team   Team   @relation(fields: [team_id], references: [team_id])
+
+  @@unique([player_id, season_id])
+  @@map("player_season_stats")
+}
+
+model TeamSeasonStats {
+  id             Int @id @default(autoincrement())
+  team_id        Int
+  season_id      Int
+  matches_played Int
+  wins           Int
+  draws          Int
+  losses         Int
+  goals_scored   Int
+  goals_conceded Int
+  points         Int
+
+  // Relations
+  team   Team   @relation(fields: [team_id], references: [team_id])
+  season Season @relation(fields: [season_id], references: [season_id])
+
+  @@unique([team_id, season_id])
+  @@map("team_season_stats")
+}
+
+model Standing {
+  id              Int      @id @default(autoincrement())
+  season_id       Int
+  team_id         Int
+  rank            Int
+  points          Int
+  goal_difference Int
+  last_updated    DateTime @default(now())
+
+  // Relations
+  season Season @relation(fields: [season_id], references: [season_id])
+  team   Team   @relation(fields: [team_id], references: [team_id])
+
+  @@unique([season_id, team_id])
+  @@map("standings")
+}
+
+model Goal {
+  goal_id     Int      @id @default(autoincrement())
+  match_id    Int
+  player_id   Int
+  goal_time   Int?
+  goal_type   String
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  // Relations
+  match  Match  @relation(fields: [match_id], references: [match_id])
+  player Player @relation(fields: [player_id], references: [player_id])
+
+  @@map("goals")
+}
+
+model Substitution {
+  substitution_id     Int      @id @default(autoincrement())
+  match_id            Int
+  player_in_id        Int
+  player_out_id       Int
+  team_id             Int
+  substitution_time   Int?
+  substitution_reason String?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  // Relations
+  match      Match  @relation(fields: [match_id], references: [match_id])
+  player_in  Player @relation("PlayerIn", fields: [player_in_id], references: [player_id])
+  player_out Player @relation("PlayerOut", fields: [player_out_id], references: [player_id])
+  team       Team   @relation(fields: [team_id], references: [team_id])
+
+  @@map("substitutions")
+}
+
+model PenaltyShootoutDetail {
+  penalty_detail_id  Int      @id @default(autoincrement())
+  match_id           Int
+  team_id            Int
+  goalkeeper_id      Int?
+  kicker_order       Int
+  kicker_id          Int
+  is_successful      Boolean
+  kick_description   String?
+  created_at         DateTime @default(now())
+
+  // Relations
+  match      Match   @relation(fields: [match_id], references: [match_id])
+  team       Team    @relation(fields: [team_id], references: [team_id])
+  goalkeeper Player? @relation("Goalkeeper", fields: [goalkeeper_id], references: [player_id])
+  kicker     Player  @relation("Kicker", fields: [kicker_id], references: [player_id])
+
+  @@map("penalty_shootout_details")
+} 

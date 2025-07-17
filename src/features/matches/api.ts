@@ -25,6 +25,21 @@ export const getMatches = async (): Promise<Match[]> => {
   return data || [];
 };
 
+// Get all matches : Promise<Match[]>
+export const getMatchesPrisma = async () => {
+  try {
+    const matches = await prisma.match.findMany({ 
+      orderBy: {
+        match_date: 'desc',
+      },
+    });
+
+    return matches;
+  } catch (error) {
+    throw new Error(`Failed to fetch matches: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
 // Get match by ID
 export const getMatchById = async (matchId: number): Promise<Match | null> => {
   const { data, error } = await supabase
