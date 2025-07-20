@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
 
+// 타입 정의
+type MatchSummary = {
+  match_id: number;
+  status: string | null;
+  penalty_home_score: number | null;
+  penalty_away_score: number | null;
+};
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: { id: string } }
@@ -45,10 +53,10 @@ export async function GET(
     // Calculate summary statistics
     const totalMatches = season.matches.length;
     const completedMatches = season.matches.filter(
-      (match) => match.status === 'completed'
+      (match: MatchSummary) => match.status === 'completed'
     ).length;
     const penaltyMatches = season.matches.filter(
-      (match) =>
+      (match: MatchSummary) =>
         match.penalty_home_score !== null || match.penalty_away_score !== null
     ).length;
     const participatingTeams = season.team_seasons.length;

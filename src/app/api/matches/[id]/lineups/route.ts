@@ -26,6 +26,16 @@ type PlayerMatchStatWithRelations = {
   } | null;
 };
 
+type Substitution = {
+  substitution_id: number;
+  match_id: number;
+  player_in_id: number;
+  player_out_id: number | null;
+  team_id: number;
+  substitution_time: number | null;
+  substitution_reason: string | null;
+};
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: { id: string } }
@@ -72,7 +82,7 @@ export async function GET(
     })) as unknown as PlayerMatchStatWithRelations[];
 
     // Get substitutions for this match
-    const substitutions = await prisma.substitution.findMany({
+    const substitutions = (await prisma.substitution.findMany({
       where: { match_id: matchId },
       select: {
         substitution_id: true,
@@ -83,11 +93,11 @@ export async function GET(
         substitution_time: true,
         substitution_reason: true,
       },
-    });
+    })) as Substitution[];
 
     // Create substitution lookup
-    const substitutionsByMatch: Record<number, typeof substitutions> = {};
-    substitutions.forEach((sub) => {
+    const substitutionsByMatch: Record<number, Substitution[]> = {};
+    substitutions.forEach((sub: Substitution) => {
       if (!substitutionsByMatch[sub.match_id]) {
         substitutionsByMatch[sub.match_id] = [];
       }
@@ -138,7 +148,7 @@ export async function GET(
       // Check if this player was substituted
       const matchSubs = substitutionsByMatch[match.match_id] || [];
       const playerSubstitution = matchSubs.find(
-        (sub) =>
+        (sub: Substitution) =>
           sub.player_in_id === stat.player_id ||
           sub.player_out_id === stat.player_id
       );
@@ -199,7 +209,7 @@ export async function GET(
     };
 
     // Sort lineups: starting players first, then substitutes, then bench
-    Object.keys(lineupsByMatch).forEach((key) => {
+    Object.keys(lineupsByMatch).forEach((key: string) => {
       lineupsByMatch[key].sort((a, b) => {
         const statusOrder = { starting: 0, substitute: 1, bench: 2 };
         const aOrder =
