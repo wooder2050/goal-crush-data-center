@@ -6,7 +6,7 @@ import StandingsTable from '@/features/stats/components/StandingsTable';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { MatchWithTeams } from '@/lib/types';
 
-import { getMatchesBySeasonId } from '../api';
+import { getMatchesBySeasonIdPrisma } from '../api-prisma';
 import MatchCard from './MatchCard/MatchCard';
 import SeasonSummary from './SeasonSummary';
 
@@ -20,7 +20,7 @@ const Season1Results: React.FC<Season1ResultsProps> = ({ className }) => {
     data: matches = [],
     isLoading: matchesLoading,
     error: matchesError,
-  } = useGoalQuery(getMatchesBySeasonId, [4]); // 시즌 1은 season_id = 4
+  } = useGoalQuery(getMatchesBySeasonIdPrisma, [4]); // 시즌 1은 season_id = 4
 
   const getMatchGroup = (match: MatchWithTeams) => {
     const description = match.description || '';

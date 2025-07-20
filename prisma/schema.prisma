@@ -1,0 +1,307 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Player {
+  player_id           Int                     @id @default(autoincrement())
+  name                String                  @unique @db.VarChar(100)
+  birth_date          DateTime?               @db.Date
+  nationality         String?                 @db.VarChar(50)
+  height_cm           Int?
+  profile_image_url   String?
+  created_at          DateTime?               @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime?               @default(now()) @updatedAt @db.Timestamptz(6)
+  jersey_number       Int?
+  goals               Goal[]
+  penalty_goalkeeping PenaltyShootoutDetail[] @relation("Goalkeeper")
+  penalty_kicks       PenaltyShootoutDetail[] @relation("Kicker")
+  player_match_stats  PlayerMatchStats[]
+  player_positions    player_positions[]
+  player_season_stats PlayerSeasonStats[]
+  player_team_history PlayerTeamHistory[]
+  substitutions_in    Substitution[]          @relation("PlayerIn")
+  substitutions_out   Substitution[]          @relation("PlayerOut")
+
+  @@index([jersey_number], map: "idx_players_jersey_number")
+  @@index([name], map: "idx_players_name")
+  @@map("players")
+}
+
+model Team {
+  team_id                  Int                     @id @default(autoincrement())
+  team_name                String                  @unique @db.VarChar(100)
+  team_logo_url            String?
+  founded_year             Int?
+  description              String?
+  created_at               DateTime?               @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime?               @default(now()) @db.Timestamptz(6)
+  away_matches             Match[]                 @relation("AwayTeam")
+  home_matches             Match[]                 @relation("HomeTeam")
+  penalty_shootout_details PenaltyShootoutDetail[]
+  player_match_stats       PlayerMatchStats[]
+  player_season_stats      PlayerSeasonStats[]
+  player_team_history      PlayerTeamHistory[]
+  standings                Standing[]
+  substitutions            Substitution[]
+  team_season_stats        TeamSeasonStats[]
+  team_seasons             TeamSeason[]
+
+  @@index([team_name], map: "idx_teams_name")
+  @@map("teams")
+}
+
+model Season {
+  season_id           Int                 @id @default(autoincrement())
+  season_name         String              @unique @db.VarChar(100)
+  year                Int
+  start_date          DateTime?           @db.Date
+  end_date            DateTime?           @db.Date
+  created_at          DateTime?           @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime?           @default(now()) @db.Timestamptz(6)
+  matches             Match[]
+  player_positions    player_positions[]
+  player_season_stats PlayerSeasonStats[]
+  player_team_history PlayerTeamHistory[]
+  standings           Standing[]
+  team_season_stats   TeamSeasonStats[]
+  team_seasons        TeamSeason[]
+
+  @@index([year], map: "idx_seasons_year")
+  @@map("seasons")
+}
+
+model TeamSeason {
+  team_season_id Int       @id @default(autoincrement())
+  team_id        Int?
+  season_id      Int?
+  is_active      Boolean?  @default(true)
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  season         Season?   @relation(fields: [season_id], references: [season_id], onDelete: Cascade, onUpdate: NoAction)
+  team           Team?     @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([team_id, season_id])
+  @@map("team_seasons")
+}
+
+model PlayerTeamHistory {
+  history_id Int       @id @default(autoincrement())
+  player_id  Int?
+  team_id    Int?
+  season_id  Int?
+  start_date DateTime? @db.Date
+  end_date   DateTime? @db.Date
+  is_active  Boolean?  @default(true)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  player     Player?   @relation(fields: [player_id], references: [player_id], onDelete: Cascade, onUpdate: NoAction)
+  seasons    Season?   @relation(fields: [season_id], references: [season_id], onDelete: Cascade, onUpdate: NoAction)
+  team       Team?     @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([player_id, season_id], map: "unique_player_season")
+  @@index([season_id], map: "idx_player_team_history_season")
+  @@map("player_team_history")
+}
+
+model Match {
+  match_id                 Int                     @id @default(autoincrement())
+  season_id                Int?
+  home_team_id             Int?
+  away_team_id             Int?
+  match_date               DateTime                @db.Timestamptz(6)
+  location                 String?                 @db.VarChar(200)
+  home_score               Int?
+  away_score               Int?
+  status                   String?                 @default("scheduled") @db.VarChar(50)
+  description              String?
+  created_at               DateTime?               @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime?               @default(now()) @updatedAt @db.Timestamptz(6)
+  penalty_home_score       Int?
+  penalty_away_score       Int?
+  goals                    Goal[]
+  away_team                Team?                   @relation("AwayTeam", fields: [away_team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+  home_team                Team?                   @relation("HomeTeam", fields: [home_team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+  season                   Season?                 @relation(fields: [season_id], references: [season_id], onDelete: Cascade, onUpdate: NoAction)
+  penalty_shootout_details PenaltyShootoutDetail[]
+  player_match_stats       PlayerMatchStats[]
+  substitutions            Substitution[]
+
+  @@index([match_date], map: "idx_matches_date")
+  @@index([season_id], map: "idx_matches_season")
+  @@map("matches")
+}
+
+model PlayerMatchStats {
+  stat_id        Int       @id @default(autoincrement())
+  match_id       Int?
+  player_id      Int?
+  team_id        Int?
+  goals          Int?      @default(0)
+  assists        Int?      @default(0)
+  yellow_cards   Int?      @default(0)
+  red_cards      Int?      @default(0)
+  minutes_played Int?      @default(0)
+  saves          Int?      @default(0)
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  position       String?   @db.VarChar(50)
+  updated_at     DateTime? @default(now()) @db.Timestamptz(6)
+  Goal           Goal[]
+  match          Match?    @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction)
+  player         Player?   @relation(fields: [player_id], references: [player_id], onDelete: Cascade, onUpdate: NoAction)
+  team           Team?     @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([player_id, match_id], map: "uq_player_match_stats_player_match")
+  @@index([match_id], map: "idx_player_match_stats_match")
+  @@index([position], map: "idx_player_match_stats_position")
+  @@index([match_id], map: "idx_player_stats_match")
+  @@index([player_id], map: "idx_player_stats_player")
+  @@map("player_match_stats")
+}
+
+model PlayerSeasonStats {
+  stat_id        Int       @id @default(autoincrement())
+  player_id      Int?
+  season_id      Int?
+  team_id        Int?
+  matches_played Int?      @default(0)
+  goals          Int?      @default(0)
+  assists        Int?      @default(0)
+  yellow_cards   Int?      @default(0)
+  red_cards      Int?      @default(0)
+  minutes_played Int?      @default(0)
+  saves          Int?      @default(0)
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime? @default(now()) @db.Timestamptz(6)
+  player         Player?   @relation(fields: [player_id], references: [player_id], onDelete: Cascade, onUpdate: NoAction)
+  season         Season?   @relation(fields: [season_id], references: [season_id], onDelete: Cascade, onUpdate: NoAction)
+  team           Team?     @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([player_id, season_id, team_id])
+  @@map("player_season_stats")
+}
+
+model TeamSeasonStats {
+  stat_id        Int       @id @default(autoincrement())
+  team_id        Int?
+  season_id      Int?
+  matches_played Int?      @default(0)
+  wins           Int?      @default(0)
+  draws          Int?      @default(0)
+  losses         Int?      @default(0)
+  goals_for      Int?      @default(0)
+  goals_against  Int?      @default(0)
+  points         Int?      @default(0)
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime? @default(now()) @db.Timestamptz(6)
+  season         Season?   @relation(fields: [season_id], references: [season_id], onDelete: Cascade, onUpdate: NoAction)
+  team           Team?     @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([team_id, season_id])
+  @@map("team_season_stats")
+}
+
+model Standing {
+  standing_id     Int       @id @default(autoincrement())
+  season_id       Int?
+  team_id         Int?
+  position        Int
+  matches_played  Int?      @default(0)
+  wins            Int?      @default(0)
+  draws           Int?      @default(0)
+  losses          Int?      @default(0)
+  goals_for       Int?      @default(0)
+  goals_against   Int?      @default(0)
+  goal_difference Int?      @default(0)
+  points          Int?      @default(0)
+  form            String?   @db.VarChar(10)
+  created_at      DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime? @default(now()) @db.Timestamptz(6)
+  season          Season?   @relation(fields: [season_id], references: [season_id], onDelete: Cascade, onUpdate: NoAction)
+  team            Team?     @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([season_id, team_id])
+  @@index([position], map: "idx_standings_position")
+  @@index([season_id], map: "idx_standings_season")
+  @@map("standings")
+}
+
+model Goal {
+  goal_id            Int              @id @default(autoincrement())
+  match_id           Int
+  player_id          Int
+  goal_time          Int?
+  goal_type          String?          @default("regular") @db.VarChar(50)
+  description        String?
+  created_at         DateTime?        @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime?        @default(now()) @updatedAt @db.Timestamptz(6)
+  player_match_stats PlayerMatchStats @relation(fields: [player_id, match_id], references: [player_id, match_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_goals_player_match_stats")
+  match              Match            @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction)
+  player             Player           @relation(fields: [player_id], references: [player_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([match_id], map: "idx_goals_match_id")
+  @@index([match_id, player_id], map: "idx_goals_match_player")
+  @@index([player_id], map: "idx_goals_player_id")
+  @@map("goals")
+}
+
+model Substitution {
+  substitution_id     Int       @id @default(autoincrement())
+  match_id            Int
+  player_in_id        Int
+  team_id             Int
+  created_at          DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
+  player_out_id       Int?
+  substitution_time   Int?
+  substitution_reason String?
+  match               Match     @relation(fields: [match_id], references: [match_id], onDelete: NoAction, onUpdate: NoAction)
+  player_in           Player    @relation("PlayerIn", fields: [player_in_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
+  player_out          Player?   @relation("PlayerOut", fields: [player_out_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
+  team                Team      @relation(fields: [team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([match_id], map: "idx_substitutions_match_id")
+  @@index([player_in_id], map: "idx_substitutions_player_in_id")
+  @@index([team_id], map: "idx_substitutions_team_id")
+  @@map("substitutions")
+}
+
+model PenaltyShootoutDetail {
+  penalty_detail_id Int       @id @default(autoincrement())
+  match_id          Int
+  team_id           Int
+  goalkeeper_id     Int?
+  kicker_order      Int
+  kicker_id         Int
+  is_successful     Boolean
+  kick_description  String?
+  created_at        DateTime? @default(now()) @db.Timestamptz(6)
+  goalkeeper        Player?   @relation("Goalkeeper", fields: [goalkeeper_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
+  kicker            Player    @relation("Kicker", fields: [kicker_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
+  match             Match     @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction)
+  team              Team      @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([match_id, team_id, kicker_order])
+  @@index([kicker_id], map: "idx_penalty_details_kicker")
+  @@index([match_id], map: "idx_penalty_details_match")
+  @@index([team_id], map: "idx_penalty_details_team")
+  @@map("penalty_shootout_details")
+}
+
+model player_positions {
+  player_position_id Int       @id @default(autoincrement())
+  player_id          Int
+  position           String    @db.VarChar(50)
+  season_id          Int?
+  start_date         DateTime  @db.Date
+  end_date           DateTime? @db.Date
+  created_at         DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime? @default(now()) @db.Timestamptz(6)
+  players            Player    @relation(fields: [player_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
+  seasons            Season?   @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([player_id, position, season_id, start_date], map: "unique_player_position_period")
+}
