@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import StandingsTable from '@/features/stats/components/StandingsTable';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
-import { getMatchesBySeasonId } from '../api';
+import { getMatchesBySeasonIdPrisma } from '../api-prisma';
 import MatchCard from './MatchCard/MatchCard';
 import SeasonSummary from './SeasonSummary';
 
@@ -21,7 +21,7 @@ const PilotSeasonResults: React.FC<PilotSeasonResultsProps> = ({
     data: matches = [],
     isLoading,
     error,
-  } = useGoalQuery(getMatchesBySeasonId, [3]);
+  } = useGoalQuery(getMatchesBySeasonIdPrisma, [3]);
 
   if (isLoading) {
     return (

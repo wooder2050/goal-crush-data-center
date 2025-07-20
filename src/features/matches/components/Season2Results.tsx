@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { getMatchesBySeasonId } from '@/features/matches/api';
+import { getMatchesBySeasonIdPrisma } from '@/features/matches/api-prisma';
 import { MatchCard } from '@/features/matches/components/MatchCard';
 import SeasonSummary from '@/features/matches/components/SeasonSummary';
 import StandingsTable from '@/features/stats/components/StandingsTable';
@@ -19,7 +19,7 @@ const Season2Results: React.FC<Season2ResultsProps> = ({ className }) => {
     isLoading,
     error,
   } = useGoalQuery(
-    getMatchesBySeasonId,
+    getMatchesBySeasonIdPrisma,
     [5] // 시즌 2는 season_id = 5
   );
 

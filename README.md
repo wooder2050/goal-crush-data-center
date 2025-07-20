@@ -10,23 +10,24 @@ SBS 예능 프로그램 '골때리는 그녀들'의 경기 데이터와 선수 �
 
 ## 🚀 주요 기능
 
--   **시즌별 기록 보기**: 각 시즌별 전체 경기 결과와 상세 정보를 조회할 수 있습니다.
--   **선수 관리**: 선수 정보 조회 및 관리 기능입니다. (개발 예정)
--   **팀 관리**: 팀 정보 및 팀 구성 관리 기능입니다. (개발 예정)
--   **통계 분석**: 선수 및 팀의 주요 스탯을 기반으로 한 통계 분석 기능입니다. (개발 예정)
+- **시즌별 기록 보기**: 각 시즌별 전체 경기 결과와 상세 정보를 조회할 수 있습니다.
+- **선수 관리**: 선수 정보 조회 및 관리 기능입니다. (개발 예정)
+- **팀 관리**: 팀 정보 및 팀 구성 관리 기능입니다. (개발 예정)
+- **통계 분석**: 선수 및 팀의 주요 스탯을 기반으로 한 통계 분석 기능입니다. (개발 예정)
 
 ## 🛠️ 기술 스택
 
--   **Frontend**: `Next.js`, `React`, `TypeScript`
--   **Styling**: `Tailwind CSS`, `shadcn-ui`
--   **Backend & DB**: `Supabase`
--   **Deployment**: `Vercel`
+- **Frontend**: `Next.js`, `React`, `TypeScript`
+- **Styling**: `Tailwind CSS`, `shadcn-ui`
+- **Backend & DB**: `Supabase`, `Prisma` (PostgreSQL)
+- **Deployment**: `Vercel`
 
 ## 🏁 시작하기
 
 프로젝트를 로컬 환경에서 실행하려면 다음 단계를 따르세요.
 
 ### **1. 프로젝트 복제 및 의존성 설치**
+
 ```bash
 # 저장소 복제 (본인의 계정으로 포크한 주소를 사용하세요)
 git clone https://github.com/your-username/goal-crush-data-center.git
@@ -42,21 +43,49 @@ npm install
 
 1.  **Supabase 프로젝트 생성**: [Supabase](https://supabase.com/)에 가입하고 새로운 프로젝트를 생성합니다.
 2.  **데이터베이스 스키마 설정**:
-    -   `supabase/migrations` 폴더에 있는 `.sql` 파일들은 이 프로젝트에 필요한 테이블과 관계를 정의합니다.
-    -   Supabase 대시보드의 'SQL Editor'로 이동하여, 마이그레이션 파일들의 내용을 순서대로 실행해 데이터베이스 스키마를 설정해주세요.
+    - `supabase/migrations` 폴더에 있는 `.sql` 파일들은 이 프로젝트에 필요한 테이블과 관계를 정의합니다.
+    - Supabase 대시보드의 'SQL Editor'로 이동하여, 마이그레이션 파일들의 내용을 순서대로 실행해 데이터베이스 스키마를 설정해주세요.
 3.  **환경 변수 설정**:
-    -   프로젝트 루트에 `.env.local` 파일을 생성합니다.
-    -   Supabase 대시보드의 **Settings > API** 메뉴에서 `Project URL`과 `anon` `public` 키를 복사하여 아래와 같이 파일에 추가합니다.
+    - 프로젝트 루트에 `.env.local` 파일을 생성합니다.
+    - Supabase 대시보드의 **Settings > API** 메뉴에서 `Project URL`과 `anon` `public` 키를 복사하여 아래와 같이 파일에 추가합니다.
 
     ```
     NEXT_PUBLIC_SUPABASE_URL=여기에_프로젝트_URL을_붙여넣으세요
     NEXT_PUBLIC_SUPABASE_ANON_KEY=여기에_ANON_KEY를_붙여넣으세요
     ```
 
-### **3. 개발 서버 실행**
+### **3. Prisma 설정 (새로운 API 사용 시)**
+
+새로운 Prisma 기반 API를 사용하려면 다음 단계를 수행하세요:
+
+```bash
+# Prisma 클라이언트 생성
+npm run db:generate
+
+# 데이터베이스 마이그레이션 (필요한 경우)
+npm run db:migrate
+```
+
+### **4. 개발 서버 실행**
 
 ```bash
 npm run dev
 ```
 
 이제 브라우저에서 `http://localhost:3000`으로 접속하여 프로젝트를 확인할 수 있습니다.
+
+## 🔄 API 사용법
+
+이 프로젝트는 두 가지 API 방식을 제공합니다:
+
+### 기존 Supabase API
+
+- 직접 Supabase 클라이언트를 사용
+- `src/features/matches/api.ts`에서 관리
+
+### 새로운 Prisma 기반 API (권장)
+
+- Next.js API Routes와 Prisma를 사용
+- 더 나은 타입 안전성과 성능 제공
+- `src/features/matches/api-prisma.ts`에서 관리
+- 자세한 사용법은 `docs/prisma-api-usage.md` 참조

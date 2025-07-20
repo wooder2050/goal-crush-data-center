@@ -5,7 +5,7 @@ import React from 'react';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { MatchWithTeams } from '@/lib/types/database';
 
-import { getMatchGoals } from '../../api';
+import { getMatchGoalsPrisma } from '../../api-prisma';
 
 interface GoalSectionProps {
   match: MatchWithTeams;
@@ -18,7 +18,7 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
     data: goals = [],
     isLoading,
     error,
-  } = useGoalQuery(getMatchGoals, [match.match_id]);
+  } = useGoalQuery(getMatchGoalsPrisma, [match.match_id]);
 
   // 득점이 없으면 렌더링하지 않음
   if (goals.length === 0 && !isLoading && !error) {

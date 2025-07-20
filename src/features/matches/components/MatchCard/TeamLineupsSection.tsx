@@ -6,11 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { MatchWithTeams } from '@/lib/types/database';
 
-import { getMatchLineups } from '../../api';
-import {
-  getPositionColor,
-  getPositionText,
-} from '../../lib/matchUtils';
+import { getMatchLineupsPrisma } from '../../api-prisma';
+import { getPositionColor, getPositionText } from '../../lib/matchUtils';
 
 interface TeamLineupsSectionProps {
   match: MatchWithTeams;
@@ -26,7 +23,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
     data: lineups = {},
     isLoading,
     error,
-  } = useGoalQuery(getMatchLineups, [match.match_id]);
+  } = useGoalQuery(getMatchLineupsPrisma, [match.match_id]);
 
   const homeTeamKey = `${match.match_id}_${match.home_team_id}`;
   const awayTeamKey = `${match.match_id}_${match.away_team_id}`;

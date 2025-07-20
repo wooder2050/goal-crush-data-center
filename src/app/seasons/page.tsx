@@ -12,7 +12,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { getAllSeasons, getSeasonRoute } from '@/features/seasons/api';
+import {
+  getAllSeasonsPrisma,
+  getSeasonRoute,
+} from '@/features/seasons/api-prisma';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
 export default function SeasonsPage() {
@@ -20,7 +23,7 @@ export default function SeasonsPage() {
     data: seasons = [],
     isLoading: loading,
     error,
-  } = useGoalQuery(getAllSeasons, []);
+  } = useGoalQuery(getAllSeasonsPrisma, []);
 
   const getStatusBadge = (status?: string) => {
     switch (status) {
