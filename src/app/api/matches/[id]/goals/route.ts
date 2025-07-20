@@ -2,6 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
 
+// 타입 정의
+type GoalWithPlayer = {
+  goal_id: number;
+  match_id: number;
+  player_id: number;
+  goal_time: number | null;
+  goal_type: string | null;
+  description: string | null;
+  created_at: Date | null;
+  updated_at: Date | null;
+  player: {
+    player_id: number;
+    name: string;
+    jersey_number: number | null;
+  };
+};
+
+type GoalWithTeam = GoalWithPlayer & {
+  team: {
+    team_id: number;
+    team_name: string;
+  } | null;
+};
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: { id: string } }
@@ -14,7 +38,7 @@ export async function GET(
     }
 
     // Get goals with player and team information
-    const goals = await prisma.goal.findMany({
+    const goals = (await prisma.goal.findMany({
       where: {
         match_id: matchId,
       },
@@ -30,11 +54,11 @@ export async function GET(
       orderBy: {
         goal_time: 'asc',
       },
-    });
+    })) as GoalWithPlayer[];
 
     // Get team information for each goal
     const goalsWithTeam = await Promise.all(
-      goals.map(async (goal) => {
+      goals.map(async (goal: GoalWithPlayer): Promise<GoalWithTeam> => {
         const playerStats = await prisma.playerMatchStats.findFirst({
           where: {
             match_id: matchId,
