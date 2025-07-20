@@ -5,7 +5,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
-import { getMatchDetails } from '../../api';
+import { getMatchByIdPrisma } from '../../api-prisma';
 import GoalSection from './GoalSection';
 import MatchFooter from './MatchFooter';
 import MatchHeader from './MatchHeader';
@@ -24,7 +24,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ matchId, className = '' }) => {
     data: match,
     isLoading: matchLoading,
     error: matchError,
-  } = useGoalQuery(getMatchDetails, [matchId]);
+  } = useGoalQuery(getMatchByIdPrisma, [matchId]);
 
   // 로딩 상태 체크
   const isLoading = matchLoading;

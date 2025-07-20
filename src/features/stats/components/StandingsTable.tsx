@@ -10,13 +10,36 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { getStandingsWithTeam } from '@/features/stats/api';
+import { getStandingsWithTeamPrisma } from '@/features/stats/api-prisma';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
 interface StandingsTableProps {
   seasonId: number;
   className?: string;
 }
+
+// API 응답 타입 정의
+type StandingRow = {
+  standing_id: number;
+  season_id: number | null;
+  team_id: number | null;
+  position: number;
+  matches_played: number | null;
+  wins: number | null;
+  draws: number | null;
+  losses: number | null;
+  goals_for: number | null;
+  goals_against: number | null;
+  goal_difference: number | null;
+  points: number | null;
+  form: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  team: {
+    team_id: number;
+    team_name: string;
+  } | null;
+};
 
 function getRankEmoji(position: number) {
   if (position === 1) {
@@ -30,26 +53,12 @@ function getRankEmoji(position: number) {
   }
 }
 
-function isValidStandingRow(row: unknown): row is {
-  position: number;
-  team?: { team_id?: number; team_name?: string };
-  matches_played?: number;
-  wins?: number;
-  losses?: number;
-  goals_for?: number;
-  goals_against?: number;
-  goal_difference?: number;
-  points?: number;
-} {
-  return !!row && typeof row === 'object' && 'position' in row && 'team' in row;
-}
-
 const StandingsTable: FC<StandingsTableProps> = ({ seasonId, className }) => {
   const {
     data: standings = [],
     isLoading,
     error,
-  } = useGoalQuery(() => getStandingsWithTeam(seasonId), []);
+  } = useGoalQuery(() => getStandingsWithTeamPrisma(seasonId), []);
 
   if (isLoading) {
     return (
@@ -96,30 +105,19 @@ const StandingsTable: FC<StandingsTableProps> = ({ seasonId, className }) => {
               </TableCell>
             </TableRow>
           ) : (
-            standings.map((row, idx) =>
-              isValidStandingRow(row) ? (
-                <TableRow key={row.team?.team_id ?? idx}>
-                  <TableCell>{getRankEmoji(row.position)}</TableCell>
-                  <TableCell>{row.team?.team_name ?? '-'}</TableCell>
-                  <TableCell>{row.matches_played ?? '-'}</TableCell>
-                  <TableCell>{row.wins ?? '-'}</TableCell>
-                  <TableCell>{row.losses ?? '-'}</TableCell>
-                  <TableCell>{row.goals_for ?? '-'}</TableCell>
-                  <TableCell>{row.goals_against ?? '-'}</TableCell>
-                  <TableCell>{row.goal_difference ?? '-'}</TableCell>
-                  <TableCell>{row.points ?? '-'}</TableCell>
-                </TableRow>
-              ) : (
-                <TableRow key={idx}>
-                  <TableCell
-                    colSpan={9}
-                    className="text-center text-gray-500 py-8"
-                  >
-                    잘못된 데이터가 포함되어 있습니다.
-                  </TableCell>
-                </TableRow>
-              )
-            )
+            standings.map((row: StandingRow, idx: number) => (
+              <TableRow key={row.team?.team_id ?? idx}>
+                <TableCell>{getRankEmoji(row.position)}</TableCell>
+                <TableCell>{row.team?.team_name ?? '-'}</TableCell>
+                <TableCell>{row.matches_played ?? '-'}</TableCell>
+                <TableCell>{row.wins ?? '-'}</TableCell>
+                <TableCell>{row.losses ?? '-'}</TableCell>
+                <TableCell>{row.goals_for ?? '-'}</TableCell>
+                <TableCell>{row.goals_against ?? '-'}</TableCell>
+                <TableCell>{row.goal_difference ?? '-'}</TableCell>
+                <TableCell>{row.points ?? '-'}</TableCell>
+              </TableRow>
+            ))
           )}
         </TableBody>
       </Table>

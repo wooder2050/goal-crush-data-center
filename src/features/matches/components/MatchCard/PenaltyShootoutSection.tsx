@@ -10,7 +10,7 @@ import {
   PenaltyShootoutDetailWithPlayers,
 } from '@/lib/types/database';
 
-import { getPenaltyShootoutDetails } from '../../api';
+import { getPenaltyShootoutDetailsPrisma } from '../../api-prisma';
 import { hasPenaltyShootout } from '../../lib/matchUtils';
 
 interface PenaltyShootoutSectionProps {
@@ -29,7 +29,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
     data: penaltyRecords = [],
     isLoading,
     error,
-  } = useGoalQuery(getPenaltyShootoutDetails, [match.match_id], {
+  } = useGoalQuery(getPenaltyShootoutDetailsPrisma, [match.match_id], {
     enabled: hasPenaltyShootout(match),
   });
 

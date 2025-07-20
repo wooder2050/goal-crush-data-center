@@ -5,7 +5,7 @@ import React from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-import { getSeasonSummaries } from '../api';
+import { getSeasonSummariesPrisma } from '../api-prisma';
 
 const columns = [
   { key: 'season_id', label: '시즌 ID' },
@@ -17,21 +17,10 @@ const columns = [
   { key: 'completion_rate', label: '진행률(%)' },
 ];
 
-type SeasonSummaryRow = {
-  season_id: number;
-  season_name: string;
-  total_matches: number;
-  completed_matches: number;
-  participating_teams: number;
-  penalty_matches: number;
-  completion_rate: number;
-  [key: string]: string | number;
-};
-
 const SeasonSummaryTable: React.FC = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['seasonSummaries'],
-    queryFn: getSeasonSummaries,
+    queryFn: getSeasonSummariesPrisma,
   });
 
   return (
@@ -63,7 +52,7 @@ const SeasonSummaryTable: React.FC = () => {
               </thead>
               <tbody>
                 {data && data.length > 0 ? (
-                  (data as SeasonSummaryRow[]).map((row) => (
+                  data.map((row) => (
                     <tr key={row.season_id}>
                       {columns.map((col) => (
                         <td
@@ -71,8 +60,8 @@ const SeasonSummaryTable: React.FC = () => {
                           className="border px-2 py-1 text-xs md:text-sm"
                         >
                           {col.key === 'completion_rate'
-                            ? `${Number(row[col.key]).toFixed(1)}%`
-                            : row[col.key]}
+                            ? `${Number(row[col.key as keyof typeof row]).toFixed(1)}%`
+                            : row[col.key as keyof typeof row]}
                         </td>
                       ))}
                     </tr>

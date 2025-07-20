@@ -5,7 +5,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
-import { getSeasonSummarie } from '../api';
+import { getSeasonSummaryBySeasonIdPrisma } from '../api-prisma';
 
 interface SeasonSummaryProps {
   seasonId: number;
@@ -29,7 +29,7 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
     data: summaryArr = [],
     isLoading,
     error,
-  } = useGoalQuery(getSeasonSummarie, [seasonId]);
+  } = useGoalQuery(getSeasonSummaryBySeasonIdPrisma, [seasonId]);
   const summary = summaryArr[0];
 
   // 로딩 상태
