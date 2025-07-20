@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 // GET /api/stats/player-season - 선수 시즌 통계 조회
 export async function GET(request: NextRequest) {
   try {
