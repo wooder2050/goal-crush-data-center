@@ -20,7 +20,7 @@ const Season1Results: React.FC<Season1ResultsProps> = ({ className }) => {
     data: matches = [],
     isLoading: matchesLoading,
     error: matchesError,
-  } = useGoalQuery(getMatchesBySeasonIdPrisma, [4]); // 시즌 1은 season_id = 4
+  } = useGoalQuery(getMatchesBySeasonIdPrisma, [2]); // 시즌 1은 season_id = 2
 
   const getMatchGroup = (match: MatchWithTeams) => {
     const description = match.description || '';
@@ -173,10 +173,10 @@ const Season1Results: React.FC<Season1ResultsProps> = ({ className }) => {
           </div>
 
           {/* Season Summary */}
-          <SeasonSummary seasonId={4} seasonName="시즌 1" className="mt-8" />
+          <SeasonSummary seasonId={2} seasonName="시즌 1" className="mt-8" />
           {/* standings 테이블 노출 */}
           <div className="mt-8">
-            <StandingsTable seasonId={4} />
+            <StandingsTable seasonId={2} />
           </div>
         </>
       )}
