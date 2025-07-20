@@ -1,5 +1,5 @@
 // API functions
-export * from './api';
+export * from './api-prisma';
 
 // Components
 export { default as PilotSeasonResults } from './components/PilotSeasonResults';
