@@ -21,7 +21,7 @@ const PilotSeasonResults: React.FC<PilotSeasonResultsProps> = ({
     data: matches = [],
     isLoading,
     error,
-  } = useGoalQuery(getMatchesBySeasonIdPrisma, [3]);
+  } = useGoalQuery(getMatchesBySeasonIdPrisma, [1]);
 
   if (isLoading) {
     return (
@@ -108,10 +108,10 @@ const PilotSeasonResults: React.FC<PilotSeasonResultsProps> = ({
         )}
       </div>
 
-      <SeasonSummary seasonId={3} seasonName="파일럿 시즌" className="mt-8" />
+      <SeasonSummary seasonId={1} seasonName="파일럿 시즌" className="mt-8" />
       {/* standings 테이블 노출 */}
       <div className="mt-8">
-        <StandingsTable seasonId={3} />
+        <StandingsTable seasonId={1} />
       </div>
     </div>
   );
