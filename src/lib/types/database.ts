@@ -24,6 +24,8 @@ export interface Season {
   season_id: number;
   season_name: string;
   year: number;
+  start_date: Date | null;
+  end_date: Date | null;
 }
 
 export interface TeamSeason {

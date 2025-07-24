@@ -1,5 +1,6 @@
 'use client';
 
+import { isAfter, isBefore, parseISO, startOfDay } from 'date-fns';
 import { ArrowLeft, Calendar, ChevronRight, Trophy, Users } from 'lucide-react';
 import Link from 'next/link';
 
@@ -25,17 +26,26 @@ export default function SeasonsPage() {
     error,
   } = useGoalQuery(getAllSeasonsPrisma, []);
 
-  const getStatusBadge = (status?: string) => {
-    switch (status) {
-      case 'completed':
-        return <Badge variant="default">완료</Badge>;
-      case 'ongoing':
-        return <Badge variant="destructive">진행중</Badge>;
-      case 'upcoming':
-        return <Badge variant="secondary">예정</Badge>;
-      default:
-        return <Badge variant="outline">미정</Badge>;
+  const getStatusBadge = (
+    startDate?: string | Date | null,
+    endDate?: string | Date | null
+  ) => {
+    if (!startDate && !endDate) return <Badge variant="outline">미정</Badge>;
+    const today = startOfDay(new Date());
+    const toDate = (d?: string | Date | null) => {
+      if (!d) return undefined;
+      if (typeof d === 'string') return startOfDay(parseISO(d));
+      return startOfDay(d);
+    };
+    const start = toDate(startDate);
+    const end = toDate(endDate);
+    if (end && isBefore(end, today)) {
+      return <Badge variant="default">완료</Badge>;
     }
+    if (start && isAfter(start, today)) {
+      return <Badge variant="secondary">예정</Badge>;
+    }
+    return <Badge variant="destructive">진행중</Badge>;
   };
 
   if (loading) {
@@ -109,7 +119,7 @@ export default function SeasonsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-4">
-                    {getStatusBadge(season.status)}
+                    {getStatusBadge(season.start_date, season.end_date)}
                     <div className="flex items-center gap-1 text-sm text-gray-600">
                       <Users className="h-4 w-4" />
                       {season.match_count || 0}경기
