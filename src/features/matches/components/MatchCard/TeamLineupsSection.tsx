@@ -9,6 +9,16 @@ import { MatchWithTeams } from '@/lib/types/database';
 import { getMatchLineupsPrisma } from '../../api-prisma';
 import { getPositionColor, getPositionText } from '../../lib/matchUtils';
 
+// 라인업 선수 타입 정의
+interface LineupPlayer {
+  player_name: string;
+  jersey_number: number | null;
+  position: string;
+  participation_status: string;
+  goals: number;
+  assists: number;
+}
+
 interface TeamLineupsSectionProps {
   match: MatchWithTeams;
   className?: string;
@@ -29,6 +39,18 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
   const awayTeamKey = `${match.match_id}_${match.away_team_id}`;
   const homeLineups = lineups[homeTeamKey] || [];
   const awayLineups = lineups[awayTeamKey] || [];
+
+  // 포지션별 정렬 함수
+  const sortByPosition = (players: LineupPlayer[]) => {
+    const positionOrder = { FW: 1, MF: 2, DF: 3, GK: 4 };
+    return players.sort((a, b) => {
+      const aOrder =
+        positionOrder[a.position as keyof typeof positionOrder] || 5;
+      const bOrder =
+        positionOrder[b.position as keyof typeof positionOrder] || 5;
+      return aOrder - bOrder;
+    });
+  };
 
   // 로딩 상태
   if (isLoading) {
@@ -83,9 +105,69 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
               ⭐ 선발
             </div>
             <div className="space-y-1">
-              {homeLineups
-                .filter((player) => player.participation_status === 'starting')
-                .map((player, index) => (
+              {sortByPosition(
+                homeLineups.filter(
+                  (player) => player.participation_status === 'starting'
+                )
+              ).map((player, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 min-w-0 flex-1">
+                    <Badge
+                      variant="outline"
+                      className={`${getPositionColor(
+                        player.position
+                      )} text-xs px-1 py-0 flex-shrink-0`}
+                    >
+                      {getPositionText(player.position)}
+                    </Badge>
+                    <div className="min-w-0 flex-1">
+                      {typeof player.jersey_number === 'number' && (
+                        <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-blue-600 rounded mr-1 flex-shrink-0">
+                          {player.jersey_number}
+                        </span>
+                      )}
+                      <span className="font-medium text-gray-900 break-words">
+                        {player.player_name}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-1 flex-shrink-0">
+                    {player.goals > 0 && (
+                      <Badge
+                        variant="secondary"
+                        className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-800"
+                      >
+                        ⚽ {player.goals}
+                      </Badge>
+                    )}
+                    {player.assists > 0 && (
+                      <Badge
+                        variant="secondary"
+                        className="text-xs px-1.5 py-0.5 bg-green-100 text-green-800"
+                      >
+                        🅰️ {player.assists}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 교체 선수 */}
+          {homeLineups.filter(
+            (player) => player.participation_status === 'substitute'
+          ).length > 0 && (
+            <div className="mb-3">
+              <div className="text-xs text-blue-700 mb-2 font-medium">
+                🔄 교체 출전
+              </div>
+              <div className="space-y-1">
+                {sortByPosition(
+                  homeLineups.filter(
+                    (player) => player.participation_status === 'substitute'
+                  )
+                ).map((player, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between"
@@ -95,17 +177,17 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                         variant="outline"
                         className={`${getPositionColor(
                           player.position
-                        )} text-xs px-1 py-0 flex-shrink-0`}
+                        )} text-xs px-1 py-0 opacity-80 flex-shrink-0`}
                       >
                         {getPositionText(player.position)}
                       </Badge>
                       <div className="min-w-0 flex-1">
                         {typeof player.jersey_number === 'number' && (
-                          <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-blue-600 rounded mr-1 flex-shrink-0">
+                          <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-blue-400 rounded mr-1 flex-shrink-0">
                             {player.jersey_number}
                           </span>
                         )}
-                        <span className="font-medium text-gray-900 break-words">
+                        <span className="font-medium text-gray-800 break-words">
                           {player.player_name}
                         </span>
                       </div>
@@ -130,67 +212,6 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                     </div>
                   </div>
                 ))}
-            </div>
-          </div>
-
-          {/* 교체 선수 */}
-          {homeLineups.filter(
-            (player) => player.participation_status === 'substitute'
-          ).length > 0 && (
-            <div className="mb-3">
-              <div className="text-xs text-blue-700 mb-2 font-medium">
-                🔄 교체 출전
-              </div>
-              <div className="space-y-1">
-                {homeLineups
-                  .filter(
-                    (player) => player.participation_status === 'substitute'
-                  )
-                  .map((player, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-2 min-w-0 flex-1">
-                        <Badge
-                          variant="outline"
-                          className={`${getPositionColor(
-                            player.position
-                          )} text-xs px-1 py-0 opacity-80 flex-shrink-0`}
-                        >
-                          {getPositionText(player.position)}
-                        </Badge>
-                        <div className="min-w-0 flex-1">
-                          {typeof player.jersey_number === 'number' && (
-                            <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-blue-400 rounded mr-1 flex-shrink-0">
-                              {player.jersey_number}
-                            </span>
-                          )}
-                          <span className="font-medium text-gray-800 break-words">
-                            {player.player_name}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-1 flex-shrink-0">
-                        {player.goals > 0 && (
-                          <Badge
-                            variant="secondary"
-                            className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-800"
-                          >
-                            ⚽ {player.goals}
-                          </Badge>
-                        )}
-                        {player.assists > 0 && (
-                          <Badge
-                            variant="secondary"
-                            className="text-xs px-1.5 py-0.5 bg-green-100 text-green-800"
-                          >
-                            🅰️ {player.assists}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))}
               </div>
             </div>
           )}
@@ -204,34 +225,36 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                 🪑 벤치
               </div>
               <div className="space-y-1">
-                {homeLineups
-                  .filter((player) => player.participation_status === 'bench')
-                  .map((player, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-2 min-w-0 flex-1">
-                        <Badge
-                          variant="outline"
-                          className={`${getPositionColor(
-                            player.position
-                          )} text-xs px-1 py-0 opacity-60 flex-shrink-0`}
-                        >
-                          {getPositionText(player.position)}
-                        </Badge>
-                        <span className="text-gray-600 text-xs break-words">
-                          {typeof player.jersey_number === 'number' && (
-                            <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-gray-600 bg-gray-300 rounded mr-1 flex-shrink-0">
-                              {player.jersey_number}
-                            </span>
-                          )}
-                          {player.player_name}
-                        </span>
-                      </div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full flex-shrink-0"></div>
+                {sortByPosition(
+                  homeLineups.filter(
+                    (player) => player.participation_status === 'bench'
+                  )
+                ).map((player, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center space-x-2 min-w-0 flex-1">
+                      <Badge
+                        variant="outline"
+                        className={`${getPositionColor(
+                          player.position
+                        )} text-xs px-1 py-0 opacity-60 flex-shrink-0`}
+                      >
+                        {getPositionText(player.position)}
+                      </Badge>
+                      <span className="text-gray-600 text-xs break-words">
+                        {typeof player.jersey_number === 'number' && (
+                          <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-gray-600 bg-gray-300 rounded mr-1 flex-shrink-0">
+                            {player.jersey_number}
+                          </span>
+                        )}
+                        {player.player_name}
+                      </span>
                     </div>
-                  ))}
+                    <div className="w-2 h-2 bg-gray-400 rounded-full flex-shrink-0"></div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -248,9 +271,69 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
           <div className="mb-3">
             <div className="text-xs text-red-700 mb-2 font-medium">⭐ 선발</div>
             <div className="space-y-1">
-              {awayLineups
-                .filter((player) => player.participation_status === 'starting')
-                .map((player, index) => (
+              {sortByPosition(
+                awayLineups.filter(
+                  (player) => player.participation_status === 'starting'
+                )
+              ).map((player, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 min-w-0 flex-1">
+                    <Badge
+                      variant="outline"
+                      className={`${getPositionColor(
+                        player.position
+                      )} text-xs px-1 py-0 flex-shrink-0`}
+                    >
+                      {getPositionText(player.position)}
+                    </Badge>
+                    <div className="min-w-0 flex-1">
+                      {typeof player.jersey_number === 'number' && (
+                        <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-red-600 rounded mr-1 flex-shrink-0">
+                          {player.jersey_number}
+                        </span>
+                      )}
+                      <span className="font-medium text-gray-900 break-words">
+                        {player.player_name}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-1 flex-shrink-0">
+                    {player.goals > 0 && (
+                      <Badge
+                        variant="secondary"
+                        className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                      >
+                        ⚽ {player.goals}
+                      </Badge>
+                    )}
+                    {player.assists > 0 && (
+                      <Badge
+                        variant="secondary"
+                        className="text-xs px-1.5 py-0.5 bg-green-100 text-green-800"
+                      >
+                        🅰️ {player.assists}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 교체 선수 */}
+          {awayLineups.filter(
+            (player) => player.participation_status === 'substitute'
+          ).length > 0 && (
+            <div className="mb-3">
+              <div className="text-xs text-red-700 mb-2 font-medium">
+                🔄 교체 출전
+              </div>
+              <div className="space-y-1">
+                {sortByPosition(
+                  awayLineups.filter(
+                    (player) => player.participation_status === 'substitute'
+                  )
+                ).map((player, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between"
@@ -260,17 +343,17 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                         variant="outline"
                         className={`${getPositionColor(
                           player.position
-                        )} text-xs px-1 py-0 flex-shrink-0`}
+                        )} text-xs px-1 py-0 opacity-80 flex-shrink-0`}
                       >
                         {getPositionText(player.position)}
                       </Badge>
                       <div className="min-w-0 flex-1">
                         {typeof player.jersey_number === 'number' && (
-                          <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-red-600 rounded mr-1 flex-shrink-0">
+                          <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-red-400 rounded mr-1 flex-shrink-0">
                             {player.jersey_number}
                           </span>
                         )}
-                        <span className="font-medium text-gray-900 break-words">
+                        <span className="font-medium text-gray-800 break-words">
                           {player.player_name}
                         </span>
                       </div>
@@ -295,67 +378,6 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                     </div>
                   </div>
                 ))}
-            </div>
-          </div>
-
-          {/* 교체 선수 */}
-          {awayLineups.filter(
-            (player) => player.participation_status === 'substitute'
-          ).length > 0 && (
-            <div className="mb-3">
-              <div className="text-xs text-red-700 mb-2 font-medium">
-                🔄 교체 출전
-              </div>
-              <div className="space-y-1">
-                {awayLineups
-                  .filter(
-                    (player) => player.participation_status === 'substitute'
-                  )
-                  .map((player, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-2 min-w-0 flex-1">
-                        <Badge
-                          variant="outline"
-                          className={`${getPositionColor(
-                            player.position
-                          )} text-xs px-1 py-0 opacity-80 flex-shrink-0`}
-                        >
-                          {getPositionText(player.position)}
-                        </Badge>
-                        <div className="min-w-0 flex-1">
-                          {typeof player.jersey_number === 'number' && (
-                            <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-red-400 rounded mr-1 flex-shrink-0">
-                              {player.jersey_number}
-                            </span>
-                          )}
-                          <span className="font-medium text-gray-800 break-words">
-                            {player.player_name}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-1 flex-shrink-0">
-                        {player.goals > 0 && (
-                          <Badge
-                            variant="secondary"
-                            className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
-                          >
-                            ⚽ {player.goals}
-                          </Badge>
-                        )}
-                        {player.assists > 0 && (
-                          <Badge
-                            variant="secondary"
-                            className="text-xs px-1.5 py-0.5 bg-green-100 text-green-800"
-                          >
-                            🅰️ {player.assists}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))}
               </div>
             </div>
           )}
@@ -369,34 +391,36 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                 🪑 벤치
               </div>
               <div className="space-y-1">
-                {awayLineups
-                  .filter((player) => player.participation_status === 'bench')
-                  .map((player, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center space-x-2 min-w-0 flex-1">
-                        <Badge
-                          variant="outline"
-                          className={`${getPositionColor(
-                            player.position
-                          )} text-xs px-1 py-0 opacity-60 flex-shrink-0`}
-                        >
-                          {getPositionText(player.position)}
-                        </Badge>
-                        <span className="text-gray-600 text-xs break-words">
-                          {typeof player.jersey_number === 'number' && (
-                            <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-gray-600 bg-gray-300 rounded mr-1 flex-shrink-0">
-                              {player.jersey_number}
-                            </span>
-                          )}
-                          {player.player_name}
-                        </span>
-                      </div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full flex-shrink-0"></div>
+                {sortByPosition(
+                  awayLineups.filter(
+                    (player) => player.participation_status === 'bench'
+                  )
+                ).map((player, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center space-x-2 min-w-0 flex-1">
+                      <Badge
+                        variant="outline"
+                        className={`${getPositionColor(
+                          player.position
+                        )} text-xs px-1 py-0 opacity-60 flex-shrink-0`}
+                      >
+                        {getPositionText(player.position)}
+                      </Badge>
+                      <span className="text-gray-600 text-xs break-words">
+                        {typeof player.jersey_number === 'number' && (
+                          <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-gray-600 bg-gray-300 rounded mr-1 flex-shrink-0">
+                            {player.jersey_number}
+                          </span>
+                        )}
+                        {player.player_name}
+                      </span>
                     </div>
-                  ))}
+                    <div className="w-2 h-2 bg-gray-400 rounded-full flex-shrink-0"></div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

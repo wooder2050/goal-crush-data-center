@@ -1,9 +1,9 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
 
 import { getSeasonSummariesPrisma } from '../api-prisma';
 
@@ -18,10 +18,7 @@ const columns = [
 ];
 
 const SeasonSummaryTable: React.FC = () => {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['seasonSummaries'],
-    queryFn: getSeasonSummariesPrisma,
-  });
+  const { data, isLoading, error } = useGoalQuery(getSeasonSummariesPrisma, []);
 
   return (
     <Card>

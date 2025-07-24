@@ -73,7 +73,9 @@ export const getSeasonRoute = (seasonName: string): string => {
   const routeMap: Record<string, string> = {
     '골때리는 그녀들 파일럿': '/seasons/pilot-season',
     '골때리는 그녀들 시즌 1': '/seasons/season-1',
-    '골때리는 그녀들 시즌 2': '/seasons/season-2',
+    '골때리는 그녀들 시즌 2 조별리그': '/seasons/season-2',
+    '골때리는 그녀들 시즌 2 슈퍼리그': '/seasons/season-2-super',
+    '골때리는 그녀들 시즌 2 챌린지리그': '/seasons/season-2-challenge',
     '골때리는 그녀들 시즌 3': '/seasons/season-3',
     '골때리는 그녀들 시즌 4': '/seasons/season-4',
     '골때리는 그녀들 제1회 SBS컵': '/seasons/sbs-cup-1',
@@ -82,7 +84,6 @@ export const getSeasonRoute = (seasonName: string): string => {
     '골때리는 그녀들 시즌 6': '/seasons/season-6',
     '골때리는 그녀들 시즌 7': '/seasons/season-7',
   };
-
   // 매핑되지 않은 시즌은 기본 경로 생성
   return routeMap[seasonName] || `/seasons/unknown`;
 };
