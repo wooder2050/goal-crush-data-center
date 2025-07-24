@@ -84,7 +84,6 @@ export const getSeasonRoute = (seasonName: string): string => {
     '골때리는 그녀들 시즌 6': '/seasons/season-6',
     '골때리는 그녀들 시즌 7': '/seasons/season-7',
   };
-
   // 매핑되지 않은 시즌은 기본 경로 생성
   return routeMap[seasonName] || `/seasons/unknown`;
 };
