@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
+import { Season3PlayoffResults } from '@/features/matches';
 
 export default function Season3PlayoffPage() {
   return (
@@ -17,17 +18,7 @@ export default function Season3PlayoffPage() {
             </Button>
           </Link>
         </div>
-        <div className="bg-white rounded shadow p-6">
-          <h1 className="text-2xl font-bold mb-4">
-            골때리는 그녀들 시즌 3 플레이오프
-          </h1>
-          <img
-            src="https://picsum.photos/seed/8/600/300"
-            alt="시즌 3 플레이오프"
-            className="rounded mb-4"
-          />
-          <div>아직 상세 데이터가 준비되지 않았습니다.</div>
-        </div>
+        <Season3PlayoffResults />
       </div>
     </main>
   );

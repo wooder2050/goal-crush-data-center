@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
+import { Season4SuperResults } from '@/features/matches';
 
 export default function Season4SuperPage() {
   return (
@@ -17,17 +18,7 @@ export default function Season4SuperPage() {
             </Button>
           </Link>
         </div>
-        <div className="bg-white rounded shadow p-6">
-          <h1 className="text-2xl font-bold mb-4">
-            골때리는 그녀들 시즌 4 슈퍼리그
-          </h1>
-          <img
-            src="https://picsum.photos/seed/10/600/300"
-            alt="시즌 4 슈퍼리그"
-            className="rounded mb-4"
-          />
-          <div>아직 상세 데이터가 준비되지 않았습니다.</div>
-        </div>
+        <Season4SuperResults />
       </div>
     </main>
   );

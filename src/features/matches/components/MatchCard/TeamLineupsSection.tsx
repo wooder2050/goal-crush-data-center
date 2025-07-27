@@ -17,6 +17,8 @@ interface LineupPlayer {
   participation_status: string;
   goals: number;
   assists: number;
+  yellow_cards: number;
+  red_cards: number;
 }
 
 interface TeamLineupsSectionProps {
@@ -129,6 +131,22 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                       <span className="font-medium text-gray-900 break-words">
                         {player.player_name}
                       </span>
+                      {player.yellow_cards > 0 && (
+                        <Badge
+                          variant="secondary"
+                          className="text-xs px-1.5 py-0.5 bg-yellow-100 text-yellow-800"
+                        >
+                          🟨 {player.yellow_cards}
+                        </Badge>
+                      )}
+                      {player.red_cards > 0 && (
+                        <Badge
+                          variant="secondary"
+                          className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                        >
+                          🟥 {player.red_cards}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-1 flex-shrink-0">
@@ -138,14 +156,6 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                         className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-800"
                       >
                         ⚽ {player.goals}
-                      </Badge>
-                    )}
-                    {player.assists > 0 && (
-                      <Badge
-                        variant="secondary"
-                        className="text-xs px-1.5 py-0.5 bg-green-100 text-green-800"
-                      >
-                        🅰️ {player.assists}
                       </Badge>
                     )}
                   </div>
@@ -190,6 +200,22 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                         <span className="font-medium text-gray-800 break-words">
                           {player.player_name}
                         </span>
+                        {player.yellow_cards > 0 && (
+                          <Badge
+                            variant="secondary"
+                            className="text-xs px-1.5 py-0.5 bg-yellow-100 text-yellow-800"
+                          >
+                            🟨 {player.yellow_cards}
+                          </Badge>
+                        )}
+                        {player.red_cards > 0 && (
+                          <Badge
+                            variant="secondary"
+                            className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                          >
+                            🟥 {player.red_cards}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center space-x-1 flex-shrink-0">
@@ -199,14 +225,6 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                           className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-800"
                         >
                           ⚽ {player.goals}
-                        </Badge>
-                      )}
-                      {player.assists > 0 && (
-                        <Badge
-                          variant="secondary"
-                          className="text-xs px-1.5 py-0.5 bg-green-100 text-green-800"
-                        >
-                          🅰️ {player.assists}
                         </Badge>
                       )}
                     </div>
@@ -295,6 +313,22 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                       <span className="font-medium text-gray-900 break-words">
                         {player.player_name}
                       </span>
+                      {player.yellow_cards > 0 && (
+                        <Badge
+                          variant="secondary"
+                          className="text-xs px-1.5 py-0.5 bg-yellow-100 text-yellow-800"
+                        >
+                          🟨 {player.yellow_cards}
+                        </Badge>
+                      )}
+                      {player.red_cards > 0 && (
+                        <Badge
+                          variant="secondary"
+                          className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                        >
+                          🟥 {player.red_cards}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-1 flex-shrink-0">
@@ -304,14 +338,6 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                         className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
                       >
                         ⚽ {player.goals}
-                      </Badge>
-                    )}
-                    {player.assists > 0 && (
-                      <Badge
-                        variant="secondary"
-                        className="text-xs px-1.5 py-0.5 bg-green-100 text-green-800"
-                      >
-                        🅰️ {player.assists}
                       </Badge>
                     )}
                   </div>
@@ -356,6 +382,22 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                         <span className="font-medium text-gray-800 break-words">
                           {player.player_name}
                         </span>
+                        {player.yellow_cards > 0 && (
+                          <Badge
+                            variant="secondary"
+                            className="text-xs px-1.5 py-0.5 bg-yellow-100 text-yellow-800"
+                          >
+                            🟨 {player.yellow_cards}
+                          </Badge>
+                        )}
+                        {player.red_cards > 0 && (
+                          <Badge
+                            variant="secondary"
+                            className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                          >
+                            🟥 {player.red_cards}
+                          </Badge>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center space-x-1 flex-shrink-0">
@@ -365,14 +407,6 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                           className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
                         >
                           ⚽ {player.goals}
-                        </Badge>
-                      )}
-                      {player.assists > 0 && (
-                        <Badge
-                          variant="secondary"
-                          className="text-xs px-1.5 py-0.5 bg-green-100 text-green-800"
-                        >
-                          🅰️ {player.assists}
                         </Badge>
                       )}
                     </div>

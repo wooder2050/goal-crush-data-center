@@ -75,6 +75,7 @@ export const getSeasonRoute = (seasonName: string): string => {
     '골때리는 그녀들 시즌 1': '/seasons/season-1',
     '골때리는 그녀들 시즌 2 조별리그': '/seasons/season-2',
     '골때리는 그녀들 시즌 2 슈퍼리그': '/seasons/season-2-super',
+    '골때리는 그녀들 시즌 2 플레이오프': '/seasons/season-2-playoff',
     '골때리는 그녀들 시즌 2 챌린지리그': '/seasons/season-2-challenge',
     '골때리는 그녀들 시즌 3 슈퍼리그': '/seasons/season-3-super',
     '골때리는 그녀들 시즌 3 챌린지리그': '/seasons/season-3-challenge',
