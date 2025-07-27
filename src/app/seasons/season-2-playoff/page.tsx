@@ -4,8 +4,9 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
+import { Season2PlayoffResults } from '@/features/matches';
 
-export default function SbsCup1Page() {
+export default function Season2PlayoffPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto max-w-6xl">
@@ -17,12 +18,7 @@ export default function SbsCup1Page() {
             </Button>
           </Link>
         </div>
-        <div className="bg-white rounded shadow p-6">
-          <h1 className="text-2xl font-bold mb-4">
-            골때리는 그녀들 제1회 SBS컵
-          </h1>
-          <div>아직 상세 데이터가 준비되지 않았습니다.</div>
-        </div>
+        <Season2PlayoffResults />
       </div>
     </main>
   );

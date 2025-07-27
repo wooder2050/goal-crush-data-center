@@ -10,18 +10,18 @@ import { getMatchesBySeasonIdPrisma } from '../api-prisma';
 import MatchCard from './MatchCard/MatchCard';
 import SeasonSummary from './SeasonSummary';
 
-interface Season3PlayoffResultsProps {
+interface Season4ChallengeResultsProps {
   className?: string;
 }
 
-const Season3PlayoffResults: React.FC<Season3PlayoffResultsProps> = ({
+const Season4ChallengeResults: React.FC<Season4ChallengeResultsProps> = ({
   className = '',
 }) => {
   const {
     data: matches = [],
     isLoading,
     error,
-  } = useGoalQuery(getMatchesBySeasonIdPrisma, [9]);
+  } = useGoalQuery(getMatchesBySeasonIdPrisma, [10]);
 
   if (isLoading) {
     return (
@@ -43,7 +43,7 @@ const Season3PlayoffResults: React.FC<Season3PlayoffResultsProps> = ({
       <div className={`p-6 ${className}`}>
         <Alert>
           <AlertDescription>
-            시즌 3 플레이오프 데이터를 불러올 수 없습니다:{' '}
+            시즌 4 챌린지리그 데이터를 불러올 수 없습니다:{' '}
             {error instanceof Error ? error.message : 'Unknown error'}
           </AlertDescription>
         </Alert>
@@ -55,9 +55,9 @@ const Season3PlayoffResults: React.FC<Season3PlayoffResultsProps> = ({
     <div className={`p-6 ${className}`}>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          골때리는 그녀들 시즌 3 플레이오프
+          골때리는 그녀들 시즌 4 챌린지리그
         </h1>
-        <p className="text-gray-600">2022년</p>
+        <p className="text-gray-600">2023년</p>
       </div>
 
       <div className="space-y-8">
@@ -79,10 +79,10 @@ const Season3PlayoffResults: React.FC<Season3PlayoffResultsProps> = ({
               </svg>
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              시즌 3 플레이오프 경기 데이터가 아직 없습니다
+              시즌 4 챌린지리그 경기 데이터가 아직 없습니다
             </h3>
             <p className="text-gray-500">
-              시즌 3 플레이오프 경기 데이터가 입력되면 여기에 표시됩니다.
+              시즌 4 챌린지리그 경기 데이터가 입력되면 여기에 표시됩니다.
             </p>
           </div>
         ) : (
@@ -109,16 +109,16 @@ const Season3PlayoffResults: React.FC<Season3PlayoffResultsProps> = ({
       </div>
 
       <SeasonSummary
-        seasonId={9}
-        seasonName="시즌 3 플레이오프"
+        seasonId={10}
+        seasonName="시즌 4 챌린지리그"
         className="mt-8"
       />
       {/* standings 테이블 노출 */}
       <div className="mt-8">
-        <StandingsTable seasonId={9} />
+        <StandingsTable seasonId={10} />
       </div>
     </div>
   );
 };
 
-export default Season3PlayoffResults;
+export default Season4ChallengeResults;

@@ -21,7 +21,7 @@ const Season3SuperResults: React.FC<Season3SuperResultsProps> = ({
     data: matches = [],
     isLoading,
     error,
-  } = useGoalQuery(getMatchesBySeasonIdPrisma, [6]);
+  } = useGoalQuery(getMatchesBySeasonIdPrisma, [8]);
 
   if (isLoading) {
     return (
@@ -109,13 +109,13 @@ const Season3SuperResults: React.FC<Season3SuperResultsProps> = ({
       </div>
 
       <SeasonSummary
-        seasonId={6}
+        seasonId={8}
         seasonName="시즌 3 슈퍼리그"
         className="mt-8"
       />
       {/* standings 테이블 노출 */}
       <div className="mt-8">
-        <StandingsTable seasonId={6} />
+        <StandingsTable seasonId={8} />
       </div>
     </div>
   );
