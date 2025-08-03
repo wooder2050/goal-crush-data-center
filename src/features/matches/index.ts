@@ -3,6 +3,7 @@ export * from './api-prisma';
 
 // Components
 export { default as PilotSeasonResults } from './components/PilotSeasonResults';
+export { default as SbsCup1Results } from './components/SbsCup1Results';
 export { default as Season1Results } from './components/Season1Results';
 export { default as Season2PlayoffResults } from './components/Season2PlayoffResults';
 export { default as Season2SuperLeagueResults } from './components/Season2SuperResults';
@@ -10,7 +11,9 @@ export { default as Season3ChallengeResults } from './components/Season3Challeng
 export { default as Season3PlayoffResults } from './components/Season3PlayoffResults';
 export { default as Season3SuperResults } from './components/Season3SuperResults';
 export { default as Season4ChallengeResults } from './components/Season4ChallengeResults';
+export { default as Season4PlayoffResults } from './components/Season4PlayoffResults';
 export { default as Season4SuperResults } from './components/Season4SuperResults';
+export { default as Season5SuperResults } from './components/Season5SuperResults';
 export { default as SeasonSummary } from './components/SeasonSummary';
 
 // MatchCard 관련 컴포넌트들
