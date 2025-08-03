@@ -191,12 +191,17 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                               >
                                 {record.kicker_order}
                               </Badge>
-                              <span className="text-sm font-medium text-gray-900">
-                                {record.kicker?.name}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                vs {awayTeamGoalkeeper?.name}
-                              </span>
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="text-sm font-medium text-gray-900 truncate">
+                                  {record.kicker?.name}
+                                </span>
+                                <span
+                                  className="text-xs text-gray-500 truncate cursor-help"
+                                  title={`상대 골키퍼: ${awayTeamGoalkeeper?.name}`}
+                                >
+                                  vs {awayTeamGoalkeeper?.name}
+                                </span>
+                              </div>
                             </div>
                             <div className="flex items-center">
                               {record.is_successful ? (
@@ -253,12 +258,17 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                               >
                                 {record.kicker_order}
                               </Badge>
-                              <span className="text-sm font-medium text-gray-900">
-                                {record.kicker?.name}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                vs {homeTeamGoalkeeper?.name}
-                              </span>
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="text-sm font-medium text-gray-900 truncate">
+                                  {record.kicker?.name}
+                                </span>
+                                <span
+                                  className="text-xs text-gray-500 truncate cursor-help"
+                                  title={`상대 골키퍼: ${homeTeamGoalkeeper?.name}`}
+                                >
+                                  vs {homeTeamGoalkeeper?.name}
+                                </span>
+                              </div>
                             </div>
                             <div className="flex items-center">
                               {record.is_successful ? (

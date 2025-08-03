@@ -4,9 +4,9 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
-import { Season4PlayoffResults } from '@/features/matches';
+import { Season5SuperResults } from '@/features/matches';
 
-export default function Season4PlayoffPage() {
+export default function Season5SuperPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto max-w-6xl">
@@ -18,7 +18,7 @@ export default function Season4PlayoffPage() {
             </Button>
           </Link>
         </div>
-        <Season4PlayoffResults />
+        <Season5SuperResults />
       </div>
     </main>
   );
