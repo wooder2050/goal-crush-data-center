@@ -29,7 +29,7 @@ const SeasonSummaryTable: React.FC = () => {
         {isLoading ? (
           <div className="text-center text-gray-500 py-8">불러오는 중...</div>
         ) : error ? (
-          <div className="text-center text-red-500 py-8">
+          <div className="text-center text-[#ff4800] py-8">
             데이터를 불러올 수 없습니다.
           </div>
         ) : (

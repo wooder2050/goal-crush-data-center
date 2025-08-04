@@ -41,7 +41,7 @@ const PilotSeasonResults: React.FC<PilotSeasonResultsProps> = ({
   if (error) {
     return (
       <div className={`p-6 ${className}`}>
-        <Alert>
+        <Alert variant="destructive">
           <AlertDescription>
             파일럿 시즌 데이터를 불러올 수 없습니다:{' '}
             {error instanceof Error ? error.message : 'Unknown error'}

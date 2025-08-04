@@ -14,6 +14,8 @@ const badgeVariants = cva(
         outline: 'border border-gray-300 text-gray-700',
         discount: 'bg-gray-800 text-white',
         category: 'bg-gray-100 text-gray-600 rounded-full px-3 py-1',
+        emphasis: 'bg-[#ff4800] text-white',
+        emphasisOutline: 'bg-white text-[#ff4800] border border-[#ff4800]',
       },
     },
     defaultVariants: {

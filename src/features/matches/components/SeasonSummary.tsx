@@ -57,8 +57,7 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
         </CardHeader>
         <CardContent>
           <div className="text-center py-4">
-            <div className="text-red-500">
-              시즌 정보를 불러올 수 없습니다:{' '}
+            <div className="text-[#ff4800]">
               {error instanceof Error ? error.message : 'Unknown error'}
             </div>
           </div>
@@ -106,7 +105,7 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
     {
       label: '진행률',
       value: `${Number(summary.completion_rate).toFixed(1)}%`,
-      color: 'text-red-600',
+      color: 'text-[#ff4800]',
     },
   ];
 

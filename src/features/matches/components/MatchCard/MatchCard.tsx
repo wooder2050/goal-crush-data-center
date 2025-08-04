@@ -50,7 +50,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ matchId, className = '' }) => {
     return (
       <Card className={className}>
         <CardContent className="p-6">
-          <div className="text-gray-600">
+          <div className="text-[#ff4800]">
             {error instanceof Error
               ? error.message
               : '매치 정보를 불러올 수 없습니다.'}
