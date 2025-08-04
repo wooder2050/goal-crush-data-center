@@ -4,15 +4,19 @@ import { isAfter, isBefore, parseISO, startOfDay } from 'date-fns';
 import { ArrowLeft, Calendar, ChevronRight, Trophy, Users } from 'lucide-react';
 import Link from 'next/link';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
+  Badge,
+  Body,
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+  Grid,
+  H1,
+  Section,
+} from '@/components/ui';
 import {
   getAllSeasonsPrisma,
   getSeasonRoute,
@@ -45,63 +49,65 @@ export default function SeasonsPage() {
     if (start && isAfter(start, today)) {
       return <Badge variant="secondary">예정</Badge>;
     }
-    return <Badge variant="destructive">진행중</Badge>;
+    return <Badge variant="default">진행중</Badge>;
   };
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">시즌 목록</h1>
-          <p className="text-xl text-gray-600">시즌 목록을 불러오는 중...</p>
-        </div>
+      <div className="min-h-screen bg-white">
+        <Section padding="xl">
+          <div className="text-center">
+            <H1 className="mb-4">시즌 목록</H1>
+            <Body className="text-lg">시즌 목록을 불러오는 중...</Body>
+          </div>
+        </Section>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto py-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">시즌 목록</h1>
-          <p className="text-xl text-red-600">
-            {error instanceof Error
-              ? error.message
-              : '시즌 목록을 불러오는데 실패했습니다.'}
-          </p>
-        </div>
+      <div className="min-h-screen bg-white">
+        <Section padding="xl">
+          <div className="text-center">
+            <H1 className="mb-4">시즌 목록</H1>
+            <Body className="text-lg text-gray-600">
+              {error instanceof Error
+                ? error.message
+                : '시즌 목록을 불러오는데 실패했습니다.'}
+            </Body>
+          </div>
+        </Section>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8">
-      {/* 뒤로가기 버튼 */}
-      <div className="mb-6">
-        <Link href="/">
-          <Button variant="outline">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            메인 페이지로 돌아가기
-          </Button>
-        </Link>
-      </div>
+    <div className="min-h-screen bg-white">
+      <Section padding="xl">
+        {/* 뒤로가기 버튼 */}
+        <div className="mb-8">
+          <Link href="/">
+            <Button variant="secondary">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              메인 페이지로 돌아가기
+            </Button>
+          </Link>
+        </div>
 
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4">시즌 목록</h1>
-        <p className="text-xl text-gray-600 mb-6">
-          골때리는 그녀들 시즌별 경기 결과
-        </p>
-        <Badge variant="outline" className="text-lg px-4 py-2">
-          SBS 예능 프로그램
-        </Badge>
-      </div>
+        <div className="text-center mb-12">
+          <H1 className="mb-4">시즌 목록</H1>
+          <Body className="text-lg mb-6">골때리는 그녀들 시즌별 경기 결과</Body>
+          <Badge variant="category" className="text-base px-6 py-2">
+            SBS 예능 프로그램
+          </Badge>
+        </div>
 
-      <div className="mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Grid cols={3} gap="lg">
           {seasons.map((season) => (
             <Card
               key={season.season_id}
-              className="hover:shadow-lg transition-shadow cursor-pointer"
+              className="hover:scale-105 transition-transform cursor-pointer"
             >
               <Link href={getSeasonRoute(season.season_name)}>
                 <CardHeader>
@@ -130,14 +136,14 @@ export default function SeasonsPage() {
               </Link>
             </Card>
           ))}
-        </div>
-      </div>
+        </Grid>
 
-      {seasons.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-xl text-gray-600">등록된 시즌이 없습니다.</p>
-        </div>
-      )}
+        {seasons.length === 0 && (
+          <div className="text-center py-12">
+            <Body className="text-lg">등록된 시즌이 없습니다.</Body>
+          </div>
+        )}
+      </Section>
     </div>
   );
 }

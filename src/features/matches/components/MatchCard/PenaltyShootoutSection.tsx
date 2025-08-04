@@ -104,7 +104,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
           {/* 에러 상태 */}
           {error && (
             <div className="text-center py-4">
-              <div className="text-red-500 text-sm">
+              <div className="text-gray-500 text-sm">
                 승부차기 기록을 불러올 수 없습니다:{' '}
                 {error instanceof Error ? error.message : 'Unknown error'}
               </div>
@@ -115,15 +115,15 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
           {!isLoading && !error && penaltyRecords.length > 0 && (
             <>
               {/* 최종 결과 강조 */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-blue-800 mb-2">
+                  <div className="text-lg font-bold text-gray-800 mb-2">
                     🏆 승부차기 최종 결과
                   </div>
                   <div className="flex items-center justify-center space-x-4">
                     <div
                       className={`text-xl font-bold ${
-                        winner === 'home' ? 'text-green-600' : 'text-gray-600'
+                        winner === 'home' ? 'text-black' : 'text-gray-600'
                       }`}
                     >
                       {match.home_team?.team_name} {homeScore}
@@ -131,7 +131,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                     <div className="text-xl font-bold text-gray-400">:</div>
                     <div
                       className={`text-xl font-bold ${
-                        winner === 'away' ? 'text-green-600' : 'text-gray-600'
+                        winner === 'away' ? 'text-black' : 'text-gray-600'
                       }`}
                     >
                       {awayScore} {match.away_team?.team_name}
@@ -139,7 +139,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                   </div>
                   {winner && (
                     <div className="mt-2">
-                      <Badge className="bg-green-100 text-green-800 border-green-300">
+                      <Badge className="bg-black text-white border-black">
                         🏆{' '}
                         {winner === 'home'
                           ? match.home_team?.team_name
@@ -154,15 +154,15 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
               {/* 상세 기록 */}
               <div className="grid grid-cols-2 gap-4">
                 {/* Home Team Records */}
-                <div className="bg-blue-50 rounded-lg p-3">
-                  <div className="text-sm font-semibold text-blue-800 mb-2 flex items-center justify-between">
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="text-sm font-semibold text-gray-800 mb-2 flex items-center justify-between">
                     <div className="flex items-center">
-                      <div className="w-3 h-3 bg-blue-600 rounded-full mr-2"></div>
+                      <div className="w-3 h-3 bg-black rounded-full mr-2"></div>
                       {match.home_team?.team_name}
                     </div>
                     <Badge
                       variant="secondary"
-                      className="text-xs bg-blue-100 text-blue-800"
+                      className="text-xs bg-gray-100 text-gray-800"
                     >
                       {getSuccessRate(homeRecords)} 성공
                     </Badge>
@@ -182,12 +182,12 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                         ) => (
                           <div
                             key={index}
-                            className="flex items-center justify-between bg-white rounded p-2 border border-blue-100"
+                            className="flex items-center justify-between bg-white rounded p-2 border border-gray-200"
                           >
                             <div className="flex items-center space-x-2">
                               <Badge
                                 variant="outline"
-                                className="text-xs px-1 py-0 bg-blue-600 text-white border-blue-600"
+                                className="text-xs px-1 py-0 bg-black text-white border-black"
                               >
                                 {record.kicker_order}
                               </Badge>
@@ -205,11 +205,11 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                             </div>
                             <div className="flex items-center">
                               {record.is_successful ? (
-                                <Badge className="text-xs bg-green-100 text-green-800 border-green-300">
+                                <Badge className="text-xs bg-gray-100 text-gray-800 border-gray-300">
                                   ⚽ 성공
                                 </Badge>
                               ) : (
-                                <Badge className="text-xs bg-red-100 text-red-800 border-red-300">
+                                <Badge className="text-xs bg-gray-100 text-gray-800 border-gray-300">
                                   ❌ 실패
                                 </Badge>
                               )}
@@ -221,15 +221,15 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                 </div>
 
                 {/* Away Team Records */}
-                <div className="bg-red-50 rounded-lg p-3">
-                  <div className="text-sm font-semibold text-red-800 mb-2 flex items-center justify-between">
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="text-sm font-semibold text-gray-800 mb-2 flex items-center justify-between">
                     <div className="flex items-center">
-                      <div className="w-3 h-3 bg-red-600 rounded-full mr-2"></div>
+                      <div className="w-3 h-3 bg-gray-600 rounded-full mr-2"></div>
                       {match.away_team?.team_name}
                     </div>
                     <Badge
                       variant="secondary"
-                      className="text-xs bg-red-100 text-red-800"
+                      className="text-xs bg-gray-100 text-gray-800"
                     >
                       {getSuccessRate(awayRecords)} 성공
                     </Badge>
@@ -249,12 +249,12 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                         ) => (
                           <div
                             key={index}
-                            className="flex items-center justify-between bg-white rounded p-2 border border-red-100"
+                            className="flex items-center justify-between bg-white rounded p-2 border border-gray-200"
                           >
                             <div className="flex items-center space-x-2">
                               <Badge
                                 variant="outline"
-                                className="text-xs px-1 py-0 bg-red-600 text-white border-red-600"
+                                className="text-xs px-1 py-0 bg-gray-600 text-white border-gray-600"
                               >
                                 {record.kicker_order}
                               </Badge>
@@ -272,11 +272,11 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                             </div>
                             <div className="flex items-center">
                               {record.is_successful ? (
-                                <Badge className="text-xs bg-green-100 text-green-800 border-green-300">
+                                <Badge className="text-xs bg-gray-100 text-gray-800 border-gray-300">
                                   ⚽ 성공
                                 </Badge>
                               ) : (
-                                <Badge className="text-xs bg-red-100 text-red-800 border-red-300">
+                                <Badge className="text-xs bg-gray-100 text-gray-800 border-gray-300">
                                   ❌ 실패
                                 </Badge>
                               )}

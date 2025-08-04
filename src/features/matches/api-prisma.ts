@@ -28,6 +28,7 @@ interface LineupPlayer {
   jersey_number: number | null;
   team_name: string;
   participation_status: 'starting' | 'substitute' | 'bench';
+  card_type: 'none' | 'yellow' | 'red_direct' | 'red_accumulated';
 }
 
 interface SeasonSummary {

@@ -26,7 +26,7 @@ const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
       {/* Home Team */}
       <div
         className={`flex-1 text-center ${
-          winner === 'home' ? 'text-green-600 font-semibold' : 'text-gray-700'
+          winner === 'home' ? 'text-black font-bold' : 'text-gray-700'
         }`}
       >
         <div className="text-lg font-medium">
@@ -36,7 +36,7 @@ const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
 
       {/* Score */}
       <div className="flex-shrink-0 px-4">
-        <div className="text-center bg-gray-100 px-4 py-2 rounded-lg">
+        <div className="text-center bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
           <div className="text-2xl font-bold">{getMatchResult(match)}</div>
           {/* 승부차기 점수만 스코어 박스 안에 표시 */}
           {hasPenaltyShootout(match) && (
@@ -50,7 +50,7 @@ const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
       {/* Away Team */}
       <div
         className={`flex-1 text-center ${
-          winner === 'away' ? 'text-green-600 font-semibold' : 'text-gray-700'
+          winner === 'away' ? 'text-black font-bold' : 'text-gray-700'
         }`}
       >
         <div className="text-lg font-medium">
