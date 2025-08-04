@@ -59,7 +59,7 @@ const Season2Results: React.FC<Season2ResultsProps> = ({ className }) => {
     return (
       <div className={`p-6 ${className || ''}`}>
         <div className="flex items-center justify-center h-32">
-          <div className="text-red-500">
+          <div className="text-[#ff4800]">
             오류 발생:{' '}
             {error instanceof Error ? error.message : 'Failed to fetch data'}
           </div>

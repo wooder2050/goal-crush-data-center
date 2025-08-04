@@ -18,6 +18,8 @@ export interface Player {
 export interface Team {
   team_id: number;
   team_name: string;
+  primary_color?: string;
+  secondary_color?: string;
 }
 
 export interface Season {

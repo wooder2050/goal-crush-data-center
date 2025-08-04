@@ -43,6 +43,12 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
   const homeLineups = lineups[homeTeamKey] || [];
   const awayLineups = lineups[awayTeamKey] || [];
 
+  // 팀 색상 가져오기 (기본값 설정)
+  const homeTeamPrimaryColor = match.home_team?.primary_color || '#000000';
+  const awayTeamPrimaryColor = match.away_team?.primary_color || '#6B7280';
+  const homeTeamSecondaryColor = match.home_team?.secondary_color || '#6B7280';
+  const awayTeamSecondaryColor = match.away_team?.secondary_color || '#6B7280';
+
   // 포지션별 정렬 함수
   const sortByPosition = (players: LineupPlayer[]) => {
     const positionOrder = { FW: 1, MF: 2, DF: 3, GK: 4 };
@@ -98,7 +104,13 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
         {/* Home Team Players */}
         <div className="bg-gray-50 rounded-lg p-3">
           <div className="text-sm font-semibold text-gray-800 mb-2 flex items-center">
-            <div className="w-3 h-3 bg-black rounded-full mr-2"></div>
+            <div
+              className="w-3 h-3 rounded-full mr-2"
+              style={{
+                backgroundColor: homeTeamPrimaryColor,
+                border: `1px solid ${homeTeamSecondaryColor}`,
+              }}
+            ></div>
             {match.home_team?.team_name}
           </div>
 
@@ -125,7 +137,14 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                     </Badge>
                     <div className="min-w-0 flex-1">
                       {typeof player.jersey_number === 'number' && (
-                        <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-black rounded mr-1 flex-shrink-0">
+                        <span
+                          className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded mr-1 flex-shrink-0 border"
+                          style={{
+                            backgroundColor: homeTeamPrimaryColor,
+                            color: homeTeamSecondaryColor,
+                            borderColor: homeTeamSecondaryColor,
+                          }}
+                        >
                           {player.jersey_number}
                         </span>
                       )}
@@ -143,7 +162,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                       {player.card_type === 'red_direct' && (
                         <Badge
                           variant="secondary"
-                          className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                          className="text-xs px-1.5 py-0.5 bg-[#ffefeb] text-[#ff4800] border-[#ff4800]"
                         >
                           🟥 다이렉트
                         </Badge>
@@ -151,7 +170,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                       {player.card_type === 'red_accumulated' && (
                         <Badge
                           variant="secondary"
-                          className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                          className="text-xs px-1.5 py-0.5 bg-[#ffefeb] text-[#ff4800] border-[#ff4800]"
                         >
                           🟥 누적
                         </Badge>
@@ -202,7 +221,14 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                       </Badge>
                       <div className="min-w-0 flex-1">
                         {typeof player.jersey_number === 'number' && (
-                          <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-gray-600 rounded mr-1 flex-shrink-0">
+                          <span
+                            className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded mr-1 flex-shrink-0 border"
+                            style={{
+                              backgroundColor: homeTeamPrimaryColor,
+                              color: homeTeamSecondaryColor,
+                              borderColor: homeTeamSecondaryColor,
+                            }}
+                          >
                             {player.jersey_number}
                           </span>
                         )}
@@ -220,7 +246,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                         {player.card_type === 'red_direct' && (
                           <Badge
                             variant="secondary"
-                            className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                            className="text-xs px-1.5 py-0.5 bg-[#ffefeb] text-[#ff4800] border-[#ff4800]"
                           >
                             🟥 다이렉트
                           </Badge>
@@ -228,7 +254,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                         {player.card_type === 'red_accumulated' && (
                           <Badge
                             variant="secondary"
-                            className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                            className="text-xs px-1.5 py-0.5 bg-[#ffefeb] text-[#ff4800] border-[#ff4800]"
                           >
                             🟥 누적
                           </Badge>
@@ -298,7 +324,13 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
         {/* Away Team Players */}
         <div className="bg-gray-50 rounded-lg p-3">
           <div className="text-sm font-semibold text-gray-800 mb-2 flex items-center">
-            <div className="w-3 h-3 bg-gray-600 rounded-full mr-2"></div>
+            <div
+              className="w-3 h-3 rounded-full mr-2"
+              style={{
+                backgroundColor: awayTeamPrimaryColor,
+                border: `1px solid ${awayTeamSecondaryColor}`,
+              }}
+            ></div>
             {match.away_team?.team_name}
           </div>
 
@@ -325,7 +357,14 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                     </Badge>
                     <div className="min-w-0 flex-1">
                       {typeof player.jersey_number === 'number' && (
-                        <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-gray-600 rounded mr-1 flex-shrink-0">
+                        <span
+                          className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded mr-1 flex-shrink-0 border"
+                          style={{
+                            backgroundColor: awayTeamPrimaryColor,
+                            color: awayTeamSecondaryColor,
+                            borderColor: awayTeamSecondaryColor,
+                          }}
+                        >
                           {player.jersey_number}
                         </span>
                       )}
@@ -343,7 +382,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                       {player.card_type === 'red_direct' && (
                         <Badge
                           variant="secondary"
-                          className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                          className="text-xs px-1.5 py-0.5 bg-[#ffefeb] text-[#ff4800] border-[#ff4800]"
                         >
                           🟥 다이렉트
                         </Badge>
@@ -351,7 +390,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                       {player.card_type === 'red_accumulated' && (
                         <Badge
                           variant="secondary"
-                          className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                          className="text-xs px-1.5 py-0.5 bg-[#ffefeb] text-[#ff4800] border-[#ff4800]"
                         >
                           🟥 누적
                         </Badge>
@@ -402,7 +441,14 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                       </Badge>
                       <div className="min-w-0 flex-1">
                         {typeof player.jersey_number === 'number' && (
-                          <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-gray-600 rounded mr-1 flex-shrink-0">
+                          <span
+                            className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold rounded mr-1 flex-shrink-0 border"
+                            style={{
+                              backgroundColor: awayTeamPrimaryColor,
+                              color: awayTeamSecondaryColor,
+                              borderColor: awayTeamSecondaryColor,
+                            }}
+                          >
                             {player.jersey_number}
                           </span>
                         )}
@@ -420,7 +466,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                         {player.card_type === 'red_direct' && (
                           <Badge
                             variant="secondary"
-                            className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                            className="text-xs px-1.5 py-0.5 bg-[#ffefeb] text-[#ff4800] border-[#ff4800]"
                           >
                             🟥 다이렉트
                           </Badge>
@@ -428,7 +474,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                         {player.card_type === 'red_accumulated' && (
                           <Badge
                             variant="secondary"
-                            className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                            className="text-xs px-1.5 py-0.5 bg-[#ffefeb] text-[#ff4800] border-[#ff4800]"
                           >
                             🟥 누적
                           </Badge>
