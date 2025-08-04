@@ -34,7 +34,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ matchId, className = '' }) => {
 
   if (isLoading) {
     return (
-      <Card className={`hover:shadow-lg transition-shadow ${className}`}>
+      <Card className={className}>
         <CardContent className="p-6">
           <div className="animate-pulse">
             <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
@@ -48,9 +48,9 @@ const MatchCard: React.FC<MatchCardProps> = ({ matchId, className = '' }) => {
 
   if (error || !match) {
     return (
-      <Card className={`hover:shadow-lg transition-shadow ${className}`}>
+      <Card className={className}>
         <CardContent className="p-6">
-          <div className="text-red-600">
+          <div className="text-gray-600">
             {error instanceof Error
               ? error.message
               : '매치 정보를 불러올 수 없습니다.'}
@@ -61,7 +61,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ matchId, className = '' }) => {
   }
 
   return (
-    <Card className={`hover:shadow-lg transition-shadow ${className}`}>
+    <Card className={className}>
       {/* 상단 헤더 - 별도 컴포넌트로 분리 */}
       <MatchHeader match={match} />
 

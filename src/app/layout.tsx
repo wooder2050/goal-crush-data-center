@@ -1,15 +1,12 @@
 import './globals.css';
 
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 
 import { Providers } from '@/lib/providers';
 
-const inter = Inter({ subsets: ['latin'] });
-
 export const metadata: Metadata = {
-  title: 'Goal Crush Data Center',
-  description: 'Data center for goal crushing application',
+  title: '골 크러시 데이터 센터',
+  description: '골때리는 그녀들 데이터 관리 시스템',
 };
 
 export default function RootLayout({
@@ -19,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className={inter.className}>
+      <body className="font-sans antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>

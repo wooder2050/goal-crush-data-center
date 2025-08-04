@@ -19,6 +19,7 @@ interface LineupPlayer {
   assists: number;
   yellow_cards: number;
   red_cards: number;
+  card_type: 'none' | 'yellow' | 'red_direct' | 'red_accumulated';
 }
 
 interface TeamLineupsSectionProps {
@@ -76,7 +77,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
           👥 출전 선수
         </div>
         <div className="text-center py-4">
-          <div className="text-red-500 text-sm">
+          <div className="text-gray-500 text-sm">
             라인업을 불러올 수 없습니다:{' '}
             {error instanceof Error ? error.message : 'Unknown error'}
           </div>
@@ -95,15 +96,15 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
       <div className="text-sm font-medium text-gray-700 mb-3">👥 출전 선수</div>
       <div className="grid grid-cols-1 gap-4">
         {/* Home Team Players */}
-        <div className="bg-blue-50 rounded-lg p-3">
-          <div className="text-sm font-semibold text-blue-800 mb-2 flex items-center">
-            <div className="w-3 h-3 bg-blue-600 rounded-full mr-2"></div>
+        <div className="bg-gray-50 rounded-lg p-3">
+          <div className="text-sm font-semibold text-gray-800 mb-2 flex items-center">
+            <div className="w-3 h-3 bg-black rounded-full mr-2"></div>
             {match.home_team?.team_name}
           </div>
 
           {/* 선발 출전 */}
           <div className="mb-3">
-            <div className="text-xs text-blue-700 mb-2 font-medium">
+            <div className="text-xs text-gray-700 mb-2 font-medium">
               ⭐ 선발
             </div>
             <div className="space-y-1">
@@ -124,7 +125,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                     </Badge>
                     <div className="min-w-0 flex-1">
                       {typeof player.jersey_number === 'number' && (
-                        <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-blue-600 rounded mr-1 flex-shrink-0">
+                        <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-black rounded mr-1 flex-shrink-0">
                           {player.jersey_number}
                         </span>
                       )}
@@ -139,12 +140,20 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                           🟨 {player.yellow_cards}
                         </Badge>
                       )}
-                      {player.red_cards > 0 && (
+                      {player.card_type === 'red_direct' && (
                         <Badge
                           variant="secondary"
                           className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
                         >
-                          🟥 {player.red_cards}
+                          🟥 다이렉트
+                        </Badge>
+                      )}
+                      {player.card_type === 'red_accumulated' && (
+                        <Badge
+                          variant="secondary"
+                          className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                        >
+                          🟥 누적
                         </Badge>
                       )}
                     </div>
@@ -153,7 +162,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                     {player.goals > 0 && (
                       <Badge
                         variant="secondary"
-                        className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-800"
+                        className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-800"
                       >
                         ⚽ {player.goals}
                       </Badge>
@@ -169,7 +178,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
             (player) => player.participation_status === 'substitute'
           ).length > 0 && (
             <div className="mb-3">
-              <div className="text-xs text-blue-700 mb-2 font-medium">
+              <div className="text-xs text-gray-700 mb-2 font-medium">
                 🔄 교체 출전
               </div>
               <div className="space-y-1">
@@ -193,7 +202,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                       </Badge>
                       <div className="min-w-0 flex-1">
                         {typeof player.jersey_number === 'number' && (
-                          <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-blue-400 rounded mr-1 flex-shrink-0">
+                          <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-gray-600 rounded mr-1 flex-shrink-0">
                             {player.jersey_number}
                           </span>
                         )}
@@ -208,12 +217,20 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                             🟨 {player.yellow_cards}
                           </Badge>
                         )}
-                        {player.red_cards > 0 && (
+                        {player.card_type === 'red_direct' && (
                           <Badge
                             variant="secondary"
                             className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
                           >
-                            🟥 {player.red_cards}
+                            🟥 다이렉트
+                          </Badge>
+                        )}
+                        {player.card_type === 'red_accumulated' && (
+                          <Badge
+                            variant="secondary"
+                            className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                          >
+                            🟥 누적
                           </Badge>
                         )}
                       </div>
@@ -222,7 +239,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                       {player.goals > 0 && (
                         <Badge
                           variant="secondary"
-                          className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-800"
+                          className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-800"
                         >
                           ⚽ {player.goals}
                         </Badge>
@@ -239,7 +256,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
             (player) => player.participation_status === 'bench'
           ).length > 0 && (
             <div>
-              <div className="text-xs text-blue-700 mb-2 font-medium">
+              <div className="text-xs text-gray-700 mb-2 font-medium">
                 🪑 벤치
               </div>
               <div className="space-y-1">
@@ -279,15 +296,17 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
         </div>
 
         {/* Away Team Players */}
-        <div className="bg-red-50 rounded-lg p-3">
-          <div className="text-sm font-semibold text-red-800 mb-2 flex items-center">
-            <div className="w-3 h-3 bg-red-600 rounded-full mr-2"></div>
+        <div className="bg-gray-50 rounded-lg p-3">
+          <div className="text-sm font-semibold text-gray-800 mb-2 flex items-center">
+            <div className="w-3 h-3 bg-gray-600 rounded-full mr-2"></div>
             {match.away_team?.team_name}
           </div>
 
           {/* 선발 출전 */}
           <div className="mb-3">
-            <div className="text-xs text-red-700 mb-2 font-medium">⭐ 선발</div>
+            <div className="text-xs text-gray-700 mb-2 font-medium">
+              ⭐ 선발
+            </div>
             <div className="space-y-1">
               {sortByPosition(
                 awayLineups.filter(
@@ -306,7 +325,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                     </Badge>
                     <div className="min-w-0 flex-1">
                       {typeof player.jersey_number === 'number' && (
-                        <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-red-600 rounded mr-1 flex-shrink-0">
+                        <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-gray-600 rounded mr-1 flex-shrink-0">
                           {player.jersey_number}
                         </span>
                       )}
@@ -321,12 +340,20 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                           🟨 {player.yellow_cards}
                         </Badge>
                       )}
-                      {player.red_cards > 0 && (
+                      {player.card_type === 'red_direct' && (
                         <Badge
                           variant="secondary"
                           className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
                         >
-                          🟥 {player.red_cards}
+                          🟥 다이렉트
+                        </Badge>
+                      )}
+                      {player.card_type === 'red_accumulated' && (
+                        <Badge
+                          variant="secondary"
+                          className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                        >
+                          🟥 누적
                         </Badge>
                       )}
                     </div>
@@ -335,7 +362,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                     {player.goals > 0 && (
                       <Badge
                         variant="secondary"
-                        className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                        className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-800"
                       >
                         ⚽ {player.goals}
                       </Badge>
@@ -351,7 +378,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
             (player) => player.participation_status === 'substitute'
           ).length > 0 && (
             <div className="mb-3">
-              <div className="text-xs text-red-700 mb-2 font-medium">
+              <div className="text-xs text-gray-700 mb-2 font-medium">
                 🔄 교체 출전
               </div>
               <div className="space-y-1">
@@ -375,7 +402,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                       </Badge>
                       <div className="min-w-0 flex-1">
                         {typeof player.jersey_number === 'number' && (
-                          <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-red-400 rounded mr-1 flex-shrink-0">
+                          <span className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 text-xs font-bold text-white bg-gray-600 rounded mr-1 flex-shrink-0">
                             {player.jersey_number}
                           </span>
                         )}
@@ -390,12 +417,20 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                             🟨 {player.yellow_cards}
                           </Badge>
                         )}
-                        {player.red_cards > 0 && (
+                        {player.card_type === 'red_direct' && (
                           <Badge
                             variant="secondary"
                             className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
                           >
-                            🟥 {player.red_cards}
+                            🟥 다이렉트
+                          </Badge>
+                        )}
+                        {player.card_type === 'red_accumulated' && (
+                          <Badge
+                            variant="secondary"
+                            className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                          >
+                            🟥 누적
                           </Badge>
                         )}
                       </div>
@@ -404,7 +439,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
                       {player.goals > 0 && (
                         <Badge
                           variant="secondary"
-                          className="text-xs px-1.5 py-0.5 bg-red-100 text-red-800"
+                          className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-800"
                         >
                           ⚽ {player.goals}
                         </Badge>
@@ -421,7 +456,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
             (player) => player.participation_status === 'bench'
           ).length > 0 && (
             <div>
-              <div className="text-xs text-red-700 mb-2 font-medium">
+              <div className="text-xs text-gray-700 mb-2 font-medium">
                 🪑 벤치
               </div>
               <div className="space-y-1">

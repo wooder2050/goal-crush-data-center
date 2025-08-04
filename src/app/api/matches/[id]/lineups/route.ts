@@ -15,6 +15,7 @@ type PlayerMatchStatWithRelations = {
   minutes_played: number | null;
   saves: number | null;
   position: string | null;
+  card_type: string | null;
   player: {
     name: string;
     player_id: number;
@@ -123,6 +124,7 @@ export async function GET(
         jersey_number: number | null;
         team_name: string;
         participation_status: string;
+        card_type: string;
       }>
     > = {};
     const homeTeamKey = `${match.match_id}_${match.home_team_id}`;
@@ -186,6 +188,7 @@ export async function GET(
         jersey_number: stat.player?.jersey_number ?? null,
         team_name: stat.team?.team_name || 'Unknown',
         participation_status: participationStatus,
+        card_type: stat.card_type || 'none',
       };
 
       if (lineupsByMatch[teamKey]) {

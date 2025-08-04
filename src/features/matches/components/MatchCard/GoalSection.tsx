@@ -49,7 +49,7 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
           ⚽ 득점 기록
         </div>
         <div className="text-center py-4">
-          <div className="text-red-500 text-sm">
+          <div className="text-gray-500 text-sm">
             득점 기록을 불러올 수 없습니다:{' '}
             {error instanceof Error ? error.message : 'Unknown error'}
           </div>
@@ -90,7 +90,7 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
                 key={index}
                 className="flex items-center text-xs text-gray-700"
               >
-                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></div>
+                <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
                 <span className="font-medium">{goal.player?.name}</span>
                 <span className="ml-1 text-gray-500">
                   {goal.goal_time && `${goal.goal_time}' `}
@@ -103,7 +103,7 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
               </div>
             ))}
           {homeTeamGoals.length === 0 && (
-            <div className="text-xs text-blue-600 italic">득점 없음</div>
+            <div className="text-xs text-gray-500 italic">득점 없음</div>
           )}
         </div>
 
@@ -119,7 +119,7 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
                 key={index}
                 className="flex items-center text-xs text-gray-700"
               >
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2"></div>
+                <div className="w-1.5 h-1.5 bg-gray-600 rounded-full mr-2"></div>
                 <span className="font-medium">{goal.player?.name}</span>
                 <span className="ml-1 text-gray-500">
                   {goal.goal_time && `${goal.goal_time}' `}
@@ -132,7 +132,7 @@ const GoalSection: React.FC<GoalSectionProps> = ({ match, className = '' }) => {
               </div>
             ))}
           {awayTeamGoals.length === 0 && (
-            <div className="text-xs text-red-600 italic">득점 없음</div>
+            <div className="text-xs text-gray-500 italic">득점 없음</div>
           )}
         </div>
       </div>

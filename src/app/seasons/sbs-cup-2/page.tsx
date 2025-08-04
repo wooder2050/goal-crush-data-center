@@ -4,9 +4,9 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button, Section } from '@/components/ui';
-import PilotSeasonResults from '@/features/matches/components/PilotSeasonResults';
+import { SbsCup2Results } from '@/features/matches';
 
-export default function PilotSeasonPage() {
+export default function SbsCup2Page() {
   return (
     <main className="min-h-screen bg-white">
       <Section padding="lg">
@@ -18,7 +18,7 @@ export default function PilotSeasonPage() {
             </Button>
           </Link>
         </div>
-        <PilotSeasonResults />
+        <SbsCup2Results />
       </Section>
     </main>
   );
