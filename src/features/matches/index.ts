@@ -18,7 +18,9 @@ export { default as Season5ChallengeResults } from './components/Season5Challeng
 export { default as Season5PlayoffResults } from './components/Season5PlayoffResults';
 export { default as Season5SuperResults } from './components/Season5SuperResults';
 export { default as Season6ChallengeResults } from './components/Season6ChallengeResults';
+export { default as Season6PlayoffResults } from './components/Season6PlayoffResults';
 export { default as Season6SuperResults } from './components/Season6SuperResults';
+export { default as Season7GLeagueResults } from './components/Season7GLeagueResults';
 export { default as SeasonSummary } from './components/SeasonSummary';
 
 // MatchCard 관련 컴포넌트들

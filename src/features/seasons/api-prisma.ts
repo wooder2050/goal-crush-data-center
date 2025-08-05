@@ -91,7 +91,7 @@ export const getSeasonRoute = (seasonName: string): string => {
     '골때리는 그녀들 시즌 6 슈퍼리그': '/seasons/season-6-super',
     '골때리는 그녀들 시즌 6 챌린지리그': '/seasons/season-6-challenge',
     '골때리는 그녀들 시즌 6 플레이오프': '/seasons/season-6-playoff',
-    '골때리는 그녀들 시즌 7': '/seasons/season-7',
+    '골때리는 그녀들 시즌 7 G리그': '/seasons/season-7-g-league',
   };
   // 매핑되지 않은 시즌은 기본 경로 생성
   return routeMap[seasonName] || `/seasons/unknown`;
