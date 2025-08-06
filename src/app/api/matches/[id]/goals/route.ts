@@ -27,7 +27,7 @@ type GoalWithTeam = GoalWithPlayer & {
 };
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -38,7 +38,7 @@ export async function GET(
     }
 
     // Get goals with player and team information
-    const goals = (await prisma.goal.findMany({
+    const goals = await prisma.goal.findMany({
       where: {
         match_id: matchId,
       },
@@ -54,7 +54,7 @@ export async function GET(
       orderBy: {
         goal_time: 'asc',
       },
-    })) as GoalWithPlayer[];
+    });
 
     // Get team information for each goal
     const goalsWithTeam = await Promise.all(

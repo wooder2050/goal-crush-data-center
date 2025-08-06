@@ -1,4 +1,5 @@
 import {
+  Assist,
   Goal,
   MatchWithTeams,
   PenaltyShootoutDetailWithPlayers,
@@ -92,6 +93,53 @@ export const getMatchGoalsPrisma = async (
   const response = await fetch(`/api/matches/${matchId}/goals`);
   if (!response.ok) {
     throw new Error(`Failed to fetch match goals: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+// Get match goals with assists
+export const getMatchGoalsWithAssistsPrisma = async (
+  matchId: number
+): Promise<GoalWithTeam[]> => {
+  const response = await fetch(`/api/matches/${matchId}/goals`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch match goals: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+// Get match assists
+export const getMatchAssistsPrisma = async (
+  matchId: number
+): Promise<Assist[]> => {
+  const response = await fetch(`/api/matches/${matchId}/assists`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch match assists: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+// Create assist
+export const createAssistPrisma = async (
+  matchId: number,
+  assist: {
+    player_id: number;
+    goal_id: number;
+    assist_time?: number;
+    assist_type?: string;
+    description?: string;
+  }
+): Promise<Assist> => {
+  const response = await fetch(`/api/matches/${matchId}/assists`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(assist),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to create assist: ${response.statusText}`);
   }
   return response.json();
 };

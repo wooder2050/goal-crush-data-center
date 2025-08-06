@@ -2,6 +2,7 @@
 export * from './api-prisma';
 
 // Components
+export { default as GLeagueTournamentResults } from './components/GLeagueTournamentResults';
 export { default as PilotSeasonResults } from './components/PilotSeasonResults';
 export { default as SbsCup1Results } from './components/SbsCup1Results';
 export { default as SbsCup2Results } from './components/SbsCup2Results';

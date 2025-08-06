@@ -57,6 +57,8 @@ export interface Match {
   location: string | null;
   status: string | null;
   description: string | null;
+  group_stage?: string | null;
+  tournament_stage?: string | null;
   created_at: Date | null;
   updated_at: Date | null;
 }
@@ -111,6 +113,18 @@ export interface Goal {
   player_id: number;
   goal_time?: number;
   goal_type: string;
+  description?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Assist {
+  assist_id: number;
+  match_id: number;
+  player_id: number;
+  goal_id: number;
+  assist_time?: number;
+  assist_type?: string;
   description?: string;
   created_at: string;
   updated_at: string;
@@ -180,6 +194,10 @@ export type PlayerSeasonStatsInput = Omit<PlayerSeasonStats, 'id'>;
 export type TeamSeasonStatsInput = Omit<TeamSeasonStats, 'id'>;
 export type StandingInput = Omit<Standing, 'id' | 'last_updated'>;
 export type GoalInput = Omit<Goal, 'goal_id' | 'created_at' | 'updated_at'>;
+export type AssistInput = Omit<
+  Assist,
+  'assist_id' | 'created_at' | 'updated_at'
+>;
 
 // Update types (all fields optional)
 export type PlayerUpdate = Partial<Omit<Player, 'player_id' | 'created_at'>>;
@@ -194,6 +212,9 @@ export type TeamSeasonStatsUpdate = Partial<Omit<TeamSeasonStats, 'id'>>;
 export type StandingUpdate = Partial<Omit<Standing, 'id' | 'last_updated'>>;
 export type GoalUpdate = Partial<
   Omit<Goal, 'goal_id' | 'created_at' | 'updated_at'>
+>;
+export type AssistUpdate = Partial<
+  Omit<Assist, 'assist_id' | 'created_at' | 'updated_at'>
 >;
 
 // Joined data types
@@ -232,6 +253,13 @@ export interface StandingWithDetails extends Standing {
 export interface GoalWithDetails extends Goal {
   player: Player;
   match: MatchWithTeams;
+  assists?: AssistWithDetails[];
+}
+
+export interface AssistWithDetails extends Assist {
+  player: Player;
+  goal: GoalWithDetails;
+  match: MatchWithTeams;
 }
 
 // Table name types
@@ -247,6 +275,7 @@ export type TableName =
   | 'team_season_stats'
   | 'standings'
   | 'goals'
+  | 'assists'
   | 'substitutions';
 
 // Database schema types
@@ -307,6 +336,11 @@ export interface Database {
         Row: Goal;
         Insert: GoalInput;
         Update: GoalUpdate;
+      };
+      assists: {
+        Row: Assist;
+        Insert: AssistInput;
+        Update: AssistUpdate;
       };
       substitutions: {
         Row: Substitution;
