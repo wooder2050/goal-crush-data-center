@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
           select: {
             team_id: true,
             team_name: true,
-            team_logo_url: true,
+            logo: true,
           },
         },
       },
