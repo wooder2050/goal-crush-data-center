@@ -18,6 +18,7 @@ export interface Player {
 export interface Team {
   team_id: number;
   team_name: string;
+  logo?: string;
   primary_color?: string;
   secondary_color?: string;
 }

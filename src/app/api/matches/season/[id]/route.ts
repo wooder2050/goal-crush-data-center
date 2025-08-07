@@ -83,6 +83,7 @@ export async function GET(
             ...match.home_team,
             team_name:
               teamNameMap.get(match.home_team_id!) || match.home_team.team_name,
+            logo: match.home_team.team_logo_url,
           }
         : null,
       away_team: match.away_team
@@ -90,6 +91,7 @@ export async function GET(
             ...match.away_team,
             team_name:
               teamNameMap.get(match.away_team_id!) || match.away_team.team_name,
+            logo: match.away_team.team_logo_url,
           }
         : null,
     }));

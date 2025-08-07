@@ -44,6 +44,8 @@ model Team {
   updated_at               DateTime?               @default(now()) @db.Timestamptz(6)
   primary_color            String?                 @default("#000000") @db.VarChar(7)
   secondary_color          String?                 @default("#FFFFFF") @db.VarChar(7)
+  logo                     String?                 @db.VarChar(500)
+  GroupLeagueStandings     GroupLeagueStandings[]
   away_matches             Match[]                 @relation("AwayTeam")
   home_matches             Match[]                 @relation("HomeTeam")
   penalty_shootout_details PenaltyShootoutDetail[]
@@ -76,21 +78,22 @@ model TeamSeasonName {
 }
 
 model Season {
-  season_id           Int                 @id @default(autoincrement())
-  season_name         String              @unique @db.VarChar(100)
-  year                Int
-  start_date          DateTime?           @db.Date
-  end_date            DateTime?           @db.Date
-  created_at          DateTime?           @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime?           @default(now()) @db.Timestamptz(6)
-  matches             Match[]
-  player_positions    player_positions[]
-  player_season_stats PlayerSeasonStats[]
-  player_team_history PlayerTeamHistory[]
-  standings           Standing[]
-  team_season_names   TeamSeasonName[]
-  team_season_stats   TeamSeasonStats[]
-  team_seasons        TeamSeason[]
+  season_id            Int                    @id @default(autoincrement())
+  season_name          String                 @unique @db.VarChar(100)
+  year                 Int
+  start_date           DateTime?              @db.Date
+  end_date             DateTime?              @db.Date
+  created_at           DateTime?              @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime?              @default(now()) @db.Timestamptz(6)
+  GroupLeagueStandings GroupLeagueStandings[]
+  matches              Match[]
+  player_positions     player_positions[]
+  player_season_stats  PlayerSeasonStats[]
+  player_team_history  PlayerTeamHistory[]
+  standings            Standing[]
+  team_season_names    TeamSeasonName[]
+  team_season_stats    TeamSeasonStats[]
+  team_seasons         TeamSeason[]
 
   @@index([year], map: "idx_seasons_year")
   @@map("seasons")
@@ -251,6 +254,35 @@ model Standing {
   @@index([position], map: "idx_standings_position")
   @@index([season_id], map: "idx_standings_season")
   @@map("standings")
+}
+
+model GroupLeagueStandings {
+  group_standing_id Int       @id @default(autoincrement())
+  season_id         Int
+  group_stage       String    @db.VarChar(1)
+  group_name        String?   @db.VarChar(50)
+  team_id           Int
+  position          Int
+  matches_played    Int?      @default(0)
+  wins              Int?      @default(0)
+  draws             Int?      @default(0)
+  losses            Int?      @default(0)
+  goals_for         Int?      @default(0)
+  goals_against     Int?      @default(0)
+  goal_difference   Int?      @default(0)
+  points            Int?      @default(0)
+  form              String?   @db.VarChar(10)
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  updated_at        DateTime? @default(now()) @db.Timestamp(6)
+  tournament_stage  String?   @default("group_league") @db.VarChar(20)
+  season            Season    @relation(fields: [season_id], references: [season_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_group_standings_season")
+  team              Team      @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_group_standings_team")
+
+  @@unique([season_id, group_stage, team_id], map: "unique_season_group_team")
+  @@index([season_id, group_stage, position], map: "idx_group_standings_position")
+  @@index([season_id, group_stage], map: "idx_group_standings_season_group")
+  @@index([team_id], map: "idx_group_standings_team")
+  @@map("group_league_standings")
 }
 
 model Goal {

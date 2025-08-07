@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React from 'react';
 
 import { MatchWithTeams } from '@/lib/types/database';
@@ -15,23 +16,54 @@ interface MatchScoreHeaderProps {
   className?: string;
 }
 
+interface TeamWithLogoProps {
+  team: {
+    team_name?: string;
+    logo?: string;
+  } | null;
+  isWinner: boolean;
+}
+
 const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
   match,
   className = '',
 }) => {
   const winner = getWinnerTeam(match);
 
+  const TeamWithLogo: React.FC<TeamWithLogoProps> = ({ team, isWinner }) => (
+    <div className="flex items-center justify-center gap-2">
+      <div className="w-8 h-8 relative flex-shrink-0 rounded-full overflow-hidden">
+        {team?.logo ? (
+          <Image
+            src={team.logo}
+            alt={`${team.team_name} 로고`}
+            fill
+            className="object-cover"
+            sizes="32px"
+          />
+        ) : (
+          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+            <span className="text-xs text-gray-500 font-medium">
+              {team?.team_name?.charAt(0) || '?'}
+            </span>
+          </div>
+        )}
+      </div>
+      <div
+        className={`text-sm font-medium ${
+          isWinner ? 'text-black font-bold' : 'text-gray-700'
+        }`}
+      >
+        {team?.team_name || '알 수 없음'}
+      </div>
+    </div>
+  );
+
   return (
     <div className={`flex items-center justify-between ${className}`}>
       {/* Home Team */}
-      <div
-        className={`flex-1 text-center ${
-          winner === 'home' ? 'text-black font-bold' : 'text-gray-700'
-        }`}
-      >
-        <div className="text-lg font-medium">
-          {match.home_team?.team_name || '알 수 없음'}
-        </div>
+      <div className="flex-1 text-center">
+        <TeamWithLogo team={match.home_team} isWinner={winner === 'home'} />
       </div>
 
       {/* Score */}
@@ -48,14 +80,8 @@ const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
       </div>
 
       {/* Away Team */}
-      <div
-        className={`flex-1 text-center ${
-          winner === 'away' ? 'text-black font-bold' : 'text-gray-700'
-        }`}
-      >
-        <div className="text-lg font-medium">
-          {match.away_team?.team_name || '알 수 없음'}
-        </div>
+      <div className="flex-1 text-center">
+        <TeamWithLogo team={match.away_team} isWinner={winner === 'away'} />
       </div>
     </div>
   );
