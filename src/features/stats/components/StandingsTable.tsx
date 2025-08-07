@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { FC } from 'react';
 
 import {
@@ -38,6 +39,7 @@ type StandingRow = {
   team: {
     team_id: number;
     team_name: string;
+    logo?: string;
   } | null;
 };
 
@@ -108,7 +110,30 @@ const StandingsTable: FC<StandingsTableProps> = ({ seasonId, className }) => {
             standings.map((row: StandingRow, idx: number) => (
               <TableRow key={row.team?.team_id ?? idx}>
                 <TableCell>{getRankEmoji(row.position)}</TableCell>
-                <TableCell>{row.team?.team_name ?? '-'}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 relative flex-shrink-0 rounded-full overflow-hidden">
+                      {row.team?.logo ? (
+                        <Image
+                          src={row.team.logo}
+                          alt={`${row.team.team_name} 로고`}
+                          fill
+                          className="object-cover"
+                          sizes="24px"
+                        />
+                      ) : (
+                        <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                          <span className="text-xs text-gray-500 font-medium">
+                            {row.team?.team_name?.charAt(0) || '?'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <span className="font-medium">
+                      {row.team?.team_name ?? '-'}
+                    </span>
+                  </div>
+                </TableCell>
                 <TableCell>{row.matches_played ?? '-'}</TableCell>
                 <TableCell>{row.wins ?? '-'}</TableCell>
                 <TableCell>{row.losses ?? '-'}</TableCell>

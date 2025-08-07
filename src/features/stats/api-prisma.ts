@@ -133,3 +133,32 @@ export const getStandingsWithTeamPrisma = async (seasonId: number) => {
   }
   return response.json();
 };
+
+// ========== Group League Standings ==========
+
+// Get group league standings by season and tournament stage
+export const getGroupLeagueStandingsPrisma = async (
+  seasonId: number,
+  tournamentStage?: string,
+  groupStage?: string
+) => {
+  const params = new URLSearchParams({
+    season_id: seasonId.toString(),
+  });
+
+  if (tournamentStage && tournamentStage !== 'all') {
+    params.append('tournament_stage', tournamentStage);
+  }
+
+  if (groupStage && groupStage !== 'all') {
+    params.append('group_stage', groupStage);
+  }
+
+  const response = await fetch(`/api/stats/group-league-standings?${params}`);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch group league standings: ${response.statusText}`
+    );
+  }
+  return response.json();
+};
