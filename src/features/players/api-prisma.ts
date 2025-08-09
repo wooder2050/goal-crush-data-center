@@ -70,7 +70,8 @@ export const getPlayersByPositionPrisma = async (
 
 // Get player summary (seasons, totals, primary position)
 export const getPlayerSummaryPrisma = async (
-  playerId: number
+  playerId: number,
+  teamId?: number
 ): Promise<{
   player_id: number;
   seasons: Array<{
@@ -85,15 +86,28 @@ export const getPlayerSummaryPrisma = async (
     positions: string[];
   }>;
   totals: { goals: number; assists: number; appearances: number };
+  totals_for_team?: { goals: number; assists: number; appearances: number };
+  per_team_totals?: Array<{
+    team_id: number;
+    team_name: string | null;
+    goals: number;
+    assists: number;
+    appearances: number;
+  }>;
   primary_position: string | null;
 }> => {
-  const response = await fetch(`/api/players/${playerId}/summary`);
+  const qs = teamId ? `?team_id=${teamId}` : '';
+  const response = await fetch(`/api/players/${playerId}/summary${qs}`);
   if (!response.ok) {
     if (response.status === 404) {
       return {
         player_id: playerId,
         seasons: [],
         totals: { goals: 0, assists: 0, appearances: 0 },
+        totals_for_team: teamId
+          ? { goals: 0, assists: 0, appearances: 0 }
+          : undefined,
+        per_team_totals: [],
         primary_position: null,
       };
     }

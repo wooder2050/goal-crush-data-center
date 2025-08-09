@@ -72,7 +72,7 @@ export const getTeamPlayersPrisma = async (
   teamId: number,
   scope: 'current' | 'all' = 'all'
 ): Promise<PlayerWithTeamHistory[]> => {
-  const qs = scope ? `?scope=${scope}` : '';
+  const qs = `?scope=${scope}&order=stats`;
   const response = await fetch(`/api/teams/${teamId}/players${qs}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch team players: ${response.statusText}`);
@@ -100,5 +100,39 @@ export const getTeamSeasonStandingsPrisma = async (
   if (!res.ok) {
     throw new Error(`Failed to fetch team season standings: ${res.statusText}`);
   }
+  return res.json();
+};
+
+export const getTeamHighlightsPrisma = async (
+  teamId: number
+): Promise<{
+  top_appearances: {
+    player_id: number;
+    name: string;
+    appearances: number;
+  } | null;
+  top_scorer: { player_id: number; name: string; goals: number } | null;
+  championships: {
+    count: number;
+    seasons: Array<{
+      season_id: number;
+      season_name: string | null;
+      year: number | null;
+    }>;
+  };
+  best_positions: {
+    super: number | null;
+    challenge: number | null;
+    cup: number | null;
+  };
+  best_overall: {
+    position: number | null;
+    league: 'super' | 'cup' | 'challenge' | null;
+  };
+  best_position: number | null;
+}> => {
+  const res = await fetch(`/api/teams/${teamId}/highlights`);
+  if (!res.ok)
+    throw new Error(`Failed to fetch team highlights: ${res.statusText}`);
   return res.json();
 };
