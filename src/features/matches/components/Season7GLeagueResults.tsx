@@ -30,7 +30,7 @@ const Season7GLeagueResults: React.FC<Season7GLeagueResultsProps> = ({
     'A' | 'B' | 'all'
   >('all');
   const [standingsSelectedTournament, setStandingsSelectedTournament] =
-    useState<'group_stage' | 'championship' | 'relegation' | 'all'>('all');
+    useState<'group_stage' | 'all'>('all');
 
   const {
     data: matches = [],
@@ -293,28 +293,6 @@ const Season7GLeagueResults: React.FC<Season7GLeagueResultsProps> = ({
                 onClick={() => setStandingsSelectedTournament('group_stage')}
               >
                 조별리그
-              </Button>
-              <Button
-                variant={
-                  standingsSelectedTournament === 'championship'
-                    ? 'primary'
-                    : 'outline'
-                }
-                size="sm"
-                onClick={() => setStandingsSelectedTournament('championship')}
-              >
-                우승 토너먼트
-              </Button>
-              <Button
-                variant={
-                  standingsSelectedTournament === 'relegation'
-                    ? 'primary'
-                    : 'outline'
-                }
-                size="sm"
-                onClick={() => setStandingsSelectedTournament('relegation')}
-              >
-                멸망 토너먼트
               </Button>
             </div>
           </div>

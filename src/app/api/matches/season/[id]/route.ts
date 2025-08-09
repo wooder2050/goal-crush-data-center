@@ -75,7 +75,7 @@ export async function GET(
       teamSeasonNames.map((t: TeamSeasonNameResult) => [t.team_id, t.team_name])
     );
 
-    // 각 경기에 대해 시즌별 팀명 적용
+    // 각 경기에 대해 시즌별 팀명 적용 (logo는 스프레드로 그대로 유지)
     const updatedMatches = matches.map((match) => ({
       ...match,
       home_team: match.home_team
@@ -83,7 +83,6 @@ export async function GET(
             ...match.home_team,
             team_name:
               teamNameMap.get(match.home_team_id!) || match.home_team.team_name,
-            logo: match.home_team.team_logo_url,
           }
         : null,
       away_team: match.away_team
@@ -91,7 +90,6 @@ export async function GET(
             ...match.away_team,
             team_name:
               teamNameMap.get(match.away_team_id!) || match.away_team.team_name,
-            logo: match.away_team.team_logo_url,
           }
         : null,
     }));

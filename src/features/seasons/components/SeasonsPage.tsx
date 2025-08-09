@@ -1,7 +1,7 @@
 'use client';
 
 import { isAfter, isBefore, parseISO, startOfDay } from 'date-fns';
-import { ArrowLeft, Calendar, ChevronRight, Trophy, Users } from 'lucide-react';
+import { Calendar, ChevronRight, Trophy, Users } from 'lucide-react';
 import Link from 'next/link';
 
 import {
@@ -17,6 +17,7 @@ import {
   H1,
   Section,
 } from '@/components/ui';
+import BackLink from '@/components/ui/back-link';
 import {
   getAllSeasonsPrisma,
   getSeasonRoute,
@@ -84,15 +85,10 @@ export default function SeasonsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Section padding="xl">
+      <Section padding="sm">
         {/* 뒤로가기 버튼 */}
         <div className="mb-8">
-          <Link href="/">
-            <Button variant="secondary">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              메인 페이지로 돌아가기
-            </Button>
-          </Link>
+          <BackLink href="/" label="메인 페이지로 돌아가기" />
         </div>
 
         <div className="text-center mb-12">
