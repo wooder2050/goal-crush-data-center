@@ -62,15 +62,16 @@ export const getWinnerTeam = (
  * 포지션별 색상 클래스 반환
  */
 export const getPositionColor = (position: string): string => {
-  switch (position) {
+  const code = getPositionText(position);
+  switch (code) {
     case 'GK':
-      return 'bg-gray-100 text-gray-800';
+      return 'bg-yellow-100 text-yellow-800';
     case 'DF':
-      return 'bg-gray-100 text-gray-800';
+      return 'bg-blue-100 text-blue-800';
     case 'MF':
-      return 'bg-gray-100 text-gray-800';
+      return 'bg-green-100 text-green-800';
     case 'FW':
-      return 'bg-gray-100 text-gray-800';
+      return 'bg-red-100 text-red-800';
     default:
       return 'bg-gray-100 text-gray-800';
   }

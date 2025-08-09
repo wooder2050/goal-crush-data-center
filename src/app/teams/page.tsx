@@ -1,10 +1,8 @@
 'use client';
 
-import { useMemo } from 'react';
-
 import BackLink from '@/components/ui/back-link';
 import { getTeamsPrisma } from '@/features/teams/api-prisma';
-import TeamGrid, { TeamWithExtras } from '@/features/teams/components/TeamGrid';
+import TeamGrid from '@/features/teams/components/TeamGrid';
 import TeamGridSkeleton from '@/features/teams/components/TeamGridSkeleton';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
@@ -14,8 +12,6 @@ export default function TeamsPage() {
     isLoading,
     error,
   } = useGoalQuery(getTeamsPrisma, []);
-
-  const items = useMemo(() => (teams as TeamWithExtras[]) ?? [], [teams]);
 
   if (isLoading) {
     return (
@@ -44,7 +40,7 @@ export default function TeamsPage() {
       </div>
       {/* 메인 콘텐츠 */}
       <div>
-        <TeamGrid teams={items as TeamWithExtras[]} />
+        <TeamGrid teams={teams} />
       </div>
     </div>
   );
