@@ -31,6 +31,8 @@ export async function GET(
         away_team_id: true,
         home_score: true,
         away_score: true,
+        penalty_home_score: true,
+        penalty_away_score: true,
       },
       orderBy: { match_date: 'asc' },
     });
@@ -49,9 +51,32 @@ export async function GET(
       const ga = isHome ? (m.away_score ?? 0) : (m.home_score ?? 0);
       goalsFor += gf;
       goalsAgainst += ga;
-      if (gf > ga) wins += 1;
-      else if (gf < ga) losses += 1;
-      else draws += 1;
+
+      if (gf > ga) {
+        wins += 1;
+        continue;
+      }
+      if (gf < ga) {
+        losses += 1;
+        continue;
+      }
+
+      // Regular-time draw: decide by penalty shootout if available
+      const pf = isHome
+        ? (m.penalty_home_score ?? null)
+        : (m.penalty_away_score ?? null);
+      const pa = isHome
+        ? (m.penalty_away_score ?? null)
+        : (m.penalty_home_score ?? null);
+
+      if (pf !== null && pa !== null && (pf !== 0 || pa !== 0)) {
+        if (pf > pa) wins += 1;
+        else if (pf < pa) losses += 1;
+        else draws += 1; // extremely rare, but guard just in case
+      } else {
+        // No penalty info: keep as draw
+        draws += 1;
+      }
     }
 
     const goalDiff = goalsFor - goalsAgainst;

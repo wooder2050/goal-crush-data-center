@@ -16,9 +16,11 @@ export default function TeamsPage() {
   if (isLoading) {
     return (
       <div className="px-4 sm:px-6 lg:px-8 py-6">
+        <div className="mb-8">
+          <BackLink href="/" label="메인 페이지로 돌아가기" />
+        </div>
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold">팀 목록</h1>
-          <BackLink href="/" label="메인 페이지로 돌아가기" />
         </div>
         <TeamGridSkeleton items={10} />
       </div>

@@ -31,15 +31,10 @@ function TeamDetailSuspenseBody({ teamId }: { teamId: number }) {
       <div className="flex items-center justify-between">
         <BackLink href="/teams" label="팀 목록으로 돌아가기" />
       </div>
-
       <TeamHeader team={team} />
-
       {stats && <TeamStatsCard stats={stats} />}
-
-      <TeamSquadTable players={players} />
-
+      <TeamSquadTable players={players} teamId={teamId} />
       <TeamSeasonStandings teamId={teamId} />
-
       <TeamMatchesShortcut
         href="/seasons/season-7-gleague"
         label="시즌 7 G리그 경기 보기"

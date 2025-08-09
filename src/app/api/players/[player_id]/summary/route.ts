@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 export const dynamic = 'force-dynamic';
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   context: { params: { player_id: string } }
 ) {
   try {
@@ -13,6 +13,10 @@ export async function GET(
     if (!playerId || Number.isNaN(playerId)) {
       return NextResponse.json({ error: 'Invalid player id' }, { status: 400 });
     }
+
+    const url = new URL(request.url);
+    const teamIdParam = url.searchParams.get('team_id');
+    const filterTeamId = teamIdParam ? Number(teamIdParam) : undefined;
 
     // Prefer season totals from player_season_stats
     const seasonStats = await prisma.playerSeasonStats.findMany({
@@ -207,10 +211,59 @@ export async function GET(
       { goals: 0, assists: 0, appearances: 0 }
     );
 
+    // Per-team totals from PMS
+    const perTeamMap = new Map<
+      number,
+      { goals: number; assists: number; appearances: number }
+    >();
+    for (let i = 0; i < pmsRows.length; i++) {
+      const r = pmsRows[i];
+      const tid = r.team_id as number | null;
+      if (!tid) continue;
+      if (!perTeamMap.has(tid))
+        perTeamMap.set(tid, { goals: 0, assists: 0, appearances: 0 });
+      const bucket = perTeamMap.get(tid)!;
+      bucket.goals += r.goals ?? 0;
+      bucket.assists += r.assists ?? 0;
+      bucket.appearances += 1;
+    }
+    const teamIds = Array.from(perTeamMap.keys());
+    const teamsMeta = teamIds.length
+      ? await prisma.team.findMany({
+          where: { team_id: { in: teamIds } },
+          select: { team_id: true, team_name: true },
+        })
+      : [];
+    const teamNameMap = new Map<number, string>();
+    for (let i = 0; i < teamsMeta.length; i++)
+      teamNameMap.set(teamsMeta[i].team_id, teamsMeta[i].team_name);
+    const per_team_totals = teamIds.map((tid) => ({
+      team_id: tid,
+      team_name: teamNameMap.get(tid) ?? null,
+      goals: perTeamMap.get(tid)!.goals,
+      assists: perTeamMap.get(tid)!.assists,
+      appearances: perTeamMap.get(tid)!.appearances,
+    }));
+
+    // Totals for selected team (if requested)
+    let totals_for_team:
+      | { goals: number; assists: number; appearances: number }
+      | undefined = undefined;
+    if (filterTeamId) {
+      const b = perTeamMap.get(filterTeamId);
+      totals_for_team = {
+        goals: b?.goals ?? 0,
+        assists: b?.assists ?? 0,
+        appearances: b?.appearances ?? 0,
+      };
+    }
+
     return NextResponse.json({
       player_id: playerId,
       seasons,
       totals,
+      totals_for_team,
+      per_team_totals,
       primary_position: primaryPosition,
     });
   } catch (error) {
