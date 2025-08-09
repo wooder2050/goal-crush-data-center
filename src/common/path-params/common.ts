@@ -1,0 +1,50 @@
+type DynamicSegment = {
+  teamId: string;
+};
+export type PathParamName = keyof DynamicSegment;
+
+type Either<Data, Err> = [Data, undefined] | [undefined, Err];
+
+const resolverMap = {
+  teamId: (value) => {
+    if (value === undefined) throw new Error("'teamId' not defined");
+    return value;
+  },
+} satisfies {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [K in PathParamName]: (value: Partial<DynamicSegment>[K]) => any;
+};
+type ResolverMap = typeof resolverMap;
+
+type ResolvedPathParams<T extends PathParamName[]> = T extends [
+  infer First,
+  ...infer Rest,
+]
+  ? First extends PathParamName
+    ? Rest extends PathParamName[]
+      ? [ReturnType<ResolverMap[First]>, ...ResolvedPathParams<Rest>]
+      : never
+    : never
+  : [];
+
+export function resolvePathParams<T extends PathParamName[]>(
+  pathParams: Record<string, unknown>,
+  ...pathParamNameList: T
+): Either<ResolvedPathParams<T>, Error> {
+  const ret: unknown[] = [];
+  for (const paramName of pathParamNameList) {
+    const targetValue = pathParams[paramName];
+    if (targetValue === undefined)
+      return [
+        undefined,
+        new Error(`path param object does not have '${paramName}' field.`),
+      ];
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ret.push(resolverMap[paramName](targetValue as any));
+    } catch (err) {
+      return [undefined, err as Error];
+    }
+  }
+  return [ret as ResolvedPathParams<T>, undefined];
+}

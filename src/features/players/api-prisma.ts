@@ -67,3 +67,37 @@ export const getPlayersByPositionPrisma = async (
   }
   return response.json();
 };
+
+// Get player summary (seasons, totals, primary position)
+export const getPlayerSummaryPrisma = async (
+  playerId: number
+): Promise<{
+  player_id: number;
+  seasons: Array<{
+    season_id: number | null;
+    season_name: string | null;
+    year: number | null;
+    team_id: number | null;
+    team_name: string | null;
+    goals: number;
+    assists: number;
+    appearances: number;
+    positions: string[];
+  }>;
+  totals: { goals: number; assists: number; appearances: number };
+  primary_position: string | null;
+}> => {
+  const response = await fetch(`/api/players/${playerId}/summary`);
+  if (!response.ok) {
+    if (response.status === 404) {
+      return {
+        player_id: playerId,
+        seasons: [],
+        totals: { goals: 0, assists: 0, appearances: 0 },
+        primary_position: null,
+      };
+    }
+    throw new Error(`Failed to fetch player summary: ${response.statusText}`);
+  }
+  return response.json();
+};

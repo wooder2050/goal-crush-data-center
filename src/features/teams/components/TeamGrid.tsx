@@ -5,23 +5,7 @@ import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import type { Team } from '@/lib/types';
-
-export type SeasonBasic = {
-  season_id: number;
-  season_name: string;
-  year: number;
-};
-export type TeamWithExtras = Team & {
-  _count?: { team_seasons?: number };
-  team_seasons?: { season?: SeasonBasic }[];
-  representative_players?: {
-    player_id: number;
-    name: string;
-    jersey_number: number | null;
-    appearances: number;
-  }[];
-};
+import type { SeasonBasic, TeamWithExtras } from '@/features/teams/types';
 
 function sanitizeSeasonName(name: string) {
   const p1 = '골때리는 그녀들 ';
@@ -55,7 +39,7 @@ export default function TeamGrid({ teams }: TeamGridProps) {
         );
 
         const repsText = (team.representative_players ?? [])
-          .slice(0, 3)
+          .slice(0, 2)
           .map(
             (p) => `#${p.jersey_number ?? '-'} ${p.name} (${p.appearances}경기)`
           )

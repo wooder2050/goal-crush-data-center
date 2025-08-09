@@ -8,6 +8,8 @@ import { MatchWithTeams } from '@/lib/types/database';
 
 import { getMatchAssistsPrisma, getMatchLineupsPrisma } from '../../api-prisma';
 import { getPositionColor, getPositionText } from '../../lib/matchUtils';
+import LineupsEmpty from './LineupsEmpty';
+import LineupsSkeleton from './LineupsSkeleton';
 
 // 어시스트 정보 타입
 type AssistWithPlayer = {
@@ -112,16 +114,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
 
   // 로딩 상태
   if (isLoading) {
-    return (
-      <div className={`mt-4 pt-3 border-t border-gray-200 ${className}`}>
-        <div className="text-sm font-medium text-gray-700 mb-3">
-          👥 출전 선수
-        </div>
-        <div className="text-center py-4">
-          <div className="text-gray-500 text-sm">라인업을 불러오는 중...</div>
-        </div>
-      </div>
-    );
+    return <LineupsSkeleton className={className} />;
   }
 
   // 에러 상태
@@ -141,9 +134,9 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
     );
   }
 
-  // 라인업이 없으면 렌더링하지 않음
+  // 라인업이 없으면 렌더링하지 않음 -> 명시적 Empty 표시
   if (homeLineups.length === 0 && awayLineups.length === 0) {
-    return null;
+    return <LineupsEmpty className={className} />;
   }
 
   return (
