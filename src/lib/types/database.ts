@@ -21,6 +21,8 @@ export interface Team {
   logo?: string;
   primary_color?: string;
   secondary_color?: string;
+  founded_year?: number;
+  description?: string;
 }
 
 export interface Season {

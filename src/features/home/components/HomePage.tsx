@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  BarChart3,
-  Calendar,
-  Database,
-  List,
-  Trophy,
-  Users,
-} from 'lucide-react';
+import { BarChart3, Database, List, Trophy, Users } from 'lucide-react';
 import Link from 'next/link';
 
 import {
@@ -79,16 +72,16 @@ export default function HomePage() {
           <Card className="hover:scale-105 transition-transform">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Trophy className="h-5 w-5" />팀 관리
+                <Trophy className="h-5 w-5" />팀 정보 보기
               </CardTitle>
               <CardDescription>
-                팀 정보 및 팀 구성 관리 기능입니다.
+                팀 정보 및 팀 구성 정보를 확인합니다.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="secondary" className="w-full" disabled>
-                개발 예정
-              </Button>
+              <Link href="/teams">
+                <Button className="w-full">팀 정보 보기</Button>
+              </Link>
             </CardContent>
           </Card>
 
@@ -127,88 +120,7 @@ export default function HomePage() {
               </Button>
             </CardContent>
           </Card>
-
-          {/* 빠른 접근 - 최신 시즌 */}
-          <Card className="hover:scale-105 transition-transform border-l-4 border-[#ff4800]">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                빠른 접근
-              </CardTitle>
-              <CardDescription>
-                최신 시즌 결과에 바로 접근합니다.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Link href="/sbs-cup-2">
-                <Button variant="outline" size="sm" className="w-full">
-                  제 2 SBS Cup
-                </Button>
-              </Link>
-              <Link href="/season-5-playoff">
-                <Button variant="outline" size="sm" className="w-full">
-                  시즌 5 플레이오프
-                </Button>
-              </Link>
-              <Link href="/season-5-challenge">
-                <Button variant="outline" size="sm" className="w-full">
-                  시즌 5 챌린지
-                </Button>
-              </Link>
-              <Link href="/season-2">
-                <Button variant="outline" size="sm" className="w-full">
-                  시즌 2 결과
-                </Button>
-              </Link>
-              <Link href="/season-1">
-                <Button variant="outline" size="sm" className="w-full">
-                  시즌 1 결과
-                </Button>
-              </Link>
-              <Link href="/pilot-season">
-                <Button variant="outline" size="sm" className="w-full">
-                  파일럿 시즌
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
         </Grid>
-
-        <Section
-          title="프로젝트 정보"
-          subtitle="기술 스택 및 아키텍처"
-          background="gray"
-          padding="lg"
-        >
-          <Grid cols={3} gap="md">
-            <Card>
-              <CardHeader>
-                <CardTitle>기술 스택</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Body>Next.js, TypeScript, Supabase</Body>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>아키텍처</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Body>Feature Sliced Design</Body>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>데이터 관리</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Body>수동 입력 및 관리</Body>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Section>
       </Section>
     </div>
   );
