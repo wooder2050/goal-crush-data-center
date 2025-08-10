@@ -19,7 +19,7 @@ import {
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
-      <Section padding="xl">
+      <Section padding="sm">
         <div className="text-center mb-12">
           <H1 className="mb-4">골 때리는 그녀들 데이터 센터</H1>
           <Badge variant="emphasisOutline" className="px-6 py-2">

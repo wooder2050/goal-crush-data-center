@@ -1,46 +1,50 @@
 'use client';
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import * as React from 'react';
 
-import { THEME } from '@/constants/theme';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps extends React.HTMLAttributes<HTMLElement> {
   children?: React.ReactNode;
 }
 
+const CHANNELS: { label: string; href: string }[] = [
+  { label: '골 때리는 그녀들 데이터센터', href: '/' },
+];
+
 const Header = React.forwardRef<HTMLElement, HeaderProps>(
   ({ className, children, ...props }, ref) => {
     return (
       <header
         ref={ref}
-        className={cn(
-          'h-15 bg-white border-b border-gray-200 px-4 lg:px-6',
-          className
-        )}
+        className={cn('bg-white border-b border-gray-200', className)}
         {...props}
       >
-        <div className="max-w-7xl mx-auto h-full flex items-center justify-between">
-          <div className="flex items-center space-x-8">
-            {/* Logo */}
-            <div className="flex items-center space-x-2">
-              <h1 className="text-xl font-bold text-black">
-                {THEME.brand.name}
-              </h1>
-              <span className="text-sm text-gray-600 hidden sm:block">
-                {THEME.brand.tagline}
-              </span>
+        {/* Row 1: channels (large, bold) */}
+        <div className="px-4 lg:px-6">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex w-full items-center gap-6 overflow-x-auto py-1 md:py-2">
+              {CHANNELS.map((c) => (
+                <Link
+                  key={c.label}
+                  href={c.href}
+                  className="whitespace-nowrap text-xl font-bold tracking-tight text-black md:text-2xl"
+                >
+                  {c.label}
+                </Link>
+              ))}
             </div>
+          </div>
+        </div>
 
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-6">
+        {/* Row 2: categories (children) with active underline */}
+        <div className="px-4 lg:px-6">
+          <div className="mx-auto flex h-12 max-w-7xl items-end overflow-x-auto">
+            <nav className="flex items-end gap-6 whitespace-nowrap">
               {children}
             </nav>
-          </div>
-
-          {/* Right side actions */}
-          <div className="flex items-center space-x-4">
-            {/* Add your action buttons here */}
           </div>
         </div>
       </header>
@@ -51,24 +55,46 @@ Header.displayName = 'Header';
 
 interface NavItemProps extends React.HTMLAttributes<HTMLAnchorElement> {
   href: string;
-  isActive?: boolean;
+  isActive?: boolean; // optional override
 }
 
 const NavItem = React.forwardRef<HTMLAnchorElement, NavItemProps>(
   ({ className, href, isActive, children, ...props }, ref) => {
+    const pathname = usePathname();
+    const computedActive = React.useMemo(() => {
+      if (typeof isActive === 'boolean') return isActive;
+      const normalize = (p: string) =>
+        p.endsWith('/') && p !== '/' ? p.slice(0, -1) : p;
+      const current = normalize(pathname || '/');
+      const target = normalize(href);
+      if (target === '/') return current === '/';
+      return current === target || current.startsWith(`${target}/`);
+    }, [href, isActive, pathname]);
+
     return (
-      <a
-        ref={ref}
+      <Link
+        // Next.js Link doesn't forward ref types directly; cast safely
+        ref={ref as React.Ref<HTMLAnchorElement>}
         href={href}
         className={cn(
-          'text-sm font-medium transition-colors hover:text-black',
-          isActive ? 'text-black' : 'text-gray-600',
+          'relative group pb-2 text-sm tracking-wide transition-colors',
+          computedActive
+            ? 'font-bold text-black'
+            : 'font-medium text-gray-700 hover:text-black',
           className
         )}
         {...props}
       >
         {children}
-      </a>
+        <span
+          className={cn(
+            'absolute inset-x-0 -bottom-px transition-all',
+            computedActive
+              ? 'h-[3px] bg-black'
+              : 'h-[2px] bg-transparent group-hover:bg-gray-300'
+          )}
+        />
+      </Link>
     );
   }
 );

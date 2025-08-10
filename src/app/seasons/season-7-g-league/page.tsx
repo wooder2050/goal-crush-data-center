@@ -1,17 +1,11 @@
 'use client';
 
-import BackLink from '@/components/ui/back-link';
-import { Season7GLeagueResults } from '@/features/matches';
+import Season7GLeagueResults from '@/features/matches/components/Season7GLeagueResults';
 
 export default function Season6SuperPage() {
   return (
-    <main className="min-h-screen bg-gray-50">
-      <div className="container mx-auto max-w-6xl">
-        <div className="pt-6 pb-4">
-          <BackLink href="/seasons" label="시즌 목록으로 돌아가기" />
-        </div>
-        <Season7GLeagueResults />
-      </div>
+    <main className="min-h-screen bg-white">
+      <Season7GLeagueResults />
     </main>
   );
 }

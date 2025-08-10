@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
 import { useResolvedPathParams } from '@/common/path-params/client';
-import BackLink from '@/components/ui/back-link';
 import {
   getTeamByIdPrisma,
   getTeamPlayersPrisma,
@@ -28,9 +27,6 @@ function TeamDetailSuspenseBody({ teamId }: { teamId: number }) {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <BackLink href="/teams" label="팀 목록으로 돌아가기" />
-      </div>
       <TeamHeader team={team} />
       {stats && <TeamStatsCard stats={stats} />}
       <TeamSquadTable players={players} teamId={teamId} />

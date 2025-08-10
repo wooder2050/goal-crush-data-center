@@ -1,8 +1,8 @@
 export const THEME = {
   brand: {
-    name: '미니멀 스타일',
-    tagline: '감도 깊은 취향 셀렉트샵',
-    description: '미니멀하고 세련된 패션/라이프스타일 플랫폼',
+    name: '골 때리는 그녀들',
+    tagline: '데이터센터',
+    description: '데이터센터',
   },
 
   colors: {

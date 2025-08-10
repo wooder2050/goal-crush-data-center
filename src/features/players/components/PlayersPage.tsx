@@ -5,7 +5,6 @@ import { useCallback, useState } from 'react';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
 import { Grid, Section } from '@/components/ui';
-import BackLink from '@/components/ui/back-link';
 import PlayersContent from '@/features/players/components/PlayersContent';
 import SkeletonCard from '@/features/players/components/SkeletonCard';
 
@@ -35,9 +34,6 @@ export default function PlayersPage() {
 
   return (
     <Section padding="sm">
-      <div className="mb-6">
-        <BackLink href="/" label="메인 페이지로 돌아가기" />
-      </div>
       <div className="mb-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold">선수 정보 보기</h1>
@@ -80,7 +76,7 @@ export default function PlayersPage() {
             <div className="mb-3 rounded-md border bg-white">
               <div className="flex h-11 items-center justify-between px-3">
                 {/* Left: tabs skeletons */}
-                <div className="flex items-center gap-4">
+                <div className="flex max-w-full items-center gap-4 overflow-x-auto">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <span
                       key={i}
@@ -88,10 +84,14 @@ export default function PlayersPage() {
                     />
                   ))}
                 </div>
-                {/* Right: select skeletons */}
-                <div className="flex items-center gap-3 pl-3 ml-3 border-l border-gray-200">
-                  <span className="h-6 w-28 rounded bg-gray-200 animate-pulse" />
-                  <span className="h-6 w-24 rounded bg-gray-200 animate-pulse" />
+                {/* Right: select skeletons - mirror real layout (left border + inner px and divider) */}
+                <div className="flex items-center pl-3 ml-3 border-l border-gray-200 divide-x divide-gray-200">
+                  <div className="px-3">
+                    <span className="block h-10 w-[150px] rounded bg-gray-200 animate-pulse" />
+                  </div>
+                  <div className="px-3">
+                    <span className="block h-10 w-[120px] rounded bg-gray-200 animate-pulse" />
+                  </div>
                 </div>
               </div>
             </div>
