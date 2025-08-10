@@ -92,7 +92,6 @@ export default function PlayerInfiniteList({
     <>
       <PlayersListBody
         items={allItems.length > 0 ? allItems : prevItems}
-        totalCount={totalCount}
         showFillers={showFillers}
       />
       {allItems.length > 0 && hasNextPage && (

@@ -51,7 +51,7 @@ export async function GET(
 
     // 시즌별 팀명을 한 번에 조회 - Prisma 관계 쿼리 사용
     const teamSeasonNames = await (
-      prisma as ExtendedPrismaClient
+      prisma as unknown as ExtendedPrismaClient
     ).teamSeasonName.findMany({
       where: {
         OR: [
