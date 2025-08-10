@@ -4,28 +4,13 @@ import React from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
+import type { Assist } from '@/lib/types';
 import { MatchWithTeams } from '@/lib/types/database';
 
 import { getMatchAssistsPrisma, getMatchLineupsPrisma } from '../../api-prisma';
 import { getPositionColor, getPositionText } from '../../lib/matchUtils';
 import LineupsEmpty from './LineupsEmpty';
 import LineupsSkeleton from './LineupsSkeleton';
-
-// 어시스트 정보 타입
-type AssistWithPlayer = {
-  assist_id: number;
-  match_id: number;
-  player_id: number;
-  goal_id: number;
-  assist_time: number | null;
-  assist_type: string | null;
-  description: string | null;
-  player: {
-    player_id: number;
-    name: string;
-    jersey_number: number | null;
-  };
-};
 
 // 라인업 선수 타입 정의
 interface LineupPlayer {
@@ -58,7 +43,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
   } = useGoalQuery(getMatchLineupsPrisma, [match.match_id]);
 
   // 어시스트 데이터를 React Query로 호출
-  const { data: assists = [] as AssistWithPlayer[] } = useGoalQuery(
+  const { data: assists = [] as Assist[] } = useGoalQuery(
     getMatchAssistsPrisma,
     [match.match_id]
   );
@@ -81,9 +66,7 @@ const TeamLineupsSection: React.FC<TeamLineupsSectionProps> = ({
   // 라인업에 어시스트 정보 추가
   const addAssistsToLineup = (lineup: LineupPlayer[]): LineupPlayer[] => {
     return lineup.map((player) => {
-      // player_id를 사용하여 어시스트 수 찾기
       const assists = assistsByPlayer[player.player_id] || 0;
-
       return {
         ...player,
         assists,

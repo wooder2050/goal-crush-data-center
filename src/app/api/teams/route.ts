@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
           : [];
 
         const representative_players = grouped.map((g) => {
-          const pid = g.player_id as number | null;
+          const pid = g.player_id;
           const appearances = g._count.player_id;
           if (pid === null) {
             return {

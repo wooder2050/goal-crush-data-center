@@ -1,5 +1,6 @@
 type DynamicSegment = {
   teamId: string;
+  playerId: string;
 };
 export type PathParamName = keyof DynamicSegment;
 
@@ -10,9 +11,13 @@ const resolverMap = {
     if (value === undefined) throw new Error("'teamId' not defined");
     return value;
   },
+  playerId: (value) => {
+    if (value === undefined) throw new Error("'playerId' not defined");
+    return value;
+  },
 } satisfies {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [K in PathParamName]: (value: Partial<DynamicSegment>[K]) => any;
+  [K in PathParamName]: (value: Partial<DynamicSegment>[K]) => string;
 };
 type ResolverMap = typeof resolverMap;
 
@@ -40,8 +45,7 @@ export function resolvePathParams<T extends PathParamName[]>(
         new Error(`path param object does not have '${paramName}' field.`),
       ];
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ret.push(resolverMap[paramName](targetValue as any));
+      ret.push(resolverMap[paramName](targetValue as string));
     } catch (err) {
       return [undefined, err as Error];
     }

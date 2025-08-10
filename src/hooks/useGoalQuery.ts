@@ -2,7 +2,11 @@
 'use client';
 
 import {
+  InfiniteData,
   QueryKey,
+  useInfiniteQuery,
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
   useQuery,
   UseQueryOptions,
   UseQueryResult,
@@ -52,5 +56,80 @@ export function useGoalSuspenseQuery<
     queryKey: [apiFn.name, ...params],
     queryFn: () => apiFn(...params),
     ...options,
+  });
+}
+
+/**
+ * 무한 스크롤 쿼리 훅 (고정된 InfiniteData 반환)
+ */
+export type UseGoalInfiniteQueryOptions<
+  TQueryFn extends (...args: any[]) => Promise<any>,
+  TPageParam,
+> = Omit<
+  UseInfiniteQueryOptions<
+    Awaited<ReturnType<TQueryFn>>,
+    Error,
+    InfiniteData<Awaited<ReturnType<TQueryFn>>, TPageParam>,
+    readonly unknown[],
+    TPageParam
+  >,
+  'queryKey' | 'queryFn'
+>;
+
+export function useGoalInfiniteQuery<
+  TQueryFn extends (...args: any[]) => Promise<any>,
+  TPageParam,
+>(
+  apiFn: TQueryFn,
+  getParams: (arg: { pageParam: TPageParam }) => Parameters<TQueryFn>,
+  options: UseGoalInfiniteQueryOptions<TQueryFn, TPageParam>
+): UseInfiniteQueryResult<
+  InfiniteData<Awaited<ReturnType<TQueryFn>>, TPageParam>,
+  Error
+> {
+  const typed = options as UseInfiniteQueryOptions<
+    Awaited<ReturnType<TQueryFn>>,
+    Error,
+    InfiniteData<Awaited<ReturnType<TQueryFn>>, TPageParam>,
+    readonly unknown[],
+    TPageParam
+  >;
+  const { initialPageParam, getNextPageParam, ...rest } = typed;
+  const paramsForKey = getParams({ pageParam: initialPageParam as TPageParam });
+  const safeName =
+    (typeof apiFn === 'function' && (apiFn as { name?: string }).name) ||
+    'anonymous';
+  const keyParams = JSON.stringify(paramsForKey);
+
+  // Remove forbidden keys without introducing unused vars
+  const sanitizedRestObj = { ...(rest as Record<string, unknown>) };
+  delete (sanitizedRestObj as Record<string, unknown>).queryKey;
+  delete (sanitizedRestObj as Record<string, unknown>).queryFn;
+
+  return useInfiniteQuery<
+    Awaited<ReturnType<TQueryFn>>,
+    Error,
+    InfiniteData<Awaited<ReturnType<TQueryFn>>, TPageParam>,
+    readonly unknown[],
+    TPageParam
+  >({
+    queryKey: [safeName, keyParams, 'infinite'],
+    initialPageParam: initialPageParam as TPageParam,
+    getNextPageParam: getNextPageParam as NonNullable<typeof getNextPageParam>,
+    queryFn: ({ pageParam }) =>
+      apiFn(
+        ...(getParams({
+          pageParam: pageParam as TPageParam,
+        }) as Parameters<TQueryFn>)
+      ),
+    ...(sanitizedRestObj as Partial<
+      UseInfiniteQueryOptions<
+        Awaited<ReturnType<TQueryFn>>,
+        Error,
+        InfiniteData<Awaited<ReturnType<TQueryFn>>, TPageParam>,
+        readonly unknown[],
+        TPageParam
+      >
+    >),
   });
 }
