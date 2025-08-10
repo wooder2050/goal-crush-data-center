@@ -27,9 +27,26 @@ export async function GET(
         assists: true,
         matches_played: true,
         season: { select: { season_id: true, season_name: true, year: true } },
-        team: { select: { team_id: true, team_name: true } },
+        team: { select: { team_id: true, team_name: true, logo: true } },
       },
       orderBy: [{ season_id: 'asc' }],
+    });
+
+    // Team history (latest first; end_date null first if current)
+    const teamHistoryRows = await prisma.playerTeamHistory.findMany({
+      where: { player_id: playerId },
+      include: {
+        team: {
+          select: {
+            team_id: true,
+            team_name: true,
+            logo: true,
+            primary_color: true,
+            secondary_color: true,
+          },
+        },
+      },
+      orderBy: [{ end_date: 'desc' }, { created_at: 'desc' }],
     });
 
     // Backfill map from player_match_stats if needed
@@ -101,6 +118,24 @@ export async function GET(
       seasonMetaMap.set(seasonsMeta[i].season_id, seasonsMeta[i]);
     }
 
+    // Penalty goals aggregated by season
+    const penaltyGoalsBySeason = new Map<number, number>();
+    if (seasonIdList.length > 0) {
+      const penaltyRows = await prisma.goal.findMany({
+        where: {
+          player_id: playerId,
+          goal_type: 'penalty',
+          match: { season_id: { in: seasonIdList } },
+        },
+        select: { match: { select: { season_id: true } } },
+      });
+      for (let i = 0; i < penaltyRows.length; i++) {
+        const sid = penaltyRows[i].match?.season_id;
+        if (!sid) continue;
+        penaltyGoalsBySeason.set(sid, (penaltyGoalsBySeason.get(sid) ?? 0) + 1);
+      }
+    }
+
     const seasons = Array.from(seasonIds)
       .sort((a, b) => a - b)
       .map((sid) => {
@@ -110,6 +145,7 @@ export async function GET(
         // Choose team by max appearances in PMS if DB not available
         let team_id: number | null = db?.team?.team_id ?? null;
         const team_name: string | null = db?.team?.team_name ?? null;
+        const team_logo: string | null = db?.team?.logo ?? null;
         if (!team_id && agg && agg.teamCounts.size > 0) {
           let bestTeamId: number | null = null;
           let bestCount = -1;
@@ -131,12 +167,37 @@ export async function GET(
           year: seasonMetaMap.get(sid)?.year ?? db?.season?.year ?? null,
           team_id,
           team_name,
-          goals: (db?.goals ?? agg?.goals ?? 0) as number,
-          assists: (db?.assists ?? agg?.assists ?? 0) as number,
-          appearances: (db?.matches_played ?? agg?.appearances ?? 0) as number,
+          team_logo,
+          goals: (agg?.goals ?? db?.goals ?? 0) as number,
+          assists: (agg?.assists ?? db?.assists ?? 0) as number,
+          appearances: (agg?.appearances ?? db?.matches_played ?? 0) as number,
+          penalty_goals: penaltyGoalsBySeason.get(sid) ?? 0,
           positions: [] as string[], // filled below
         };
       });
+
+    // Enrich seasons with team logos for those missing but with team_id
+    const idsNeedingLogo = Array.from(
+      new Set(
+        seasons
+          .filter((s) => s.team_id && !s.team_logo)
+          .map((s) => s.team_id as number)
+      )
+    );
+    if (idsNeedingLogo.length > 0) {
+      const logos = await prisma.team.findMany({
+        where: { team_id: { in: idsNeedingLogo } },
+        select: { team_id: true, logo: true },
+      });
+      const logoMap = new Map<number, string | null>();
+      logos.forEach((t) => logoMap.set(t.team_id, t.logo ?? null));
+      for (let i = 0; i < seasons.length; i++) {
+        const tid = seasons[i].team_id as number | null;
+        if (tid && !seasons[i].team_logo) {
+          seasons[i].team_logo = logoMap.get(tid) ?? null;
+        }
+      }
+    }
 
     // Primary position from PlayerMatchStats frequency, fallback to player_positions latest
     const matchPositions = pmsRows
@@ -144,14 +205,14 @@ export async function GET(
       .map((r) => r.position as string);
 
     let primaryPosition: string | null = null;
+    const positionFrequency = new Map<string, number>();
     if (matchPositions.length > 0) {
-      const freq = new Map<string, number>();
       for (let i = 0; i < matchPositions.length; i++) {
         const pos = matchPositions[i];
-        freq.set(pos, (freq.get(pos) ?? 0) + 1);
+        positionFrequency.set(pos, (positionFrequency.get(pos) ?? 0) + 1);
       }
       let maxCount = -1;
-      freq.forEach((count, pos) => {
+      positionFrequency.forEach((count, pos) => {
         if (count > maxCount) {
           maxCount = count;
           primaryPosition = pos;
@@ -258,6 +319,110 @@ export async function GET(
       };
     }
 
+    // Positions frequency list (descending)
+    const positions_frequency = Array.from(positionFrequency.entries())
+      .map(([position, matches]) => ({ position, matches }))
+      .sort((a, b) => b.matches - a.matches);
+
+    // Map team history for response
+    type THRow = (typeof teamHistoryRows)[number];
+    const team_history = teamHistoryRows.map((r: THRow) => ({
+      team_id: r.team?.team_id ?? null,
+      team_name: r.team?.team_name ?? null,
+      logo: r.team?.logo ?? null,
+      primary_color: r.team?.primary_color ?? null,
+      secondary_color: r.team?.secondary_color ?? null,
+      start_date: r.start_date,
+      end_date: r.end_date,
+      is_active: r.is_active,
+    }));
+
+    // Goal matches (matches where the player scored)
+    const goalPmsRows = pmsRows.filter((r) => (r.goals ?? 0) > 0);
+    let goal_matches: Array<{
+      match_id: number;
+      match_date: string | null;
+      season_id: number | null;
+      season_name: string | null;
+      team_id: number | null;
+      team_name: string | null;
+      team_logo: string | null;
+      opponent_id: number | null;
+      opponent_name: string | null;
+      opponent_logo: string | null;
+      player_goals: number;
+      penalty_goals: number;
+      home_score: number | null;
+      away_score: number | null;
+      is_home: boolean;
+      tournament_stage: string | null;
+    }> = [];
+    if (goalPmsRows.length > 0) {
+      const matchIds = Array.from(
+        new Set(goalPmsRows.map((g) => g.match_id!).filter(Boolean))
+      ) as number[];
+      const matches = await prisma.match.findMany({
+        where: { match_id: { in: matchIds } },
+        select: {
+          match_id: true,
+          match_date: true,
+          season: { select: { season_id: true, season_name: true } },
+          home_team_id: true,
+          away_team_id: true,
+          home_team: { select: { team_id: true, team_name: true, logo: true } },
+          away_team: { select: { team_id: true, team_name: true, logo: true } },
+          home_score: true,
+          away_score: true,
+          tournament_stage: true,
+        },
+      });
+      // penalty goals per match for this player
+      const goalsRows = await prisma.goal.findMany({
+        where: { player_id: playerId, match_id: { in: matchIds } },
+        select: { match_id: true, goal_type: true },
+      });
+      const penaltyCountByMatch = new Map<number, number>();
+      for (let i = 0; i < goalsRows.length; i++) {
+        const gr = goalsRows[i];
+        const isPenalty = (gr.goal_type ?? '').toLowerCase() === 'penalty';
+        if (!isPenalty) continue;
+        const mid = gr.match_id;
+        penaltyCountByMatch.set(mid, (penaltyCountByMatch.get(mid) ?? 0) + 1);
+      }
+      const matchMap = new Map<number, (typeof matches)[number]>();
+      matches.forEach((m) => matchMap.set(m.match_id, m));
+      goal_matches = goalPmsRows
+        .map((g) => {
+          const m = matchMap.get(g.match_id!);
+          if (!m) return null;
+          const playerTeamId = (g.team_id as number | null) ?? null;
+          const isHome =
+            playerTeamId != null && playerTeamId === m.home_team_id;
+          const teamMeta = isHome ? m.home_team : m.away_team;
+          const opponentMeta = isHome ? m.away_team : m.home_team;
+          return {
+            match_id: m.match_id,
+            match_date: m.match_date?.toISOString() ?? null,
+            season_id: m.season?.season_id ?? null,
+            season_name: m.season?.season_name ?? null,
+            team_id: teamMeta?.team_id ?? null,
+            team_name: teamMeta?.team_name ?? null,
+            team_logo: teamMeta?.logo ?? null,
+            opponent_id: opponentMeta?.team_id ?? null,
+            opponent_name: opponentMeta?.team_name ?? null,
+            opponent_logo: opponentMeta?.logo ?? null,
+            player_goals: g.goals ?? 0,
+            penalty_goals: penaltyCountByMatch.get(m.match_id) ?? 0,
+            home_score: m.home_score ?? null,
+            away_score: m.away_score ?? null,
+            is_home: isHome,
+            tournament_stage: m.tournament_stage ?? null,
+          };
+        })
+        .filter((v): v is NonNullable<typeof v> => v !== null)
+        .sort((a, b) => (b.match_date ?? '').localeCompare(a.match_date ?? ''));
+    }
+
     return NextResponse.json({
       player_id: playerId,
       seasons,
@@ -265,6 +430,9 @@ export async function GET(
       totals_for_team,
       per_team_totals,
       primary_position: primaryPosition,
+      positions_frequency,
+      team_history,
+      goal_matches,
     });
   } catch (error) {
     console.error('Error fetching player summary:', error);

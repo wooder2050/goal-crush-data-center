@@ -1,7 +1,7 @@
 import type { TeamWithExtras } from '@/features/teams/types';
 import { Player, PlayerTeamHistory, Team } from '@/lib/types';
 
-// 추가 타입 정의
+// Additional type definitions
 export type PlayerWithTeamHistory = Player & {
   player_team_history: PlayerTeamHistory[];
 };
@@ -29,8 +29,8 @@ export type TeamSeasonStandingRow = {
   points: number;
 };
 
-// Prisma 기반 Teams API 클라이언트 함수들
-// 기존 Supabase API와 동일한 인터페이스를 제공하지만 Next.js API Routes를 사용
+// Prisma-based Teams API client functions
+// Provides the same interface as Supabase but uses Next.js API Routes
 
 // ============== Basic Team CRUD Operations ==============
 

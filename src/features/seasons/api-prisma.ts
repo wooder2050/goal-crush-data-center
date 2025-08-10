@@ -1,17 +1,17 @@
 import { Season } from '@/lib/types';
 
-// 확장된 시즌 타입 정의
+// Extended season type definition
 export interface SeasonWithStats extends Season {
   status?: 'upcoming' | 'ongoing' | 'completed';
   match_count?: number;
 }
 
-// Prisma 기반 Seasons API 클라이언트 함수들
-// 기존 Supabase API와 동일한 인터페이스를 제공하지만 Next.js API Routes를 사용
+// Prisma-based Seasons API client functions
+// Provides the same interface as Supabase but uses Next.js API Routes
 
 // ============== Basic Season CRUD Operations ==============
 
-// 모든 시즌 목록 가져오기
+// Get all seasons
 export const getAllSeasonsPrisma = async (): Promise<SeasonWithStats[]> => {
   const response = await fetch('/api/seasons');
   if (!response.ok) {
@@ -68,7 +68,7 @@ export const searchSeasonsByNamePrisma = async (
   return response.json();
 };
 
-// 시즌별 라우팅 경로 매핑
+// Season route mapping
 export const getSeasonRoute = (seasonName: string): string => {
   const routeMap: Record<string, string> = {
     '골때리는 그녀들 파일럿': '/seasons/pilot-season',
@@ -93,11 +93,11 @@ export const getSeasonRoute = (seasonName: string): string => {
     '골때리는 그녀들 시즌 6 플레이오프': '/seasons/season-6-playoff',
     '골때리는 그녀들 시즌 7 G리그': '/seasons/season-7-g-league',
   };
-  // 매핑되지 않은 시즌은 기본 경로 생성
+  // For unmapped seasons, return default route
   return routeMap[seasonName] || `/seasons/unknown`;
 };
 
-// 시즌명으로 시즌 정보 가져오기
+// Get season by name
 export const getSeasonByNamePrisma = async (
   seasonName: string
 ): Promise<Season | null> => {

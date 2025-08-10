@@ -1,6 +1,6 @@
 export const THEME = {
   brand: {
-    name: '29CM',
+    name: '미니멀 스타일',
     tagline: '감도 깊은 취향 셀렉트샵',
     description: '미니멀하고 세련된 패션/라이프스타일 플랫폼',
   },

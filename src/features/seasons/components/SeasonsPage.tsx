@@ -94,9 +94,6 @@ export default function SeasonsPage() {
         <div className="text-center mb-12">
           <H1 className="mb-4">시즌 목록</H1>
           <Body className="text-lg mb-6">골때리는 그녀들 시즌별 경기 결과</Body>
-          <Badge variant="category" className="text-base px-6 py-2">
-            SBS 예능 프로그램
-          </Badge>
         </div>
 
         <Grid cols={3} gap="lg">

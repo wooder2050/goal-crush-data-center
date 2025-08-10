@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
 
-// GET /api/players - 모든 선수 조회 (pagination 지원)
+// GET /api/players - Fetch all players (pagination supported)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

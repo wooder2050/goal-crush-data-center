@@ -1,0 +1,555 @@
+'use client';
+
+import { format } from 'date-fns';
+
+import { Card, CardContent, Grid } from '@/components/ui';
+import { getPositionColor } from '@/features/matches/lib/matchUtils';
+import {
+  getPlayerByIdPrisma,
+  getPlayerSummaryPrisma,
+} from '@/features/players/api-prisma';
+import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
+
+type PositionFreq = { position: string; matches: number };
+
+type TeamHistoryItem = {
+  team_id: number | null;
+  team_name: string | null;
+  logo: string | null;
+  primary_color: string | null;
+  secondary_color: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  is_active?: boolean;
+};
+
+function minDate(a: string | null, b: string | null): string | null {
+  if (!a) return b;
+  if (!b) return a;
+  return a < b ? a : b;
+}
+function maxDate(a: string | null, b: string | null): string | null {
+  if (!a) return b;
+  if (!b) return a;
+  return a > b ? a : b;
+}
+
+export default function PlayerDetailContent({
+  playerId,
+}: {
+  playerId: number;
+}) {
+  const { data: player } = useGoalSuspenseQuery(getPlayerByIdPrisma, [
+    playerId,
+  ]);
+  const { data: summary } = useGoalSuspenseQuery(getPlayerSummaryPrisma, [
+    playerId,
+  ]);
+
+  const profile = player?.profile_image_url ?? null;
+  const name = player?.name ?? '-';
+  const jersey = player?.jersey_number;
+  const totals = summary?.totals ?? { goals: 0, assists: 0, appearances: 0 };
+  const totalPenaltyGoals = (summary?.seasons ?? []).reduce(
+    (acc, s) => acc + (s.penalty_goals ?? 0),
+    0
+  );
+  const seasons: string[] = (summary?.seasons ?? []).map(
+    (s) => s.season_name ?? `시즌 ${s.year ?? ''}`
+  );
+  const positions: PositionFreq[] = (summary?.positions_frequency ?? [])
+    .slice()
+    .sort((a, b) => b.matches - a.matches);
+  const teamHistoryRaw: TeamHistoryItem[] = (summary?.team_history ??
+    []) as TeamHistoryItem[];
+
+  // Merge team histories by team_name
+  const mergedTeamHistory: TeamHistoryItem[] = (() => {
+    const map = new Map<string, { row: TeamHistoryItem; index: number }>();
+    teamHistoryRaw.forEach((t, idx) => {
+      const key = (t.team_name ?? '-').trim();
+      const existing = map.get(key);
+      if (!existing) {
+        map.set(key, {
+          row: {
+            team_id: t.team_id ?? null,
+            team_name: t.team_name ?? null,
+            logo: t.logo ?? null,
+            primary_color: t.primary_color ?? null,
+            secondary_color: t.secondary_color ?? null,
+            start_date: t.start_date ?? null,
+            end_date: t.is_active ? null : (t.end_date ?? null),
+            is_active: t.is_active === true,
+          },
+          index: idx,
+        });
+      } else {
+        const r = existing.row;
+        r.logo = r.logo ?? t.logo ?? null;
+        r.primary_color = r.primary_color ?? t.primary_color ?? null;
+        r.secondary_color = r.secondary_color ?? t.secondary_color ?? null;
+        r.start_date = minDate(r.start_date, t.start_date ?? null);
+        if (t.is_active) {
+          r.is_active = true;
+          r.end_date = null;
+        } else if (!r.is_active) {
+          r.end_date = maxDate(r.end_date, t.end_date ?? null);
+        }
+      }
+    });
+    return Array.from(map.values())
+      .sort((a, b) => a.index - b.index)
+      .map((v) => v.row);
+  })();
+
+  const isSingleTeam = mergedTeamHistory.length === 1;
+  const singleTeam = isSingleTeam ? mergedTeamHistory[0] : null;
+
+  const displayTeamLogo = isSingleTeam
+    ? (singleTeam?.logo ?? null)
+    : (mergedTeamHistory[0]?.logo ?? null);
+  const displayIsActive = isSingleTeam ? singleTeam?.is_active === true : false;
+
+  // Jersey color from active team (or first)
+  const activeTeam =
+    mergedTeamHistory.find((t) => t.is_active) ?? mergedTeamHistory[0] ?? null;
+  const jerseyInlineStyle = activeTeam
+    ? {
+        backgroundColor: activeTeam.primary_color ?? '#111',
+        color: activeTeam.secondary_color ?? '#fff',
+        borderColor: activeTeam.secondary_color ?? '#111',
+      }
+    : {};
+
+  const seasonRows = [...(summary?.seasons ?? [])]
+    .sort((a, b) => (b.season_id ?? 0) - (a.season_id ?? 0))
+    .map((s) => ({
+      key: `${s.season_id ?? ''}-${s.team_id ?? ''}`,
+      season: s.season_name ?? `시즌 ${s.year ?? ''}`,
+      team: s.team_name ?? '-',
+      team_logo: s?.team_logo ?? null,
+      appearances: s.appearances ?? 0,
+      goals: s.goals ?? 0,
+      penalty_goals: s.penalty_goals ?? 0,
+      assists: s.assists ?? 0,
+      positions: s.positions ?? [],
+    }));
+
+  const goalMatches = (summary?.goal_matches ?? []).slice();
+
+  const shortenSeasonName = (label: string): string =>
+    label.replace(/골때리는 그녀들/g, '').trim();
+
+  const getMatchOutcome = (
+    gm: NonNullable<(typeof summary)['goal_matches']>[number]
+  ): 'WIN' | 'DRAW' | 'LOSS' | null => {
+    const hs = gm.home_score;
+    const as = gm.away_score;
+    if (hs == null || as == null) return null;
+    const diff = gm.is_home ? hs - as : as - hs;
+    if (diff > 0) return 'WIN';
+    if (diff < 0) return 'LOSS';
+    return 'DRAW';
+  };
+
+  const outcomeStyle = (o: 'WIN' | 'DRAW' | 'LOSS') =>
+    o === 'WIN'
+      ? 'bg-green-100 text-green-700 border-green-200'
+      : o === 'LOSS'
+        ? 'bg-red-100 text-red-700 border-red-200'
+        : 'bg-gray-100 text-gray-700 border-gray-200';
+
+  const outcomeLabel = (o: 'WIN' | 'DRAW' | 'LOSS') =>
+    o === 'WIN' ? '승' : o === 'LOSS' ? '패' : '무';
+
+  return (
+    <Grid cols={12} gap="lg">
+      {/* Left: Large media area (narrower on md+) */}
+      <Card className="col-span-12 md:col-span-5 overflow-hidden">
+        <div className="w-full bg-white flex items-center justify-center p-4 md:p-8">
+          {profile ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={profile}
+              alt="프로필 이미지"
+              className="h-auto max-h-[70vh] max-w-full object-contain"
+            />
+          ) : (
+            <div className="aspect-[3/4] w-full bg-gray-100" />
+          )}
+        </div>
+      </Card>
+
+      {/* Right: Information panel (wider on md+) */}
+      <Card className="col-span-12 md:col-span-7">
+        <CardContent>
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              {typeof jersey === 'number' && (
+                <span
+                  className="inline-flex items-center justify-center min-w-[1.5rem] h-6 px-1 text-xs font-bold rounded border"
+                  style={jerseyInlineStyle}
+                >
+                  {jersey}
+                </span>
+              )}
+              <h2 className="text-2xl font-semibold leading-tight">{name}</h2>
+            </div>
+
+            <div className="rounded-md border divide-y">
+              <div className="flex items-center justify-between px-4 py-3 text-sm">
+                <span className="text-gray-600">⚽ 득점</span>
+                <span className="font-semibold text-gray-900">
+                  {totals.goals}
+                  {totalPenaltyGoals > 0 ? (
+                    <span className="ml-1 text-[10px] text-gray-500">
+                      (PK {totalPenaltyGoals})
+                    </span>
+                  ) : null}
+                </span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-3 text-sm">
+                <span className="text-gray-600">🏃 출전</span>
+                <span className="font-semibold text-gray-900">
+                  {totals.appearances}
+                </span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-3 text-sm">
+                <span className="text-gray-600">🎯 어시스트</span>
+                <span className="font-semibold text-gray-900">
+                  {totals.assists}
+                </span>
+              </div>
+            </div>
+
+            {/* Participated seasons */}
+            <div>
+              <div className="mb-2 text-sm font-medium text-gray-700">
+                참여 시즌
+              </div>
+              {seasons.length === 0 ? (
+                <div className="text-xs text-gray-500">기록 없음</div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {seasons.map((label, idx) => (
+                    <span
+                      key={idx}
+                      className="inline-flex items-center rounded border px-2 py-1 text-xs text-gray-700 bg-gray-50"
+                    >
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Positions (by frequency) */}
+            <div>
+              <div className="mb-2 text-sm font-medium text-gray-700">
+                포지션
+              </div>
+              {positions.length === 0 ? (
+                <div className="text-xs text-gray-500">기록 없음</div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {positions.map((p) => (
+                    <span
+                      key={p.position}
+                      className={`inline-flex items-center rounded border border-current px-2 py-1 text-xs ${getPositionColor(p.position)}`}
+                    >
+                      {p.position}{' '}
+                      <span className="ml-1 text-gray-500">({p.matches})</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Affiliation or team history */}
+            <div>
+              {isSingleTeam ? (
+                <div className="rounded-md border px-4 py-3 text-sm flex items-center justify-between">
+                  <span className="text-gray-600">소속팀</span>
+                  <span className="flex items-center gap-2">
+                    {displayTeamLogo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={displayTeamLogo}
+                        alt="팀 로고"
+                        className="h-5 w-5 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-[10px] text-gray-700">
+                        {(singleTeam?.team_name ?? '?').charAt(0)}
+                      </span>
+                    )}
+                    <span className="font-semibold text-gray-900">
+                      {singleTeam?.team_name ?? '-'}
+                    </span>
+                    {displayIsActive && (
+                      <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-700">
+                        현재
+                      </span>
+                    )}
+                    <span className="ml-2 text-xs text-gray-500">
+                      {(singleTeam?.start_date ?? '—').slice(0, 10)} ~{' '}
+                      {displayIsActive
+                        ? '현재'
+                        : singleTeam?.end_date
+                          ? singleTeam.end_date.slice(0, 10)
+                          : '-'}
+                    </span>
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-2 text-sm font-medium text-gray-700">
+                    소속팀 이력 (최신 → 과거)
+                  </div>
+                  <ul className="space-y-2">
+                    {mergedTeamHistory.map((t, idx) => (
+                      <li
+                        key={`${t.team_name ?? '-'}-${idx}`}
+                        className="flex items-center justify-between gap-3 rounded border px-3 py-2"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          {t.logo ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={t.logo}
+                              alt="팀 로고"
+                              className="h-5 w-5 rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-[10px] text-gray-700">
+                              {(t.team_name ?? '?').charAt(0)}
+                            </span>
+                          )}
+                          <span className="truncate text-sm text-gray-800">
+                            {t.team_name ?? '-'}
+                            {t.is_active ? (
+                              <span className="ml-1 rounded bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-700">
+                                현재
+                              </span>
+                            ) : null}
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-500 whitespace-nowrap">
+                          {(t.start_date ?? '—').slice(0, 10)} ~{' '}
+                          {t.is_active
+                            ? '현재'
+                            : t.end_date
+                              ? t.end_date.slice(0, 10)
+                              : '-'}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+
+            {/* Season-by-season stats */}
+            <div>
+              <div className="mb-2 text-sm font-medium text-gray-700">
+                시즌별 기록
+              </div>
+              {seasonRows.length === 0 ? (
+                <div className="text-xs text-gray-500">기록 없음</div>
+              ) : (
+                <div className="overflow-x-auto rounded-md border">
+                  <table className="min-w-full text-xs">
+                    <thead className="bg-gray-50 text-gray-600">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-medium">
+                          시즌
+                        </th>
+                        <th className="px-3 py-2 text-center font-medium">
+                          소속팀
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          포지션
+                        </th>
+                        <th className="px-3 py-2 text-center font-medium">
+                          🏃 출전
+                        </th>
+                        <th className="px-3 py-2 text-center font-medium">
+                          ⚽ 득점
+                        </th>
+                        <th className="px-3 py-2 text-center font-medium">
+                          🎯 어시스트
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {seasonRows.map((r) => (
+                        <tr key={r.key} className="hover:bg-gray-50">
+                          <td className="px-3 py-2">{r.season}</td>
+                          <td className="px-3 py-2">
+                            <div className="flex items-center gap-2">
+                              {r.team_logo ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={r.team_logo}
+                                  alt="팀 로고"
+                                  className="h-4 w-4 rounded-full object-cover"
+                                />
+                              ) : (
+                                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 text-[9px] text-gray-700">
+                                  {(r.team ?? '-').charAt(0)}
+                                </span>
+                              )}
+                              <span>{r.team}</span>
+                            </div>
+                          </td>
+                          <td className="px-3 py-2">
+                            <div className="flex flex-wrap gap-1">
+                              {r.positions.length === 0 ? (
+                                <span className="text-gray-400">-</span>
+                              ) : (
+                                r.positions.map((pos) => (
+                                  <span
+                                    key={pos}
+                                    className={`inline-flex items-center rounded border border-current px-1.5 py-0.5 text-[10px] ${getPositionColor(pos)}`}
+                                  >
+                                    {pos}
+                                  </span>
+                                ))
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            {r.appearances}
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            {r.goals}
+                            {r.penalty_goals > 0 ? (
+                              <span className="ml-1 text-[10px] text-gray-500">
+                                (PK {r.penalty_goals})
+                              </span>
+                            ) : null}
+                          </td>
+                          <td className="px-3 py-2 text-center">{r.assists}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Goal records */}
+            <div>
+              <div className="mb-2 text-sm font-medium text-gray-700">
+                골 기록
+              </div>
+              {goalMatches.length === 0 ? (
+                <div className="text-xs text-gray-500">골 기록 없음</div>
+              ) : (
+                <div className="overflow-x-auto rounded-md border">
+                  <table className="min-w-full text-xs">
+                    <thead className="bg-gray-50 text-gray-600">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-medium">
+                          날짜
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          시즌
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          상대
+                        </th>
+                        <th className="px-3 py-2 text-left font-medium">
+                          소속팀
+                        </th>
+                        <th className="px-3 py-2 text-center font-medium">
+                          ⚽ 득점
+                        </th>
+                        <th className="px-3 py-2 text-center font-medium">
+                          스코어
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {goalMatches.map((gm) => (
+                        <tr key={gm.match_id} className="hover:bg-gray-50">
+                          <td className="px-3 py-2">
+                            {gm.match_date
+                              ? format(new Date(gm.match_date), 'yy.MM.dd')
+                              : '-'}
+                          </td>
+                          <td className="px-3 py-2">
+                            {gm.season_name
+                              ? shortenSeasonName(gm.season_name)
+                              : '-'}
+                          </td>
+                          <td className="px-3 py-2">
+                            <div className="flex items-center gap-2">
+                              {gm.opponent_logo ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={gm.opponent_logo}
+                                  alt="상대 로고"
+                                  className="h-4 w-4 rounded-full object-cover"
+                                />
+                              ) : (
+                                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 text-[9px] text-gray-700">
+                                  {(gm.opponent_name ?? '-').charAt(0)}
+                                </span>
+                              )}
+                              <span>{gm.opponent_name ?? '-'}</span>
+                            </div>
+                          </td>
+                          <td className="px-3 py-2">
+                            <div className="flex items-center gap-2">
+                              {gm.team_logo ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={gm.team_logo}
+                                  alt="팀 로고"
+                                  className="h-4 w-4 rounded-full object-cover"
+                                />
+                              ) : (
+                                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 text-[9px] text-gray-700">
+                                  {(gm.team_name ?? '-').charAt(0)}
+                                </span>
+                              )}
+                              <span>{gm.team_name ?? '-'}</span>
+                            </div>
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            {gm.player_goals}
+                            {gm.penalty_goals && gm.penalty_goals > 0 ? (
+                              <span className="ml-1 text-[10px] text-gray-500">
+                                (PK {gm.penalty_goals})
+                              </span>
+                            ) : null}
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            <span>
+                              {gm.home_score ?? '-'} : {gm.away_score ?? '-'}
+                            </span>
+                            {(() => {
+                              const o = getMatchOutcome(gm);
+                              return o ? (
+                                <span
+                                  className={`ml-2 inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] ${outcomeStyle(o)}`}
+                                >
+                                  {outcomeLabel(o)}
+                                </span>
+                              ) : null;
+                            })()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </Grid>
+  );
+}
