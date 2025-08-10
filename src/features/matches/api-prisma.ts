@@ -221,22 +221,3 @@ export const getSeasonSummaryBySeasonIdPrisma = async (
   }
   return response.json();
 };
-
-// ============== Legacy Functions for Backward Compatibility ==============
-
-// Pilot Season Matches
-export const getPilotSeasonMatchesPrisma = async (): Promise<
-  MatchWithTeams[]
-> => {
-  return getMatchesBySeasonIdPrisma(3);
-};
-
-// Season 1 Matches
-export const getSeason1MatchesPrisma = async (): Promise<MatchWithTeams[]> => {
-  return getMatchesBySeasonIdPrisma(4);
-};
-
-// Season 2 Matches
-export const getSeason2MatchesPrisma = async (): Promise<MatchWithTeams[]> => {
-  return getMatchesBySeasonIdPrisma(5);
-};

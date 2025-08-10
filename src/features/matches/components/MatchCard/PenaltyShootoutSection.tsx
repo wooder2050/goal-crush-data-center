@@ -24,7 +24,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // 승부차기 상세 기록을 React Query로 호출
+  // Fetch penalty shootout details via React Query
   const {
     data: penaltyRecords = [],
     isLoading,
@@ -33,7 +33,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
     enabled: hasPenaltyShootout(match),
   });
 
-  // 승부차기가 없는 경우 렌더링하지 않음
+  // Do not render when the match has no penalty shootout
   if (!hasPenaltyShootout(match)) {
     return null;
   }
@@ -47,20 +47,20 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
       record.team?.team_id === match.away_team_id
   );
 
-  // 각 팀의 골키퍼를 명시적으로 찾습니다.
-  // 홈 팀 골키퍼는 어웨이 팀의 슈팅 기록에서 찾을 수 있습니다.
+  // Explicitly locate each team's goalkeeper.
+  // The home team's goalkeeper is found from the away team's shooting records.
   const homeTeamGoalkeeper = penaltyRecords.find(
     (r: PenaltyShootoutDetailWithPlayers) =>
       r.team?.team_id === match.away_team_id
   )?.goalkeeper;
 
-  // 어웨이 팀 골키퍼는 홈 팀의 슈팅 기록에서 찾을 수 있습니다.
+  // The away team's goalkeeper is found from the home team's shooting records.
   const awayTeamGoalkeeper = penaltyRecords.find(
     (r: PenaltyShootoutDetailWithPlayers) =>
       r.team?.team_id === match.home_team_id
   )?.goalkeeper;
 
-  // 성공률 계산
+  // Compute success rate
   const getSuccessRate = (records: PenaltyShootoutDetailWithPlayers[]) => {
     const total = records.length;
     const success = records.filter(
@@ -69,7 +69,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
     return `${success}/${total}`;
   };
 
-  // 승자 결정
+  // Determine winner
   const homeScore = match.penalty_home_score || 0;
   const awayScore = match.penalty_away_score || 0;
   const winner = homeScore > awayScore ? 'home' : 'away';
@@ -92,7 +92,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
 
       {isExpanded && (
         <div className="space-y-4">
-          {/* 로딩 상태 */}
+          {/* Loading state */}
           {isLoading && (
             <div className="text-center py-4">
               <div className="text-gray-500 text-sm">
@@ -101,7 +101,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
             </div>
           )}
 
-          {/* 에러 상태 */}
+          {/* Error state */}
           {error && (
             <div className="text-center py-4">
               <div className="text-gray-500 text-sm">
@@ -111,10 +111,10 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
             </div>
           )}
 
-          {/* 데이터가 있을 때 */}
+          {/* When data is present */}
           {!isLoading && !error && penaltyRecords.length > 0 && (
             <>
-              {/* 최종 결과 강조 */}
+              {/* Highlight final result */}
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
                 <div className="text-center">
                   <div className="text-lg font-bold text-gray-800 mb-2">
@@ -151,7 +151,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
                 </div>
               </div>
 
-              {/* 상세 기록 */}
+              {/* Detailed records */}
               <div className="grid grid-cols-2 gap-4">
                 {/* Home Team Records */}
                 <div className="bg-gray-50 rounded-lg p-3">
@@ -290,7 +290,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
             </>
           )}
 
-          {/* 데이터가 없을 때 */}
+          {/* When no data */}
           {!isLoading && !error && penaltyRecords.length === 0 && (
             <div className="text-center py-4">
               <div className="text-gray-500 text-sm">

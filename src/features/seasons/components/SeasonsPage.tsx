@@ -17,10 +17,7 @@ import {
   H1,
   Section,
 } from '@/components/ui';
-import {
-  getAllSeasonsPrisma,
-  getSeasonRoute,
-} from '@/features/seasons/api-prisma';
+import { getAllSeasonsPrisma } from '@/features/seasons/api-prisma';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
 export default function SeasonsPage() {
@@ -100,14 +97,13 @@ export default function SeasonsPage() {
           <H1 className="mb-4">시즌 목록</H1>
           <Body className="text-lg mb-6">골때리는 그녀들 시즌별 경기 결과</Body>
         </div>
-
         <Grid cols={3} gap="lg">
           {seasons.map((season) => (
             <Card
               key={season.season_id}
               className="hover:scale-105 transition-transform cursor-pointer"
             >
-              <Link href={getSeasonRoute(season.season_name)}>
+              <Link href={`/seasons/${season.season_id}`}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
@@ -135,7 +131,6 @@ export default function SeasonsPage() {
             </Card>
           ))}
         </Grid>
-
         {seasons.length === 0 && (
           <div className="text-center py-12">
             <Body className="text-lg">등록된 시즌이 없습니다.</Body>

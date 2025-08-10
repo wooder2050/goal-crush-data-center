@@ -19,17 +19,14 @@ interface MatchCardProps {
 }
 
 const MatchCard: React.FC<MatchCardProps> = ({ matchId, className = '' }) => {
-  // React Query로 매치 상세 정보 fetching
   const {
     data: match,
     isLoading: matchLoading,
     error: matchError,
   } = useGoalQuery(getMatchByIdPrisma, [matchId]);
 
-  // 로딩 상태 체크
   const isLoading = matchLoading;
 
-  // 에러 상태 체크
   const error = matchError;
 
   if (isLoading) {
@@ -62,23 +59,12 @@ const MatchCard: React.FC<MatchCardProps> = ({ matchId, className = '' }) => {
 
   return (
     <Card className={className}>
-      {/* 상단 헤더 - 별도 컴포넌트로 분리 */}
       <MatchHeader match={match} />
-
       <CardContent>
-        {/* 매치 스코어 헤더 - 별도 컴포넌트로 분리 */}
         <MatchScoreHeader match={match} />
-
-        {/* 득점 기록 섹션 - 별도 컴포넌트로 분리 */}
         <GoalSection match={match} />
-
-        {/* 승부차기 세부 기록 섹션 - 별도 섹션으로 분리 */}
         <PenaltyShootoutSection match={match} />
-
-        {/* 팀 라인업 섹션 - 별도 컴포넌트로 분리 */}
         <TeamLineupsSection match={match} />
-
-        {/* 경기 정보 푸터 - 별도 컴포넌트로 분리 */}
         <MatchFooter match={match} />
       </CardContent>
     </Card>

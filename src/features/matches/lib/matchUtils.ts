@@ -1,7 +1,7 @@
 import { MatchWithTeams } from '@/lib/types/database';
 
 /**
- * 경기 결과를 문자열로 반환
+ * Return match result as string
  */
 export const getMatchResult = (match: MatchWithTeams): string => {
   if (match.home_score === null || match.away_score === null) {
@@ -11,7 +11,7 @@ export const getMatchResult = (match: MatchWithTeams): string => {
 };
 
 /**
- * 승부차기가 있는지 확인
+ * Check if the match includes a penalty shootout
  */
 export const hasPenaltyShootout = (match: MatchWithTeams): boolean => {
   return (
@@ -23,7 +23,7 @@ export const hasPenaltyShootout = (match: MatchWithTeams): boolean => {
 };
 
 /**
- * 경기 승자를 반환 ('home' | 'away' | 'draw' | null)
+ * Determine the winner team ('home' | 'away' | 'draw' | null)
  */
 export const getWinnerTeam = (
   match: MatchWithTeams
@@ -32,14 +32,14 @@ export const getWinnerTeam = (
     return null;
   }
 
-  // 먼저 정규시간 결과 확인
+  // First, check regular time result
   if (match.home_score > match.away_score) {
     return 'home';
   } else if (match.away_score > match.home_score) {
     return 'away';
   }
 
-  // 동점인 경우 승부차기 결과 확인
+  // If tied, then check penalty shootout result
   if (match.home_score === match.away_score) {
     if (
       match.penalty_home_score != null &&
@@ -59,7 +59,7 @@ export const getWinnerTeam = (
 };
 
 /**
- * 포지션별 색상 클래스 반환
+ * Return position color classes
  */
 export const getPositionColor = (position: string): string => {
   const code = getPositionText(position);
@@ -78,7 +78,7 @@ export const getPositionColor = (position: string): string => {
 };
 
 /**
- * 포지션별 축약 텍스트 반환
+ * Return shorthand position text
  */
 export const getPositionText = (position: string): string => {
   switch (position) {
@@ -96,7 +96,7 @@ export const getPositionText = (position: string): string => {
 };
 
 /**
- * 포지션별 정렬 순서 반환 (공격수 -> 미드필더 -> 수비수 -> 골키퍼)
+ * Return sort order by position (Forward -> Midfielder -> Defender -> Goalkeeper)
  */
 export const getPositionOrder = (position: string): number => {
   switch (position) {

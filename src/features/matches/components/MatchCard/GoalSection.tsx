@@ -10,7 +10,6 @@ import {
   getMatchGoalsWithAssistsPrisma,
 } from '../../api-prisma';
 
-// 골 정보 타입 (Prisma에서 추론됨)
 type GoalWithPlayerAndTeam = {
   goal_id: number;
   match_id: number;
@@ -31,7 +30,6 @@ type GoalWithPlayerAndTeam = {
   } | null;
 };
 
-// 어시스트 정보 타입
 type AssistWithPlayer = {
   assist_id: number;
   match_id: number;
@@ -62,21 +60,18 @@ interface GoalSectionProps {
 }
 
 export default function GoalSection({ match }: GoalSectionProps) {
-  // 득점 데이터를 React Query로 호출
   const {
     data: goals = [] as GoalWithPlayerAndTeam[],
     isLoading,
     error,
   } = useGoalQuery(getMatchGoalsWithAssistsPrisma, [match.match_id]);
 
-  // 어시스트 데이터를 React Query로 호출
   const {
     data: assists = [] as Assist[],
     isLoading: assistsLoading,
     error: assistsError,
   } = useGoalQuery(getMatchAssistsPrisma, [match.match_id]);
 
-  // 골별 어시스트 매핑 (Assist -> AssistWithPlayer 형태로 보강)
   const assistsByGoal = assists.reduce<Record<number, AssistWithPlayer[]>>(
     (acc, a) => {
       const assist: AssistWithPlayer = {
@@ -129,7 +124,6 @@ export default function GoalSection({ match }: GoalSectionProps) {
     );
   }
 
-  // 홈팀 득점 필터링 (자책골은 반대팀 득점으로 처리)
   const homeTeamGoals = goals.filter((goal) => {
     if (goal.goal_type === 'own_goal') {
       return goal.team?.team_id === match.away_team.team_id; // 상대팀의 자책골
@@ -137,7 +131,6 @@ export default function GoalSection({ match }: GoalSectionProps) {
     return goal.team?.team_id === match.home_team.team_id; // 일반 득점
   });
 
-  // 원정팀 득점 필터링 (자책골은 반대팀 득점으로 처리)
   const awayTeamGoals = goals.filter((goal) => {
     if (goal.goal_type === 'own_goal') {
       return goal.team?.team_id === match.home_team.team_id; // 상대팀의 자책골

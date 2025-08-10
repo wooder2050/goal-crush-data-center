@@ -30,6 +30,15 @@ export interface Season {
   year: number;
   start_date: string | null;
   end_date: string | null;
+  // New: season category (G_LEAGUE, SUPER_LEAGUE, CHALLENGE_LEAGUE, PLAYOFF, OTHER)
+  category?:
+    | 'G_LEAGUE'
+    | 'SUPER_LEAGUE'
+    | 'CHALLENGE_LEAGUE'
+    | 'PLAYOFF'
+    | 'SBS_CUP'
+    | 'OTHER'
+    | null;
   created_at?: string | null;
   updated_at?: string | null;
 }
@@ -443,7 +452,15 @@ export interface Database {
     };
     Views: { [_ in never]: never };
     Functions: { [_ in never]: never };
-    Enums: { [_ in never]: never };
+    Enums: { [_ in never]: never } & {
+      season_category:
+        | 'G_LEAGUE'
+        | 'SUPER_LEAGUE'
+        | 'CHALLENGE_LEAGUE'
+        | 'PLAYOFF'
+        | 'SBS_CUP'
+        | 'OTHER';
+    };
     CompositeTypes: { [_ in never]: never };
   };
 }
