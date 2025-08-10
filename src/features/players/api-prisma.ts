@@ -141,9 +141,11 @@ export const getPlayerSummaryPrisma = async (
     year: number | null;
     team_id: number | null;
     team_name: string | null;
+    team_logo: string | null;
     goals: number;
     assists: number;
     appearances: number;
+    penalty_goals: number;
     positions: string[];
   }>;
   totals: { goals: number; assists: number; appearances: number };
@@ -156,6 +158,35 @@ export const getPlayerSummaryPrisma = async (
     appearances: number;
   }>;
   primary_position: string | null;
+  positions_frequency?: Array<{ position: string; matches: number }>;
+  team_history?: Array<{
+    team_id: number | null;
+    team_name: string | null;
+    logo: string | null;
+    primary_color: string | null;
+    secondary_color: string | null;
+    start_date: string | null;
+    end_date: string | null;
+    is_active?: boolean;
+  }>;
+  goal_matches?: Array<{
+    match_id: number;
+    match_date: string | null;
+    season_id: number | null;
+    season_name: string | null;
+    team_id: number | null;
+    team_name: string | null;
+    team_logo: string | null;
+    opponent_id: number | null;
+    opponent_name: string | null;
+    opponent_logo: string | null;
+    player_goals: number;
+    penalty_goals: number;
+    home_score: number | null;
+    away_score: number | null;
+    is_home: boolean;
+    tournament_stage: string | null;
+  }>;
 }> => {
   const qs = teamId ? `?team_id=${teamId}` : '';
   const response = await fetch(`/api/players/${playerId}/summary${qs}`);
@@ -170,6 +201,9 @@ export const getPlayerSummaryPrisma = async (
           : undefined,
         per_team_totals: [],
         primary_position: null,
+        positions_frequency: [],
+        team_history: [],
+        goal_matches: [],
       };
     }
     throw new Error(`Failed to fetch player summary: ${response.statusText}`);

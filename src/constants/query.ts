@@ -1,1 +1,1 @@
-export const DEFAULT_STALE_TIME = 5 * 60 * 1000; // 5분
+export const DEFAULT_STALE_TIME = 5 * 60 * 1000; // 5 minutes

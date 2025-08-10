@@ -39,7 +39,7 @@ export default function ThemeDemoPage() {
       <HeroBanner
         image="https://picsum.photos/1200/600"
         title="감도 깊은 취향 셀렉트샵"
-        subtitle="29CM"
+        subtitle="미니멀 스타일"
         description="미니멀하고 세련된 패션/라이프스타일 플랫폼에서 당신만의 스타일을 발견하세요."
         ctaText="컬렉션 보기"
         onCtaClick={() => alert('컬렉션으로 이동')}
@@ -74,7 +74,7 @@ export default function ThemeDemoPage() {
             <CardHeader>
               <CardTitle>기본 카드</CardTitle>
               <CardDescription>
-                29CM 테마에 맞는 기본 카드입니다.
+                미니멀 스타일 테마에 맞는 기본 카드입니다.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -125,7 +125,7 @@ export default function ThemeDemoPage() {
             price={29000}
             originalPrice={45000}
             discount={35}
-            brand="29CM"
+            brand="미니멀 브랜드"
             category="의류"
             isNew
           />
@@ -134,7 +134,7 @@ export default function ThemeDemoPage() {
             image="https://picsum.photos/301/375"
             title="프리미엄 데님 팬츠"
             price={89000}
-            brand="29CM"
+            brand="미니멀 브랜드"
             category="의류"
             isExclusive
           />
@@ -145,7 +145,7 @@ export default function ThemeDemoPage() {
             price={150000}
             originalPrice={200000}
             discount={25}
-            brand="29CM"
+            brand="미니멀 브랜드"
             category="액세서리"
             isLive
           />
@@ -154,7 +154,7 @@ export default function ThemeDemoPage() {
             image="https://picsum.photos/303/375"
             title="시즌 컬렉션 스니커즈"
             price={120000}
-            brand="29CM"
+            brand="미니멀 브랜드"
             category="신발"
           />
         </Grid>

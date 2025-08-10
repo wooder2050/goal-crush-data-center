@@ -5,8 +5,8 @@ import {
   TeamSeasonStats,
 } from '@/lib/types';
 
-// Prisma 기반 Stats API 클라이언트 함수들
-// 기존 Supabase API와 동일한 인터페이스를 제공하지만 Next.js API Routes를 사용
+// Prisma-based Stats API client functions
+// Provides the same interface as Supabase but uses Next.js API Routes
 
 // ========== Player Match Statistics ==========
 

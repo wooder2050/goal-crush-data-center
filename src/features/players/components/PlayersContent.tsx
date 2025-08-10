@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { Search as SearchIcon } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
 
 import {
   Select,
@@ -15,7 +16,7 @@ import { getTeamsPrisma } from '@/features/teams/api-prisma';
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import type { Team } from '@/lib/types';
 
-// 카테고리(포지션) 옵션
+// Category (position) options
 const POSITION_OPTIONS = [
   { value: 'ALL', label: '전체' },
   { value: 'FW', label: '공격수' },
@@ -29,11 +30,19 @@ type OrderValue = 'apps' | 'goals';
 
 export default function PlayersContent({
   onTotalChange,
+  controlledKeyword,
+  onApplyControlledKeyword,
+  hideInternalSearch,
 }: {
   onTotalChange?: (n: number) => void;
+  controlledKeyword?: string;
+  onApplyControlledKeyword?: () => void;
+  hideInternalSearch?: boolean;
 }) {
   const { data: teams = [] } = useGoalSuspenseQuery(getTeamsPrisma, []);
   const [keyword, setKeyword] = useState('');
+  const [keywordInput, setKeywordInput] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
   const [order, setOrder] = useState<OrderValue>('apps');
   const [position, setPosition] = useState<PositionValue>('ALL');
   const [teamId, setTeamId] = useState<number | null>(null);
@@ -57,18 +66,39 @@ export default function PlayersContent({
     );
   }, [teams]);
 
-  // Select 스타일: 카테고리 바와 자연스럽게 연결되도록 트리거 보더 제거 + 포커스 링 제거
+  // Select styles: visually connect with the category bar by removing trigger border and focus ring
   const triggerBase =
     'h-10 text-xs rounded-none border-0 bg-transparent px-3 shadow-none hover:bg-transparent focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0';
   const contentBase =
     'rounded-md border border-gray-200 bg-white p-0 shadow-lg';
-  // 체크 아이콘/선택 스타일 최소화: 좌측 여백(pl-8), 선택 상태 배경/두께 제거
+  // Item styles: add left padding for check/emoji, remove selected background/weight
   const itemBase =
     'pl-8 pr-4 py-3 text-sm text-gray-800 data-[highlighted]:bg-gray-100 data-[state=checked]:bg-transparent data-[state=checked]:font-normal cursor-pointer';
 
+  const applySearch = useCallback(() => {
+    const next = keywordInput.trim();
+    if (controlledKeyword != null) {
+      if (next === controlledKeyword.trim()) return;
+      onApplyControlledKeyword?.();
+      return;
+    }
+    if (next === keyword.trim()) return;
+    setKeyword(next);
+  }, [keywordInput, keyword, controlledKeyword, onApplyControlledKeyword]);
+
+  const onKeyDownInput = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        applySearch();
+      }
+    },
+    [applySearch]
+  );
+
   return (
     <>
-      {/* Top bar - 29CM 스타일 카테고리 + 우측 드롭다운들 */}
+      {/* Top bar - minimal category tabs + right-side dropdowns */}
       <div className="mb-3 rounded-md border bg-white">
         <div className="flex h-11 items-center justify-between px-3">
           {/* Left: category tabs with separators */}
@@ -89,7 +119,7 @@ export default function PlayersContent({
             ))}
           </div>
 
-          {/* Right: team select + order select (왼쪽에 세로 구분선 + 필터 사이 보더) */}
+          {/* Right: team select + order select (left vertical divider + inner dividers) */}
           <div className="flex items-center pl-3 ml-3 border-l border-gray-200 divide-x divide-gray-200">
             <div className="px-3">
               <Select
@@ -142,18 +172,40 @@ export default function PlayersContent({
         </div>
       </div>
 
-      {/* Search (서버) */}
-      <div className="mb-4 flex items-center gap-2">
-        <input
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          placeholder="선수 이름 검색"
-          className="h-8 w-44 sm:w-64 rounded-md border border-gray-300 px-2 text-xs focus:outline-none focus:ring-0 focus-visible:ring-0"
-        />
-      </div>
+      {!hideInternalSearch && (
+        // Search (server) - compact underline style (<=25% width)
+        <div className="mb-4 flex justify-end">
+          <div className="relative w-[22%] min-w-[220px] max-w-[360px]">
+            <input
+              value={keywordInput}
+              onChange={(e) => setKeywordInput(e.target.value)}
+              onKeyDown={onKeyDownInput}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              placeholder="선수 검색"
+              aria-label="선수 검색"
+              className="w-full border-0 bg-transparent px-2 pr-10 text-base md:text-xl font-medium text-gray-900 placeholder-gray-300 focus:outline-none focus:ring-0 h-10"
+            />
+            <button
+              type="button"
+              onClick={applySearch}
+              disabled={
+                keywordInput.trim() === (controlledKeyword ?? keyword).trim()
+              }
+              aria-label="검색"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 disabled:opacity-40"
+            >
+              <SearchIcon className="h-5 w-5 text-black" strokeWidth={2} />
+            </button>
+            <div
+              className={`mt-1 h-[2px] w-full ${isFocused || keywordInput.trim().length > 0 ? 'bg-black' : 'bg-gray-200'}`}
+            />
+          </div>
+        </div>
+      )}
 
       <PlayerInfiniteList
-        keyword={keyword}
+        keyword={controlledKeyword ?? keyword}
         order={order}
         position={position === 'ALL' ? undefined : position}
         teamId={teamId}
