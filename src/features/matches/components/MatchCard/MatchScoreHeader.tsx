@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import React from 'react';
 
-import { MatchWithTeams } from '@/lib/types/database';
+import type { MatchWithTeams, Team } from '@/lib/types/database';
 
 import {
   getMatchResult,
@@ -17,10 +17,7 @@ interface MatchScoreHeaderProps {
 }
 
 interface TeamWithLogoProps {
-  team: {
-    team_name?: string;
-    logo?: string;
-  } | null;
+  team: Pick<Team, 'team_name' | 'logo'> | null;
   isWinner: boolean;
 }
 

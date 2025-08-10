@@ -53,40 +53,41 @@ export async function GET(
           : undefined,
     });
 
-    if (order === 'stats' && players.length > 0) {
-      // 팀 기준 출전/골/도움 집계 후 서버에서 정렬
-      const stats = await prisma.playerMatchStats.groupBy({
+    if (order === 'stats') {
+      // DB 사이드 정렬: 해당 팀에서의 출전/골/도움 집계 기반
+      const grouped = await prisma.playerMatchStats.groupBy({
         by: ['player_id'],
         where: { team_id: teamId },
         _count: { match_id: true },
         _sum: { goals: true, assists: true },
       });
-      const statsMap = new Map<
+      const orderMap = new Map<
         number,
         { apps: number; goals: number; assists: number }
       >();
-      for (let i = 0; i < stats.length; i++) {
-        const s = stats[i];
-        statsMap.set(s.player_id ?? 0, {
-          apps: s._count?.match_id ?? 0,
-          goals: s._sum?.goals ?? 0,
-          assists: s._sum?.assists ?? 0,
+      for (const g of grouped) {
+        orderMap.set(g.player_id ?? 0, {
+          apps: g._count?.match_id ?? 0,
+          goals: g._sum?.goals ?? 0,
+          assists: g._sum?.assists ?? 0,
         });
       }
+      // 서버에서 소팅하여 반환 (클라 소팅 금지)
       players.sort((a, b) => {
-        const sa = statsMap.get(a.player_id) ?? {
+        const sa = orderMap.get(a.player_id) ?? {
           apps: 0,
           goals: 0,
           assists: 0,
         };
-        const sb = statsMap.get(b.player_id) ?? {
+        const sb = orderMap.get(b.player_id) ?? {
           apps: 0,
           goals: 0,
           assists: 0,
         };
         if (sb.apps !== sa.apps) return sb.apps - sa.apps;
         if (sb.goals !== sa.goals) return sb.goals - sa.goals;
-        return sb.assists - sa.assists;
+        if (sb.assists !== sa.assists) return sb.assists - sa.assists;
+        return (a.name ?? '').localeCompare(b.name ?? '');
       });
     }
 

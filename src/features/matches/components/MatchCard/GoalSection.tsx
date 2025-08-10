@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { useGoalQuery } from '@/hooks/useGoalQuery';
+import type { Assist } from '@/lib/types';
 
 import {
   getMatchAssistsPrisma,
@@ -70,21 +71,29 @@ export default function GoalSection({ match }: GoalSectionProps) {
 
   // 어시스트 데이터를 React Query로 호출
   const {
-    data: assists = [] as AssistWithPlayer[],
+    data: assists = [] as Assist[],
     isLoading: assistsLoading,
     error: assistsError,
   } = useGoalQuery(getMatchAssistsPrisma, [match.match_id]);
 
-  // 골별 어시스트 매핑
-  const assistsByGoal = assists.reduce(
-    (acc, assist) => {
-      if (!acc[assist.goal_id]) {
-        acc[assist.goal_id] = [];
-      }
-      acc[assist.goal_id].push(assist as AssistWithPlayer);
+  // 골별 어시스트 매핑 (Assist -> AssistWithPlayer 형태로 보강)
+  const assistsByGoal = assists.reduce<Record<number, AssistWithPlayer[]>>(
+    (acc, a) => {
+      const assist: AssistWithPlayer = {
+        assist_id: a.assist_id,
+        match_id: a.match_id,
+        player_id: a.player_id,
+        goal_id: a.goal_id,
+        assist_time: a.assist_time ?? null,
+        assist_type: a.assist_type ?? null,
+        description: a.description ?? null,
+        player: { player_id: a.player_id, name: '', jersey_number: null },
+      };
+      if (!acc[assist.goal_id]) acc[assist.goal_id] = [];
+      acc[assist.goal_id].push(assist);
       return acc;
     },
-    {} as Record<number, AssistWithPlayer[]>
+    {}
   );
 
   if (isLoading || assistsLoading) {

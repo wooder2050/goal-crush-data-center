@@ -14,6 +14,67 @@ export const getPlayersPrisma = async (): Promise<Player[]> => {
   return response.json();
 };
 
+// Get players (paginated) - for infinite query
+export type PlayersPageItem = {
+  player_id: number;
+  name: string;
+  jersey_number: number | null;
+  profile_image_url: string | null;
+  team: { team_id: number; team_name: string; logo: string | null } | null;
+  position: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  seasons: Array<{ season_name: string | null; year: number | null }>;
+  totals: { appearances: number; goals: number; assists: number };
+};
+export type PlayersPageResponse = {
+  items: PlayersPageItem[];
+  nextPage: number | null;
+  totalCount: number;
+};
+
+export const getPlayersPagePrisma = async (
+  page: number,
+  limit: number,
+  opts?: {
+    teamId?: number;
+    name?: string;
+    order?: 'apps' | 'goals';
+    position?: string;
+  }
+): Promise<PlayersPageResponse> => {
+  const qs = new URLSearchParams();
+  qs.set('page', String(page));
+  qs.set('limit', String(limit));
+  if (opts?.teamId) qs.set('team_id', String(opts.teamId));
+  if (opts?.name) qs.set('name', opts.name);
+  if (opts?.order) qs.set('order', opts.order);
+  if (opts?.position) qs.set('position', opts.position);
+  const response = await fetch(`/api/players?${qs.toString()}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch players (page): ${response.statusText}`);
+  }
+  return response.json();
+};
+
+export const getPlayersSummariesPrisma = async (
+  playerIds: number[]
+): Promise<
+  Record<
+    number,
+    {
+      seasons: Array<{ season_name: string | null; year: number | null }>;
+      totals: { appearances: number; goals: number; assists: number };
+    }
+  >
+> => {
+  const ids = playerIds.join(',');
+  const res = await fetch(`/api/players/summaries?ids=${ids}`);
+  if (!res.ok)
+    throw new Error(`Failed to fetch players summaries: ${res.statusText}`);
+  return res.json();
+};
+
 // Get player by ID
 export const getPlayerByIdPrisma = async (
   playerId: number

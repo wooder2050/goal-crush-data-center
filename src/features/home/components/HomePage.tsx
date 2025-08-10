@@ -5,7 +5,6 @@ import Link from 'next/link';
 
 import {
   Badge,
-  Body,
   Button,
   Card,
   CardContent,
@@ -22,12 +21,9 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       <Section padding="xl">
         <div className="text-center mb-12">
-          <H1 className="mb-4">골 크러시 데이터 센터</H1>
-          <Body className="text-lg mb-6">
-            골때리는 그녀들 데이터 관리 시스템
-          </Body>
-          <Badge variant="category" className="text-base px-6 py-2">
-            SBS 예능 프로그램 데이터 분석
+          <H1 className="mb-4">골 때리는 그녀들 데이터 센터</H1>
+          <Badge variant="emphasisOutline" className="px-6 py-2">
+            매주 수요일 밤 11시 방송 데이터 업데이트
           </Badge>
         </div>
 
@@ -50,21 +46,21 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          {/* 선수 관리 */}
+          {/* 선수 정보 보기 */}
           <Card className="hover:scale-105 transition-transform">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                선수 관리
+                선수 정보 보기
               </CardTitle>
               <CardDescription>
-                선수 정보 조회 및 관리 기능입니다.
+                선수 정보 조회 페이지로 이동합니다.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="secondary" className="w-full" disabled>
-                개발 예정
-              </Button>
+              <Link href="/players">
+                <Button className="w-full">선수 정보 보기</Button>
+              </Link>
             </CardContent>
           </Card>
 
