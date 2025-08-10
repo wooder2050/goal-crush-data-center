@@ -84,6 +84,8 @@ model Season {
   end_date             DateTime?              @db.Date
   created_at           DateTime?              @default(now()) @db.Timestamptz(6)
   updated_at           DateTime?              @default(now()) @db.Timestamptz(6)
+  // New: season category synced from Supabase enum
+  category             season_category        @default(OTHER)
   GroupLeagueStandings GroupLeagueStandings[]
   matches              Match[]
   player_positions     player_positions[]
@@ -385,4 +387,16 @@ model player_positions {
   seasons            Season?   @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([player_id, position, season_id, start_date], map: "unique_player_position_period")
+}
+
+// New: PostgreSQL enum mapped for season category
+enum season_category {
+  G_LEAGUE
+  SUPER_LEAGUE
+  CHALLENGE_LEAGUE
+  PLAYOFF
+  SBS_CUP
+  OTHER
+
+  @@map("season_category")
 }

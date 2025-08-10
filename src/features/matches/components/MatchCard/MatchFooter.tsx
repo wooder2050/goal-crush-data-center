@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React from 'react';
 
 import { MatchWithTeams } from '@/lib/types/database';
@@ -14,13 +15,19 @@ const MatchFooter: React.FC<MatchFooterProps> = ({ match, className = '' }) => {
     <div className={`mt-4 pt-3 border-t border-gray-200 ${className}`}>
       <div className="flex justify-between items-center text-sm text-gray-500">
         <div>{match.location || '골때리는 그녀들 스튜디오'}</div>
-        <div className="flex items-center">
+        <div className="flex items-center gap-3">
           <span
-            className={`inline-block w-2 h-2 rounded-full mr-2 ${
+            className={`inline-block w-2 h-2 rounded-full ${
               match.status === 'completed' ? 'bg-green-500' : 'bg-yellow-500'
             }`}
-          ></span>
-          {match.status === 'completed' ? '완료' : '예정'}
+          />
+          <span>{match.status === 'completed' ? '완료' : '예정'}</span>
+          <Link
+            href={`/matches/${match.match_id}`}
+            className="ml-3 rounded border px-2 py-1 text-xs text-gray-700 hover:bg-gray-50"
+          >
+            상세 보기
+          </Link>
         </div>
       </div>
     </div>

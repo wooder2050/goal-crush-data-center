@@ -16,7 +16,7 @@ import {
 } from '@tanstack/react-query';
 
 /**
- * 일반 쿼리 훅
+ * Standard query hook
  */
 export function useGoalQuery<
   TQueryFn extends (...args: any[]) => Promise<any>,
@@ -38,7 +38,7 @@ export function useGoalQuery<
 }
 
 /**
- * Suspense 쿼리 훅
+ * Suspense-enabled query hook
  */
 export function useGoalSuspenseQuery<
   TQueryFn extends (...args: any[]) => Promise<any>,
@@ -60,7 +60,7 @@ export function useGoalSuspenseQuery<
 }
 
 /**
- * 무한 스크롤 쿼리 훅 (고정된 InfiniteData 반환)
+ * Infinite query hook (returns fixed InfiniteData)
  */
 export type UseGoalInfiniteQueryOptions<
   TQueryFn extends (...args: any[]) => Promise<any>,
