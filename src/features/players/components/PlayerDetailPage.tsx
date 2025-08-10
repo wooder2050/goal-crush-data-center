@@ -2,7 +2,6 @@
 
 import { GoalWrapper } from '@/common/GoalWrapper';
 import { Card, CardContent, Grid, Section } from '@/components/ui';
-import BackLink from '@/components/ui/back-link';
 import PlayerDetailContent from '@/features/players/components/PlayerDetailContent';
 
 export default function PlayerDetailPage({
@@ -38,9 +37,6 @@ export default function PlayerDetailPage({
 
   return (
     <Section padding="sm">
-      <div className="mb-6">
-        <BackLink href="/players" label="선수 목록으로 돌아가기" />
-      </div>
       <div className="mb-6">
         <h1 className="text-2xl font-bold">선수 상세 정보</h1>
       </div>

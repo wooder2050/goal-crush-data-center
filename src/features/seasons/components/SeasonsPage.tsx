@@ -17,7 +17,6 @@ import {
   H1,
   Section,
 } from '@/components/ui';
-import BackLink from '@/components/ui/back-link';
 import {
   getAllSeasonsPrisma,
   getSeasonRoute,
@@ -56,10 +55,21 @@ export default function SeasonsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <Section padding="xl">
+        <Section padding="sm">
           <div className="text-center">
             <H1 className="mb-4">시즌 목록</H1>
-            <Body className="text-lg">시즌 목록을 불러오는 중...</Body>
+            <div className="mx-auto flex max-w-xl flex-col items-center gap-3">
+              <div className="h-4 w-40 rounded bg-gray-200 animate-pulse" />
+              <div className="h-3 w-64 rounded bg-gray-200 animate-pulse" />
+            </div>
+            <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="rounded-md border p-4">
+                  <div className="h-4 w-1/2 rounded bg-gray-200 animate-pulse" />
+                  <div className="mt-3 h-20 rounded bg-gray-100 animate-pulse" />
+                </div>
+              ))}
+            </div>
           </div>
         </Section>
       </div>
@@ -86,11 +96,6 @@ export default function SeasonsPage() {
   return (
     <div className="min-h-screen bg-white">
       <Section padding="sm">
-        {/* 뒤로가기 버튼 */}
-        <div className="mb-8">
-          <BackLink href="/" label="메인 페이지로 돌아가기" />
-        </div>
-
         <div className="text-center mb-12">
           <H1 className="mb-4">시즌 목록</H1>
           <Body className="text-lg mb-6">골때리는 그녀들 시즌별 경기 결과</Body>

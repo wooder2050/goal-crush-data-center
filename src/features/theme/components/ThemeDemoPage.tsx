@@ -93,7 +93,7 @@ export default function ThemeDemoPage() {
               <div className="flex flex-wrap gap-2 mb-4">
                 <Badge variant="default">기본</Badge>
                 <Badge variant="secondary">보조</Badge>
-                <Badge variant="default">삭제</Badge>
+                <Badge variant="emphasisOutline">알림</Badge>
                 <Badge variant="discount">할인</Badge>
                 <Badge variant="category">카테고리</Badge>
                 <Badge className="bg-[#ff4800] text-white">강조</Badge>
@@ -117,7 +117,7 @@ export default function ThemeDemoPage() {
       </Section>
 
       {/* Product Cards Section */}
-      <Section title="상품 카드" subtitle="29CM 스타일의 상품 카드">
+      <Section title="상품 카드" subtitle="미니멀 스타일의 상품 카드">
         <Grid cols={4} gap="md">
           <ProductCard
             image="https://picsum.photos/300/375"
