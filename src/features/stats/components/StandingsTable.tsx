@@ -61,7 +61,9 @@ const StandingsTable: FC<StandingsTableProps> = ({ seasonId, className }) => {
     isLoading,
     error,
   } = useGoalQuery(getStandingsWithTeamPrisma, [seasonId]);
-
+  // TODO: remove this console.log
+  // eslint-disable-next-line no-console
+  console.log(standings, isLoading, error);
   const hasNoData = !!error || !standings || standings.length === 0;
 
   if (isLoading) {
