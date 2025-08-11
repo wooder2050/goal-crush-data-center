@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ScrollTrigger } from '@/common/ScrollTrigger';
-import { Grid } from '@/components/ui';
 import {
   getPlayersPagePrisma,
   type PlayersPageItem,
@@ -79,11 +78,11 @@ export default function PlayerInfiniteList({
   if (showInitialSkeleton) {
     return (
       <div className="space-y-4">
-        <Grid cols={4} gap="lg">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             <SkeletonCard key={i} />
           ))}
-        </Grid>
+        </div>
       </div>
     );
   }

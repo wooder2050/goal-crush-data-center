@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useMemo } from 'react';
 
-import { Card, CardContent, CardTitle, Grid } from '@/components/ui';
+import { Card, CardContent, CardTitle } from '@/components/ui';
 import { getPositionColor } from '@/features/matches/lib/matchUtils';
 import type { PlayersPageItem } from '@/features/players/api-prisma';
 import SkeletonCard from '@/features/players/components/SkeletonCard';
@@ -25,9 +25,9 @@ export default function PlayersListBody({
 
   return (
     <div className="space-y-4">
-      <Grid cols={4} gap="lg">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
         {list.length === 0 ? (
-          <div className="col-span-4 text-center text-sm text-gray-500 py-8">
+          <div className="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-4 text-center text-sm text-gray-500 py-8">
             검색 결과가 없습니다.
           </div>
         ) : (
@@ -56,7 +56,7 @@ export default function PlayersListBody({
                     )}
                   </div>
                   <CardContent className="p-3">
-                    <div className="text-xs text-gray-600 flex items-center gap-2">
+                    <div className="text-xs text-gray-600 flex items-center gap-4">
                       <span className="inline-flex items-center gap-1">
                         {p.team?.team_id && p.team?.logo ? (
                           // eslint-disable-next-line @next/next/no-img-element
@@ -135,7 +135,7 @@ export default function PlayersListBody({
           Array.from({ length: fill4 }).map((_, i) => (
             <SkeletonCard key={`fill-4-${i}`} className="hidden lg:block" />
           ))}
-      </Grid>
+      </div>
     </div>
   );
 }
