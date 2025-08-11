@@ -123,6 +123,10 @@ export const getStandingsPrisma = async (
   return response.json();
 };
 
+Object.defineProperty(getStandingsPrisma, 'queryKey', {
+  value: 'standingsBySeason',
+});
+
 // Get standings with team name by season
 export const getStandingsWithTeamPrisma = async (seasonId: number) => {
   const response = await fetch(`/api/seasons/${seasonId}/standing`);
@@ -133,6 +137,10 @@ export const getStandingsWithTeamPrisma = async (seasonId: number) => {
   }
   return response.json();
 };
+
+Object.defineProperty(getStandingsWithTeamPrisma, 'queryKey', {
+  value: 'standingsWithTeamBySeason',
+});
 
 // ========== Group League Standings ==========
 
@@ -162,3 +170,7 @@ export const getGroupLeagueStandingsPrisma = async (
   }
   return response.json();
 };
+
+Object.defineProperty(getGroupLeagueStandingsPrisma, 'queryKey', {
+  value: 'groupLeagueStandings',
+});
