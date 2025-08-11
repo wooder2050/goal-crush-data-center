@@ -28,7 +28,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
         {/* Row 1: channels (large, bold) */}
         <div className="px-4 lg:px-6">
           <div className="mx-auto max-w-7xl">
-            <div className="flex w-full items-center gap-6 overflow-x-auto py-1 md:py-2">
+            <div className="flex w-full items-center gap-6 overflow-x-auto py-3 md:py-4">
               {CHANNELS.map((c) => (
                 <Link
                   key={c.label}
@@ -44,7 +44,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
 
         {/* Row 2: categories (children) with active underline */}
         <div className="px-4 lg:px-6">
-          <div className="mx-auto flex h-12 max-w-7xl items-end overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="mx-auto flex h-6 md:h-8 max-w-7xl items-end overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <nav className="flex items-end gap-6 whitespace-nowrap">
               {children}
             </nav>

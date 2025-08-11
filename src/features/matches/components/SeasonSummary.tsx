@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 
 import { getSeasonSummaryBySeasonIdPrisma } from '../api-prisma';
 
@@ -24,55 +24,30 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
   seasonName,
   className,
 }) => {
-  // 시즌별 요약 데이터를 React Query로 호출
-  const {
-    data: summaryArr = [],
-    isLoading,
-    error,
-  } = useGoalQuery(getSeasonSummaryBySeasonIdPrisma, [seasonId]);
+  // Suspense 기반 호출 (부모에서 GoalWrapper로 감싸야 함)
+  const { data: summaryArr = [] } = useGoalSuspenseQuery(
+    getSeasonSummaryBySeasonIdPrisma,
+    [seasonId]
+  );
   const summary = summaryArr[0];
 
-  // 로딩 상태
-  if (isLoading) {
-    return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle>{seasonName} 시즌 요약</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-4">
-            <div className="text-gray-500">시즌 정보를 불러오는 중...</div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // 에러 상태
-  if (error) {
-    return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle>{seasonName} 시즌 요약</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-4">
-            <div className="text-[#ff4800]">
-              {error instanceof Error ? error.message : 'Unknown error'}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Mobile: remove the common phrase; Desktop: show full
+  const baseTitle = `${seasonName} 시즌 요약`;
+  const mobileSeason = seasonName
+    .replace(/\s*골\s*때리는\s*그녀들\s*/g, '')
+    .trim();
+  const mobileTitle = `${mobileSeason || seasonName} 시즌 요약`;
 
   if (!summary) {
     return (
       <Card className={className}>
-        <CardHeader>
-          <CardTitle>{seasonName} 시즌 요약</CardTitle>
+        <CardHeader className="px-0 sm:px-6 py-3 sm:py-6">
+          <CardTitle className="sm:hidden text-sm leading-tight whitespace-nowrap">
+            {mobileTitle}
+          </CardTitle>
+          <CardTitle className="hidden sm:block">{baseTitle}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-0">
           <div className="text-center py-4">
             <div className="text-gray-500">시즌 요약 데이터가 없습니다.</div>
           </div>
@@ -98,7 +73,7 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
       color: 'text-purple-600',
     },
     {
-      label: '승부차기 경기',
+      label: '승부차기',
       value: summary.penalty_matches,
       color: 'text-orange-600',
     },
@@ -111,17 +86,22 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
 
   return (
     <Card className={className}>
-      <CardHeader>
-        <CardTitle>{seasonName} 시즌 요약</CardTitle>
+      <CardHeader className="px-0 sm:px-6 py-3 sm:py-6">
+        <CardTitle className="sm:hidden text-sm leading-tight whitespace-nowrap">
+          {mobileTitle}
+        </CardTitle>
+        <CardTitle className="hidden sm:block">{baseTitle}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <CardContent className="px-0">
+        <div className="grid grid-cols-5 gap-4">
           {summaryItems.map((item, index) => (
             <div key={index} className="text-center">
-              <div className={`text-2xl font-bold ${item.color}`}>
+              <div className={`text-base sm:text-2xl font-bold ${item.color}`}>
                 {item.value}
               </div>
-              <div className="text-sm text-gray-600">{item.label}</div>
+              <div className="text-[10px] sm:text-sm text-gray-600">
+                {item.label}
+              </div>
             </div>
           ))}
         </div>

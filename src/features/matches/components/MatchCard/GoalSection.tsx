@@ -140,10 +140,10 @@ export default function GoalSection({ match }: GoalSectionProps) {
 
   return (
     <div className="p-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-[1fr_72px_1fr] sm:grid-cols-[1fr_112px_1fr] gap-4 items-start">
         {/* Home Team Goals */}
-        <div className="space-y-1">
-          <div className="text-xs font-semibold text-gray-600 mb-1">
+        <div className="space-y-1 text-center">
+          <div className="text-xs font-semibold text-gray-600 mb-1 text-center">
             {match.home_team.team_name}
           </div>
           {homeTeamGoals
@@ -151,7 +151,7 @@ export default function GoalSection({ match }: GoalSectionProps) {
             .map((goal, index) => (
               <div
                 key={index}
-                className="flex items-center text-xs text-gray-700"
+                className="flex items-center justify-center text-xs text-gray-700"
               >
                 <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
                 <span className="font-medium">{goal.player?.name}</span>
@@ -180,9 +180,12 @@ export default function GoalSection({ match }: GoalSectionProps) {
           )}
         </div>
 
+        {/* Center spacer with the same width as the score box */}
+        <div aria-hidden className="w-[72px] sm:w-[112px]" />
+
         {/* Away Team Goals */}
-        <div className="space-y-1">
-          <div className="text-xs font-semibold text-gray-600 mb-1">
+        <div className="space-y-1 text-center">
+          <div className="text-xs font-semibold text-gray-600 mb-1 text-center">
             {match.away_team.team_name}
           </div>
           {awayTeamGoals
@@ -190,7 +193,7 @@ export default function GoalSection({ match }: GoalSectionProps) {
             .map((goal, index) => (
               <div
                 key={index}
-                className="flex items-center text-xs text-gray-700"
+                className="flex items-center justify-center text-xs text-gray-700"
               >
                 <div className="w-1.5 h-1.5 bg-gray-600 rounded-full mr-2"></div>
                 <span className="font-medium">{goal.player?.name}</span>

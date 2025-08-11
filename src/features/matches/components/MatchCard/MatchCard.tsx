@@ -32,7 +32,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ matchId, className = '' }) => {
   if (isLoading) {
     return (
       <Card className={className}>
-        <CardContent className="p-6">
+        <CardContent className="px-0 py-3 sm:p-6">
           <div className="animate-pulse">
             <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
             <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
@@ -46,7 +46,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ matchId, className = '' }) => {
   if (error || !match) {
     return (
       <Card className={className}>
-        <CardContent className="p-6">
+        <CardContent className="px-0 py-3 sm:p-6">
           <div className="text-[#ff4800]">
             {error instanceof Error
               ? error.message
@@ -60,7 +60,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ matchId, className = '' }) => {
   return (
     <Card className={className}>
       <MatchHeader match={match} />
-      <CardContent>
+      <CardContent className="px-0 py-3 sm:p-6">
         <MatchScoreHeader match={match} />
         <GoalSection match={match} />
         <PenaltyShootoutSection match={match} />

@@ -28,26 +28,26 @@ const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
   const winner = getWinnerTeam(match);
 
   const TeamWithLogo: React.FC<TeamWithLogoProps> = ({ team, isWinner }) => (
-    <div className="flex items-center justify-center gap-2">
-      <div className="w-8 h-8 relative flex-shrink-0 rounded-full overflow-hidden">
+    <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+      <div className="w-6 h-6 sm:w-8 sm:h-8 relative flex-shrink-0 rounded-full overflow-hidden">
         {team?.logo ? (
           <Image
             src={team.logo}
             alt={`${team.team_name} 로고`}
             fill
             className="object-cover"
-            sizes="32px"
+            sizes="24px"
           />
         ) : (
-          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-            <span className="text-xs text-gray-500 font-medium">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-200 rounded-full flex items-center justify-center">
+            <span className="text-[10px] sm:text-xs text-gray-500 font-medium">
               {team?.team_name?.charAt(0) || '?'}
             </span>
           </div>
         )}
       </div>
       <div
-        className={`text-sm font-medium ${
+        className={`text-xs sm:text-sm font-medium ${
           isWinner ? 'text-black font-bold' : 'text-gray-700'
         }`}
       >
@@ -64,13 +64,15 @@ const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
       </div>
 
       {/* Score */}
-      <div className="flex-shrink-0 px-4">
-        <div className="text-center bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold">{getMatchResult(match)}</div>
+      <div className="flex-shrink-0 px-2 sm:px-4">
+        <div className="text-center bg-gray-50 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg border border-gray-200">
+          <div className="text-xl font-bold sm:text-2xl">
+            {getMatchResult(match)}
+          </div>
           {/* 승부차기 점수만 스코어 박스 안에 표시 */}
           {hasPenaltyShootout(match) && (
-            <div className="text-xs text-gray-600 mt-1">
-              승부차기 {match.penalty_home_score}:{match.penalty_away_score}
+            <div className="text-[10px] sm:text-xs text-gray-600 mt-1">
+              PK {match.penalty_home_score}:{match.penalty_away_score}
             </div>
           )}
         </div>

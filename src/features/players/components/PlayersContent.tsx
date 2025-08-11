@@ -101,7 +101,7 @@ export default function PlayersContent({
   return (
     <>
       {/* Sticky filter wrapper (below fixed header) */}
-      <div className="sticky top-24 md:top-28 z-40 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 relative">
+      <div className="sticky top-24 md:top-28 z-40 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
         <div
           aria-hidden
           className="pointer-events-none absolute -top-2 md:-top-3 left-0 right-0 h-2 md:h-3 bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/50"

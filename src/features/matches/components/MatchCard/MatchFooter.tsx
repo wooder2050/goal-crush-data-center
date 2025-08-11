@@ -24,7 +24,8 @@ const MatchFooter: React.FC<MatchFooterProps> = ({ match, className = '' }) => {
           <span>{match.status === 'completed' ? '완료' : '예정'}</span>
           <Link
             href={`/matches/${match.match_id}`}
-            className="ml-3 rounded border px-2 py-1 text-xs text-gray-700 hover:bg-gray-50"
+            aria-label="상세 보기"
+            className="ml-3 inline-flex items-center rounded-md bg-black px-3 py-1.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-black/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/50"
           >
             상세 보기
           </Link>
