@@ -15,12 +15,19 @@ interface MatchHeaderProps {
 
 const MatchHeader: React.FC<MatchHeaderProps> = ({ match, className = '' }) => {
   const matchDate = new Date(match.match_date);
+  const baseLabel = match.description || match.season?.season_name || '';
+  const mobileLabel =
+    baseLabel.replace(/\s*골\s*때리는\s*그녀들\s*/g, '').trim() || baseLabel;
 
   return (
-    <CardHeader className={`pb-3 ${className}`}>
+    <CardHeader className={`px-0 py-3 sm:px-6 sm:py-6 ${className}`}>
       <div className="flex flex-col items-start gap-3 w-full">
-        <Badge variant="secondary" className="text-sm">
-          {match.description || match.season?.season_name || ''}
+        {/* Mobile: remove the common phrase; Desktop: show full */}
+        <Badge variant="secondary" className="text-sm sm:hidden">
+          {mobileLabel}
+        </Badge>
+        <Badge variant="secondary" className="hidden text-sm sm:inline-flex">
+          {baseLabel}
         </Badge>
         <div className="w-full text-sm text-gray-500 flex justify-end">
           {format(matchDate, 'yyyy년 M월 d일 (EEE)', { locale: ko })}

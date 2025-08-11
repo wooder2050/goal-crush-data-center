@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 
 import { useResolvedPathParams } from '@/common/path-params/client';
+import { Section } from '@/components/ui';
 import ChallengeResults from '@/features/matches/components/ChallengeResults';
 import GLeagueResults from '@/features/matches/components/GLeagueResults';
 import OtherLeagueResults from '@/features/matches/components/OtherLeagueResults';
@@ -38,28 +39,26 @@ export default function SeasonDynamicPage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-12">
-          <div className="h-6 w-40 rounded bg-gray-200 animate-pulse mb-4" />
-          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-48 bg-gray-100 rounded animate-pulse" />
-            ))}
-          </div>
+      <Section padding="sm" className="pt-2 sm:pt-3">
+        <div className="h-6 w-40 rounded bg-gray-200 animate-pulse mb-4" />
+        <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-48 bg-gray-100 rounded animate-pulse" />
+          ))}
         </div>
-      </main>
+      </Section>
     );
   }
 
   if (!matchedSeason || !matchedSeason.season_id) {
     return (
-      <main className="min-h-screen bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-12 text-center">
+      <Section padding="sm" className="pt-2 sm:pt-3">
+        <div className="text-center">
           <p className="text-lg text-gray-700">
             해당 시즌 페이지를 찾을 수 없습니다.
           </p>
         </div>
-      </main>
+      </Section>
     );
   }
 
@@ -68,11 +67,11 @@ export default function SeasonDynamicPage() {
   const Component = categoryToComponent[category] ?? OtherLeagueResults;
 
   return (
-    <main className="min-h-screen bg-white">
+    <Section padding="sm" className="pt-2 sm:pt-3">
       <Component
         seasonId={matchedSeason.season_id}
         title={matchedSeason.season_name}
       />
-    </main>
+    </Section>
   );
 }
