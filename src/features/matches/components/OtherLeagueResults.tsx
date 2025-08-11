@@ -1,8 +1,6 @@
 'use client';
 
-import { GoalWrapper } from '@/common/GoalWrapper';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSeasonByIdPrisma } from '@/features/seasons/api-prisma';
 import StandingsTable from '@/features/stats/components/StandingsTable';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
@@ -95,31 +93,11 @@ export default function OtherLeagueResults({ seasonId, title }: Props) {
           </div>
         )}
       </div>
-      <GoalWrapper
-        fallback={
-          <Card className="mt-8">
-            <CardHeader>
-              <CardTitle>{title ?? '시즌'} 시즌 요약</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="text-center">
-                    <div className="mx-auto h-7 w-16 rounded bg-gray-200 animate-pulse md:w-20" />
-                    <div className="mx-auto mt-2 h-3 w-20 rounded bg-gray-200 animate-pulse md:w-24" />
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        }
-      >
-        <SeasonSummary
-          seasonId={seasonId}
-          seasonName={title ?? '시즌'}
-          className="mt-6 sm:mt-8"
-        />
-      </GoalWrapper>
+      <SeasonSummary
+        seasonId={seasonId}
+        seasonName={title ?? '시즌'}
+        className="mt-6 sm:mt-8"
+      />
       <div className="mt-6 sm:mt-8">
         <StandingsTable seasonId={seasonId} />
       </div>

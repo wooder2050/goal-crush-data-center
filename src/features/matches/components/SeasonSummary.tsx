@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
+import { useGoalQuery } from '@/hooks/useGoalQuery';
 
 import { getSeasonSummaryBySeasonIdPrisma } from '../api-prisma';
 
@@ -24,11 +24,14 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
   seasonName,
   className,
 }) => {
-  // Suspense 기반 호출 (부모에서 GoalWrapper로 감싸야 함)
-  const { data: summaryArr = [] } = useGoalSuspenseQuery(
-    getSeasonSummaryBySeasonIdPrisma,
-    [seasonId]
-  );
+  const {
+    data: summaryArr = [],
+    isLoading,
+    error,
+  } = useGoalQuery(getSeasonSummaryBySeasonIdPrisma, [seasonId]);
+  // TODO: remove this console.log
+  // eslint-disable-next-line no-console
+  console.log(summaryArr, isLoading, error);
   const summary = summaryArr[0];
 
   // Mobile: remove the common phrase; Desktop: show full
@@ -38,7 +41,27 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
     .trim();
   const mobileTitle = `${mobileSeason || seasonName} 시즌 요약`;
 
-  if (!summary) {
+  if (isLoading) {
+    return (
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>{seasonName ?? '시즌'} 시즌 요약</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="text-center">
+                <div className="mx-auto h-7 w-16 rounded bg-gray-200 animate-pulse md:w-20" />
+                <div className="mx-auto mt-2 h-3 w-20 rounded bg-gray-200 animate-pulse md:w-24" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error || !summary) {
     return (
       <Card className={className}>
         <CardHeader className="px-0 sm:px-6 py-3 sm:py-6">
