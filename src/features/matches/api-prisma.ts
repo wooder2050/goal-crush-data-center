@@ -221,3 +221,7 @@ export const getSeasonSummaryBySeasonIdPrisma = async (
   }
   return response.json();
 };
+
+Object.defineProperty(getSeasonSummaryBySeasonIdPrisma, 'queryKey', {
+  value: 'seasonSummaryBySeasonId',
+});
