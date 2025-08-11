@@ -2,31 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
 
-// Force dynamic rendering for this route
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-// GET /api/stats/standings - 순위표 조회
-export async function GET(request: NextRequest) {
+// GET /api/seasons/[season_id]/standing - 특정 시즌의 순위표 조회
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: { season_id?: string } }
+) {
   try {
-    const { searchParams } = new URL(request.url);
-    const seasonId = searchParams.get('season_id');
+    const idParam = params?.season_id;
+    const seasonIdNum = idParam ? parseInt(idParam, 10) : NaN;
 
-    if (!seasonId) {
-      return NextResponse.json(
-        { error: 'Season ID is required' },
-        { status: 400 }
-      );
-    }
-
-    const seasonIdNum = parseInt(seasonId);
-    if (isNaN(seasonIdNum)) {
+    if (!idParam || Number.isNaN(seasonIdNum)) {
       return NextResponse.json({ error: 'Invalid season ID' }, { status: 400 });
     }
 
     const standings = await prisma.standing.findMany({
-      where: {
-        season_id: seasonIdNum,
-      },
+      where: { season_id: seasonIdNum },
       select: {
         standing_id: true,
         season_id: true,
@@ -51,14 +45,12 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: {
-        position: 'asc',
-      },
+      orderBy: { position: 'asc' },
     });
 
     return NextResponse.json(standings);
   } catch (error) {
-    console.error('Error fetching standings:', error);
+    console.error('Error fetching standings by season:', error);
     return NextResponse.json(
       {
         error: 'Failed to fetch standings',

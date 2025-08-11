@@ -116,7 +116,7 @@ export const getTeamSeasonStatsByTeamPrisma = async (
 export const getStandingsPrisma = async (
   seasonId: number
 ): Promise<Standing[]> => {
-  const response = await fetch(`/api/stats/standings?season_id=${seasonId}`);
+  const response = await fetch(`/api/seasons/${seasonId}/standing`);
   if (!response.ok) {
     throw new Error(`Failed to fetch standings: ${response.statusText}`);
   }
@@ -125,7 +125,7 @@ export const getStandingsPrisma = async (
 
 // Get standings with team name by season
 export const getStandingsWithTeamPrisma = async (seasonId: number) => {
-  const response = await fetch(`/api/stats/standings?season_id=${seasonId}`);
+  const response = await fetch(`/api/seasons/${seasonId}/standing`);
   if (!response.ok) {
     throw new Error(
       `Failed to fetch standings with team: ${response.statusText}`
