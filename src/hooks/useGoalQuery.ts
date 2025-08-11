@@ -30,8 +30,14 @@ export function useGoalQuery<
     'queryKey' | 'queryFn'
   >
 ): UseQueryResult<TData, Error> {
+  const customKey = (apiFn as any)?.queryKey as string | undefined;
+  const safeName =
+    customKey ||
+    (typeof apiFn === 'function' && (apiFn as { name?: string }).name) ||
+    'anonymous';
+
   return useQuery<TData, Error, TData, QueryKey>({
-    queryKey: [apiFn.name, ...params],
+    queryKey: [safeName, ...params],
     queryFn: () => apiFn(...params),
     ...options,
   });
@@ -52,8 +58,14 @@ export function useGoalSuspenseQuery<
     'queryKey' | 'queryFn'
   >
 ): UseSuspenseQueryResult<TData, Error> {
+  const customKey = (apiFn as any)?.queryKey as string | undefined;
+  const safeName =
+    customKey ||
+    (typeof apiFn === 'function' && (apiFn as { name?: string }).name) ||
+    'anonymous';
+
   return useSuspenseQuery<TData, Error, TData, QueryKey>({
-    queryKey: [apiFn.name, ...params],
+    queryKey: [safeName, ...params],
     queryFn: () => apiFn(...params),
     ...options,
   });
@@ -96,7 +108,9 @@ export function useGoalInfiniteQuery<
   >;
   const { initialPageParam, getNextPageParam, ...rest } = typed;
   const paramsForKey = getParams({ pageParam: initialPageParam as TPageParam });
+  const customKey = (apiFn as any)?.queryKey as string | undefined;
   const safeName =
+    customKey ||
     (typeof apiFn === 'function' && (apiFn as { name?: string }).name) ||
     'anonymous';
   const keyParams = JSON.stringify(paramsForKey);
