@@ -13,7 +13,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  Grid,
   H1,
   Section,
 } from '@/components/ui';
@@ -54,12 +53,12 @@ export default function SeasonsPage() {
       <div className="min-h-screen bg-white">
         <Section padding="sm">
           <div className="text-center">
-            <H1 className="mb-4">시즌 목록</H1>
+            <H1 className="mb-3 sm:mb-4 text-xl sm:text-3xl">시즌 목록</H1>
             <div className="mx-auto flex max-w-xl flex-col items-center gap-3">
               <div className="h-4 w-40 rounded bg-gray-200 animate-pulse" />
               <div className="h-3 w-64 rounded bg-gray-200 animate-pulse" />
             </div>
-            <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 sm:mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="rounded-md border p-4">
                   <div className="h-4 w-1/2 rounded bg-gray-200 animate-pulse" />
@@ -93,32 +92,34 @@ export default function SeasonsPage() {
   return (
     <div className="min-h-screen bg-white">
       <Section padding="sm">
-        <div className="text-center mb-12">
-          <H1 className="mb-4">시즌 목록</H1>
-          <Body className="text-lg mb-6">골때리는 그녀들 시즌별 경기 결과</Body>
+        <div className="text-center mb-8 sm:mb-12">
+          <H1 className="mb-3 sm:mb-4 text-xl sm:text-3xl">시즌 목록</H1>
+          <Body className="text-base sm:text-lg mb-4 sm:mb-6">
+            골때리는 그녀들 시즌별 경기 결과
+          </Body>
         </div>
-        <Grid cols={3} gap="lg">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {seasons.map((season) => (
             <Card
               key={season.season_id}
               className="hover:scale-105 transition-transform cursor-pointer"
             >
               <Link href={`/seasons/${season.season_id}`}>
-                <CardHeader>
+                <CardHeader className="space-y-1 sm:space-y-2">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Trophy className="h-5 w-5" />
+                    <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                      <Trophy className="h-4 w-4 sm:h-5 sm:w-5" />
                       {season.season_name}
                     </CardTitle>
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                    <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
                   </div>
-                  <CardDescription className="flex items-center gap-2">
+                  <CardDescription className="flex items-center gap-2 text-sm sm:text-base">
                     <Calendar className="h-4 w-4" />
                     {season.year}년
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
                     {getStatusBadge(season.start_date, season.end_date)}
                     <div className="flex items-center gap-1 text-sm text-gray-600">
                       <Users className="h-4 w-4" />
@@ -130,10 +131,12 @@ export default function SeasonsPage() {
               </Link>
             </Card>
           ))}
-        </Grid>
+        </div>
         {seasons.length === 0 && (
           <div className="text-center py-12">
-            <Body className="text-lg">등록된 시즌이 없습니다.</Body>
+            <Body className="text-base sm:text-lg">
+              등록된 시즌이 없습니다.
+            </Body>
           </div>
         )}
       </Section>

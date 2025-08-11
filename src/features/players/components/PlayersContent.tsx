@@ -33,11 +33,13 @@ export default function PlayersContent({
   controlledKeyword,
   onApplyControlledKeyword,
   hideInternalSearch,
+  stickyHeaderSlot,
 }: {
   onTotalChange?: (n: number) => void;
   controlledKeyword?: string;
   onApplyControlledKeyword?: () => void;
   hideInternalSearch?: boolean;
+  stickyHeaderSlot?: React.ReactNode;
 }) {
   const { data: teams = [] } = useGoalSuspenseQuery(getTeamsPrisma, []);
   const [keyword, setKeyword] = useState('');
@@ -73,7 +75,7 @@ export default function PlayersContent({
     'rounded-md border border-gray-200 bg-white p-0 shadow-lg';
   // Item styles: add left padding for check/emoji, remove selected background/weight
   const itemBase =
-    'pl-8 pr-4 py-3 text-sm text-gray-800 data-[highlighted]:bg-gray-100 data-[state=checked]:bg-transparent data-[state=checked]:font-normal cursor-pointer';
+    'pl-8 pr-4 py-3 text-sm text-gray-800 data-[highlighted]:bg-gray-50 data-[state=checked]:bg-transparent data-[state=checked]:font-normal cursor-pointer';
 
   const applySearch = useCallback(() => {
     const next = keywordInput.trim();
@@ -98,75 +100,155 @@ export default function PlayersContent({
 
   return (
     <>
-      {/* Top bar - minimal category tabs + right-side dropdowns */}
-      <div className="mb-3 rounded-md border bg-white">
-        <div className="flex h-11 items-center justify-between px-3">
-          {/* Left: category tabs with separators */}
-          <div className="flex max-w-full items-center gap-4 overflow-x-auto">
-            {POSITION_OPTIONS.map((opt, idx) => (
-              <div key={opt.value} className="flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => setPosition(opt.value)}
-                  className={`whitespace-nowrap text-sm ${position === opt.value ? 'font-semibold text-gray-900' : 'text-gray-600 hover:text-gray-900'}`}
-                >
-                  {opt.label}
-                </button>
-                {idx < POSITION_OPTIONS.length - 1 && (
-                  <span className="hidden h-5 w-px bg-gray-200 sm:inline-block" />
+      {/* Sticky filter wrapper (below fixed header) */}
+      <div className="sticky top-24 md:top-28 z-40 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 relative">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-2 md:-top-3 left-0 right-0 h-2 md:h-3 bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/50"
+        />
+        {stickyHeaderSlot}
+        {/* Mobile+Tablet: top tabs with underline */}
+        <div className="mb-2 border-b bg-transparent lg:hidden">
+          <div className="flex items-center gap-4 overflow-x-auto px-3 pt-3 pb-2">
+            {POSITION_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setPosition(opt.value)}
+                className={`relative whitespace-nowrap pb-2 text-sm ${position === opt.value ? 'font-semibold text-gray-900' : 'text-gray-600'}`}
+              >
+                {opt.label}
+                {position === opt.value && (
+                  <span className="absolute inset-x-0 -bottom-px block h-px bg-gray-800/70" />
                 )}
-              </div>
+              </button>
             ))}
           </div>
+        </div>
 
-          {/* Right: team select + order select (left vertical divider + inner dividers) */}
-          <div className="flex items-center pl-3 ml-3 border-l border-gray-200 divide-x divide-gray-200">
-            <div className="px-3">
-              <Select
-                value={teamId != null ? String(teamId) : 'all'}
-                onValueChange={(val) =>
-                  setTeamId(val === 'all' ? null : Number(val))
-                }
-              >
-                <SelectTrigger className={`${triggerBase} min-w-[150px]`}>
-                  <SelectValue placeholder="팀 전체" />
-                </SelectTrigger>
-                <SelectContent className={contentBase}>
-                  <SelectItem value="all" className={itemBase}>
-                    <TeamOptionItem name="팀 전체" logo={null} />
+        {/* Mobile+Tablet: pill-style selects row */}
+        <div className="mb-4 bg-transparent lg:hidden">
+          <div className="flex items-center gap-2 overflow-x-auto px-3 py-2">
+            <Select
+              value={teamId != null ? String(teamId) : 'all'}
+              onValueChange={(val) =>
+                setTeamId(val === 'all' ? null : Number(val))
+              }
+            >
+              <SelectTrigger className="h-9 rounded-full border border-gray-200 bg-gray-50 px-3 text-sm shadow-none focus:outline-none focus:ring-1 focus:ring-gray-300 focus:ring-offset-0 data-[state=open]:ring-1 data-[state=open]:ring-gray-300 data-[state=open]:ring-offset-0">
+                <SelectValue placeholder="팀 전체" />
+              </SelectTrigger>
+              <SelectContent className={contentBase}>
+                <SelectItem value="all" className={itemBase}>
+                  <TeamOptionItem name="팀 전체" logo={null} />
+                </SelectItem>
+                {teamOptions.map((t) => (
+                  <SelectItem
+                    key={t.team_id}
+                    value={String(t.team_id)}
+                    className={itemBase}
+                  >
+                    <TeamOptionItem name={t.team_name} logo={t.logo ?? null} />
                   </SelectItem>
-                  {teamOptions.map((t) => (
-                    <SelectItem
-                      key={t.team_id}
-                      value={String(t.team_id)}
-                      className={itemBase}
-                    >
-                      <TeamOptionItem
-                        name={t.team_name}
-                        logo={t.logo ?? null}
-                      />
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={order}
+              onValueChange={(val) => setOrder((val as OrderValue) ?? 'apps')}
+            >
+              <SelectTrigger className="h-9 rounded-full border border-gray-200 bg-gray-50 px-3 text-sm shadow-none focus:outline-none focus:ring-1 focus:ring-gray-300 focus:ring-offset-0 data-[state=open]:ring-1 data-[state=open]:ring-gray-300 data-[state=open]:ring-offset-0">
+                <SelectValue placeholder="정렬" />
+              </SelectTrigger>
+              <SelectContent className={contentBase}>
+                <SelectItem value="apps" className={itemBase}>
+                  🏃 출전 많은 순
+                </SelectItem>
+                <SelectItem value="goals" className={itemBase}>
+                  ⚽️ 골 많은 순
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Desktop (lg+): original combined bar */}
+        <div className="mb-4 hidden rounded-md border bg-white lg:block">
+          <div className="flex min-h-12 flex-wrap items-center justify-between gap-2 px-3 py-3">
+            {/* Left: category tabs with separators */}
+            <div className="hidden max-w-full items-center gap-4 overflow-x-auto lg:flex">
+              {POSITION_OPTIONS.map((opt, idx) => (
+                <div key={opt.value} className="flex items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setPosition(opt.value)}
+                    className={`whitespace-nowrap text-sm ${position === opt.value ? 'font-semibold text-gray-900' : 'text-gray-600 hover:text-gray-900'}`}
+                  >
+                    {opt.label}
+                  </button>
+                  {idx < POSITION_OPTIONS.length - 1 && (
+                    <span className="hidden h-5 w-px bg-gray-200 sm:inline-block" />
+                  )}
+                </div>
+              ))}
             </div>
-            <div className="px-3">
-              <Select
-                value={order}
-                onValueChange={(val) => setOrder((val as OrderValue) ?? 'apps')}
-              >
-                <SelectTrigger className={`${triggerBase} min-w-[120px]`}>
-                  <SelectValue placeholder="정렬" />
-                </SelectTrigger>
-                <SelectContent className={contentBase}>
-                  <SelectItem value="apps" className={itemBase}>
-                    🏃 출전 많은 순
-                  </SelectItem>
-                  <SelectItem value="goals" className={itemBase}>
-                    ⚽️ 골 많은 순
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+
+            {/* Right: team select + order select (left vertical divider + inner dividers) */}
+            <div className="hidden items-center gap-2 lg:flex lg:gap-0 lg:pl-3 lg:ml-3 lg:border-l lg:border-gray-200 lg:divide-x lg:divide-gray-200">
+              <div className="px-0 sm:px-3">
+                <Select
+                  value={teamId != null ? String(teamId) : 'all'}
+                  onValueChange={(val) =>
+                    setTeamId(val === 'all' ? null : Number(val))
+                  }
+                >
+                  <SelectTrigger
+                    className={`${triggerBase} min-w-[120px] sm:min-w-[150px]`}
+                  >
+                    <SelectValue placeholder="팀 전체" />
+                  </SelectTrigger>
+                  <SelectContent className={contentBase}>
+                    <SelectItem value="all" className={itemBase}>
+                      <TeamOptionItem name="팀 전체" logo={null} />
+                    </SelectItem>
+                    {teamOptions.map((t) => (
+                      <SelectItem
+                        key={t.team_id}
+                        value={String(t.team_id)}
+                        className={itemBase}
+                      >
+                        <TeamOptionItem
+                          name={t.team_name}
+                          logo={t.logo ?? null}
+                        />
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="px-0 sm:px-3">
+                <Select
+                  value={order}
+                  onValueChange={(val) =>
+                    setOrder((val as OrderValue) ?? 'apps')
+                  }
+                >
+                  <SelectTrigger
+                    className={`${triggerBase} min-w-[100px] sm:min-w-[120px]`}
+                  >
+                    <SelectValue placeholder="정렬" />
+                  </SelectTrigger>
+                  <SelectContent className={contentBase}>
+                    <SelectItem value="apps" className={itemBase}>
+                      🏃 출전 많은 순
+                    </SelectItem>
+                    <SelectItem value="goals" className={itemBase}>
+                      ⚽️ 골 많은 순
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
@@ -174,8 +256,8 @@ export default function PlayersContent({
 
       {!hideInternalSearch && (
         // Search (server) - compact underline style (<=25% width)
-        <div className="mb-4 flex justify-end">
-          <div className="relative w-[22%] min-w-[220px] max-w-[360px]">
+        <div className="mb-4 hidden sm:flex justify-end">
+          <div className="relative w-full sm:w-[22%] min-w-0 sm:min-w-[220px] sm:max-w-[360px]">
             <input
               value={keywordInput}
               onChange={(e) => setKeywordInput(e.target.value)}

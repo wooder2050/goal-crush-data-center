@@ -24,7 +24,7 @@ export default function RootLayout({
           <NavItem href="/teams">팀</NavItem>
           <NavItem href="/players">선수</NavItem>
         </Header>
-        <div>
+        <div className="pt-24 md:pt-28">
           <Providers>{children}</Providers>
         </div>
       </body>

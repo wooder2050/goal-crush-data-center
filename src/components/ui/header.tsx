@@ -19,7 +19,10 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
     return (
       <header
         ref={ref}
-        className={cn('bg-white border-b border-gray-200', className)}
+        className={cn(
+          'fixed top-0 inset-x-0 z-50 bg-white border-b border-gray-200 transform-gpu will-change-transform',
+          className
+        )}
         {...props}
       >
         {/* Row 1: channels (large, bold) */}
@@ -41,7 +44,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
 
         {/* Row 2: categories (children) with active underline */}
         <div className="px-4 lg:px-6">
-          <div className="mx-auto flex h-12 max-w-7xl items-end overflow-x-auto">
+          <div className="mx-auto flex h-12 max-w-7xl items-end overflow-x-auto overflow-y-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <nav className="flex items-end gap-6 whitespace-nowrap">
               {children}
             </nav>
@@ -77,7 +80,7 @@ const NavItem = React.forwardRef<HTMLAnchorElement, NavItemProps>(
         ref={ref as React.Ref<HTMLAnchorElement>}
         href={href}
         className={cn(
-          'relative group pb-2 text-sm tracking-wide transition-colors',
+          'relative group pb-2 text-sm leading-none tracking-wide transition-colors',
           computedActive
             ? 'font-bold text-black'
             : 'font-medium text-gray-700 hover:text-black',
