@@ -78,7 +78,7 @@ export default function GLeagueResults({ seasonId, title }: Props) {
               </h2>
               <div className="h-0.5 bg-gradient-to-r from-blue-500 to-transparent" />
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4  lg:grid-cols-2">
               {matches
                 .slice()
                 .sort(

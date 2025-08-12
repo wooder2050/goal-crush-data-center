@@ -29,9 +29,6 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
     isLoading,
     error,
   } = useGoalQuery(getSeasonSummaryBySeasonIdPrisma, [seasonId]);
-  // TODO: remove this console.log
-  // eslint-disable-next-line no-console
-  console.log(summaryArr, isLoading, error);
   const summary = summaryArr[0];
 
   // Mobile: remove the common phrase; Desktop: show full

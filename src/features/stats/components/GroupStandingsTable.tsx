@@ -224,9 +224,10 @@ const GroupStandingsTable: FC<GroupStandingsTableProps> = ({
         </Badge>
       </div>
 
-      {filteredStandings.length === 0 ? (
-        <div className="text-center py-8">
-          <div className="text-gray-500">
+      {/* Mobile cards */}
+      <div className="sm:hidden space-y-3">
+        {filteredStandings.length === 0 ? (
+          <div className="py-6 text-center text-gray-500 text-[12px]">
             {tournamentStage === 'all'
               ? '순위 데이터가 없습니다.'
               : tournamentStage === 'group_stage'
@@ -237,19 +238,246 @@ const GroupStandingsTable: FC<GroupStandingsTableProps> = ({
                   ? '우승 토너먼트 순위 데이터가 없습니다.'
                   : '멸망 토너먼트 순위 데이터가 없습니다.'}
           </div>
-        </div>
-      ) : tournamentStage === 'group_stage' && groupStage === 'all' ? (
-        // 전체를 선택했을 때 조별로 분리해서 표시
-        <div>
-          {groupAStandings.length > 0 &&
-            renderStandingsTable(groupAStandings, 'A조')}
-          {groupBStandings.length > 0 &&
-            renderStandingsTable(groupBStandings, 'B조')}
-        </div>
-      ) : (
-        // 특정 조를 선택했을 때는 하나의 테이블로 표시
-        renderStandingsTable(filteredStandings)
-      )}
+        ) : tournamentStage === 'group_stage' && groupStage === 'all' ? (
+          <>
+            {groupAStandings.length > 0 && (
+              <div>
+                <div className="mb-2 text-xs font-semibold text-gray-600">
+                  A조
+                </div>
+                {groupAStandings
+                  .slice()
+                  .sort(
+                    (a: StandingRow, b: StandingRow) =>
+                      (a.position || 0) - (b.position || 0)
+                  )
+                  .map((row: StandingRow, idx: number) => (
+                    <div
+                      key={row.group_standing_id ?? row.standing_id ?? idx}
+                      className="rounded-md border px-3 py-2"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-xs font-bold">
+                          {getRankEmoji(row.position || 0)}위
+                        </div>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-6 h-6 relative flex-shrink-0 rounded-full overflow-hidden">
+                            {row.team?.logo ? (
+                              <Image
+                                src={row.team.logo}
+                                alt={`${row.team?.team_name ?? ''} 로고`}
+                                fill
+                                className="object-cover"
+                                sizes="24px"
+                              />
+                            ) : (
+                              <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                                <span className="text-xs text-gray-500 font-medium">
+                                  {row.team?.team_name?.charAt(0) || '?'}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <span className="truncate text-sm font-semibold">
+                            {row.team?.team_name ?? '-'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-2 grid grid-cols-3 gap-2">
+                        {[
+                          { label: '경기', value: row.matches_played ?? '-' },
+                          { label: '승', value: row.wins ?? '-' },
+                          { label: '무', value: row.draws ?? '-' },
+                          { label: '패', value: row.losses ?? '-' },
+                          {
+                            label: '득실차',
+                            value: row.goal_difference ?? '-',
+                          },
+                          { label: '승점', value: row.points ?? '-' },
+                        ].map((stat, i) => (
+                          <div
+                            key={i}
+                            className="rounded bg-gray-50 border border-gray-200 px-2 py-1 text-center"
+                          >
+                            <div className="text-[11px] text-gray-600">
+                              {stat.label}
+                            </div>
+                            <div className="text-sm font-semibold text-gray-900">
+                              {stat.value}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+            {groupBStandings.length > 0 && (
+              <div>
+                <div className="mb-2 text-xs font-semibold text-gray-600">
+                  B조
+                </div>
+                {groupBStandings
+                  .slice()
+                  .sort(
+                    (a: StandingRow, b: StandingRow) =>
+                      (a.position || 0) - (b.position || 0)
+                  )
+                  .map((row: StandingRow, idx: number) => (
+                    <div
+                      key={row.group_standing_id ?? row.standing_id ?? idx}
+                      className="rounded-md border px-3 py-2"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="text-xs font-bold">
+                          {getRankEmoji(row.position || 0)}위
+                        </div>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-6 h-6 relative flex-shrink-0 rounded-full overflow-hidden">
+                            {row.team?.logo ? (
+                              <Image
+                                src={row.team.logo}
+                                alt={`${row.team?.team_name ?? ''} 로고`}
+                                fill
+                                className="object-cover"
+                                sizes="24px"
+                              />
+                            ) : (
+                              <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                                <span className="text-xs text-gray-500 font-medium">
+                                  {row.team?.team_name?.charAt(0) || '?'}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <span className="truncate text-sm font-semibold">
+                            {row.team?.team_name ?? '-'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-2 grid grid-cols-3 gap-2">
+                        {[
+                          { label: '경기', value: row.matches_played ?? '-' },
+                          { label: '승', value: row.wins ?? '-' },
+                          { label: '무', value: row.draws ?? '-' },
+                          { label: '패', value: row.losses ?? '-' },
+                          {
+                            label: '득실차',
+                            value: row.goal_difference ?? '-',
+                          },
+                          { label: '승점', value: row.points ?? '-' },
+                        ].map((stat, i) => (
+                          <div
+                            key={i}
+                            className="rounded bg-gray-50 border border-gray-200 px-2 py-1 text-center"
+                          >
+                            <div className="text-[11px] text-gray-600">
+                              {stat.label}
+                            </div>
+                            <div className="text-sm font-semibold text-gray-900">
+                              {stat.value}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </>
+        ) : (
+          filteredStandings
+            .slice()
+            .sort(
+              (a: StandingRow, b: StandingRow) =>
+                (a.position || 0) - (b.position || 0)
+            )
+            .map((row: StandingRow, idx: number) => (
+              <div
+                key={row.group_standing_id ?? row.standing_id ?? idx}
+                className="rounded-md border px-3 py-2"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-xs font-bold">
+                    {getRankEmoji(row.position || 0)}위
+                  </div>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 relative flex-shrink-0 rounded-full overflow-hidden">
+                      {row.team?.logo ? (
+                        <Image
+                          src={row.team.logo}
+                          alt={`${row.team?.team_name ?? ''} 로고`}
+                          fill
+                          className="object-cover"
+                          sizes="24px"
+                        />
+                      ) : (
+                        <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                          <span className="text-xs text-gray-500 font-medium">
+                            {row.team?.team_name?.charAt(0) || '?'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <span className="truncate text-sm font-semibold">
+                      {row.team?.team_name ?? '-'}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                  {[
+                    { label: '경기', value: row.matches_played ?? '-' },
+                    { label: '승', value: row.wins ?? '-' },
+                    { label: '무', value: row.draws ?? '-' },
+                    { label: '패', value: row.losses ?? '-' },
+                    { label: '득실차', value: row.goal_difference ?? '-' },
+                    { label: '승점', value: row.points ?? '-' },
+                  ].map((stat, i) => (
+                    <div
+                      key={i}
+                      className="rounded bg-gray-50 border border-gray-200 px-2 py-1 text-center"
+                    >
+                      <div className="text-[11px] text-gray-600">
+                        {stat.label}
+                      </div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {stat.value}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+        )}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden sm:block">
+        {filteredStandings.length === 0 ? (
+          <div className="text-center py-8">
+            <div className="text-gray-500">
+              {tournamentStage === 'all'
+                ? '순위 데이터가 없습니다.'
+                : tournamentStage === 'group_stage'
+                  ? groupStage === 'all'
+                    ? '조별리그 순위 데이터가 없습니다.'
+                    : `조별리그 ${groupStage}조 순위 데이터가 없습니다.`
+                  : tournamentStage === 'championship'
+                    ? '우승 토너먼트 순위 데이터가 없습니다.'
+                    : '멸망 토너먼트 순위 데이터가 없습니다.'}
+            </div>
+          </div>
+        ) : tournamentStage === 'group_stage' && groupStage === 'all' ? (
+          <div>
+            {groupAStandings.length > 0 &&
+              renderStandingsTable(groupAStandings, 'A조')}
+            {groupBStandings.length > 0 &&
+              renderStandingsTable(groupBStandings, 'B조')}
+          </div>
+        ) : (
+          renderStandingsTable(filteredStandings)
+        )}
+      </div>
     </div>
   );
 };
