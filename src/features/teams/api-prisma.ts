@@ -43,6 +43,8 @@ export const getTeamsPrisma = async (): Promise<TeamWithExtras[]> => {
   return response.json();
 };
 
+Object.defineProperty(getTeamsPrisma, 'queryKey', { value: 'teamsAll' });
+
 // Get team by ID (throws on not found)
 export const getTeamByIdPrisma = async (teamId: number): Promise<Team> => {
   const response = await fetch(`/api/teams/${teamId}`);
@@ -56,6 +58,8 @@ export const getTeamByIdPrisma = async (teamId: number): Promise<Team> => {
   return response.json();
 };
 
+Object.defineProperty(getTeamByIdPrisma, 'queryKey', { value: 'teamById' });
+
 // Get teams by season
 export const getTeamsBySeasonPrisma = async (
   seasonId: number
@@ -66,6 +70,10 @@ export const getTeamsBySeasonPrisma = async (
   }
   return response.json();
 };
+
+Object.defineProperty(getTeamsBySeasonPrisma, 'queryKey', {
+  value: 'teamsBySeason',
+});
 
 // Get team players
 export const getTeamPlayersPrisma = async (
@@ -80,6 +88,10 @@ export const getTeamPlayersPrisma = async (
   return response.json();
 };
 
+Object.defineProperty(getTeamPlayersPrisma, 'queryKey', {
+  value: 'teamPlayers',
+});
+
 // Get team stats (optional seasonId)
 export const getTeamStatsPrisma = async (
   teamId: number,
@@ -93,6 +105,8 @@ export const getTeamStatsPrisma = async (
   return response.json();
 };
 
+Object.defineProperty(getTeamStatsPrisma, 'queryKey', { value: 'teamStats' });
+
 export const getTeamSeasonStandingsPrisma = async (
   teamId: number
 ): Promise<TeamSeasonStandingRow[]> => {
@@ -102,6 +116,10 @@ export const getTeamSeasonStandingsPrisma = async (
   }
   return res.json();
 };
+
+Object.defineProperty(getTeamSeasonStandingsPrisma, 'queryKey', {
+  value: 'teamSeasonStandings',
+});
 
 export const getTeamHighlightsPrisma = async (
   teamId: number
@@ -136,3 +154,7 @@ export const getTeamHighlightsPrisma = async (
     throw new Error(`Failed to fetch team highlights: ${res.statusText}`);
   return res.json();
 };
+
+Object.defineProperty(getTeamHighlightsPrisma, 'queryKey', {
+  value: 'teamHighlights',
+});

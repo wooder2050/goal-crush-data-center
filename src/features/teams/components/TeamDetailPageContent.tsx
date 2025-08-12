@@ -11,7 +11,6 @@ import {
 } from '@/features/teams/api-prisma';
 import TeamDetailSkeleton from '@/features/teams/components/TeamDetailSkeleton';
 import TeamHeader from '@/features/teams/components/TeamHeader';
-import TeamMatchesShortcut from '@/features/teams/components/TeamMatchesShortcut';
 import TeamSeasonStandings from '@/features/teams/components/TeamSeasonStandings';
 import TeamSquadTable from '@/features/teams/components/TeamSquadTable';
 import TeamStatsCard from '@/features/teams/components/TeamStatsCard';
@@ -31,10 +30,6 @@ function TeamDetailSuspenseBody({ teamId }: { teamId: number }) {
       {stats && <TeamStatsCard stats={stats} />}
       <TeamSquadTable players={players} teamId={teamId} />
       <TeamSeasonStandings teamId={teamId} />
-      <TeamMatchesShortcut
-        href="/seasons/season-7-gleague"
-        label="시즌 7 G리그 경기 보기"
-      />
     </div>
   );
 }

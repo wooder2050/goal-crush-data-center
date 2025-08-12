@@ -14,6 +14,8 @@ export const getPlayersPrisma = async (): Promise<Player[]> => {
   return response.json();
 };
 
+Object.defineProperty(getPlayersPrisma, 'queryKey', { value: 'playersAll' });
+
 // Get players (paginated) - for infinite query
 export type PlayersPageItem = {
   player_id: number;
@@ -57,6 +59,10 @@ export const getPlayersPagePrisma = async (
   return response.json();
 };
 
+Object.defineProperty(getPlayersPagePrisma, 'queryKey', {
+  value: 'playersPage',
+});
+
 export const getPlayersSummariesPrisma = async (
   playerIds: number[]
 ): Promise<
@@ -75,6 +81,10 @@ export const getPlayersSummariesPrisma = async (
   return res.json();
 };
 
+Object.defineProperty(getPlayersSummariesPrisma, 'queryKey', {
+  value: 'playersSummaries',
+});
+
 // Get player by ID
 export const getPlayerByIdPrisma = async (
   playerId: number
@@ -88,6 +98,10 @@ export const getPlayerByIdPrisma = async (
   }
   return response.json();
 };
+
+Object.defineProperty(getPlayerByIdPrisma, 'queryKey', {
+  value: 'playerById',
+});
 
 // Get player with current team information
 export const getPlayerWithCurrentTeamPrisma = async (
@@ -103,6 +117,10 @@ export const getPlayerWithCurrentTeamPrisma = async (
   return response.json();
 };
 
+Object.defineProperty(getPlayerWithCurrentTeamPrisma, 'queryKey', {
+  value: 'playerWithTeam',
+});
+
 // Search players by name
 export const searchPlayersByNamePrisma = async (
   name: string
@@ -113,6 +131,10 @@ export const searchPlayersByNamePrisma = async (
   }
   return response.json();
 };
+
+Object.defineProperty(searchPlayersByNamePrisma, 'queryKey', {
+  value: 'playersByName',
+});
 
 // Get players by position
 export const getPlayersByPositionPrisma = async (
@@ -128,6 +150,10 @@ export const getPlayersByPositionPrisma = async (
   }
   return response.json();
 };
+
+Object.defineProperty(getPlayersByPositionPrisma, 'queryKey', {
+  value: 'playersByPosition',
+});
 
 // Get player summary (seasons, totals, primary position)
 export const getPlayerSummaryPrisma = async (
@@ -210,3 +236,7 @@ export const getPlayerSummaryPrisma = async (
   }
   return response.json();
 };
+
+Object.defineProperty(getPlayerSummaryPrisma, 'queryKey', {
+  value: 'playerSummary',
+});

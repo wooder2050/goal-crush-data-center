@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useResolvedPathParams } from '@/common/path-params/client';
 import { Section } from '@/components/ui';
 import ChallengeResults from '@/features/matches/components/ChallengeResults';
-import GLeagueResults from '@/features/matches/components/GLeagueResults';
+import GLeagueTournamentResults from '@/features/matches/components/GLeagueTournamentResults';
 import OtherLeagueResults from '@/features/matches/components/OtherLeagueResults';
 import PlayoffResults from '@/features/matches/components/PlayoffResults';
 import SbsCupResults from '@/features/matches/components/SbsCupResults';
@@ -15,7 +15,7 @@ import { useGoalQuery } from '@/hooks/useGoalQuery';
 import type { Season } from '@/lib/types';
 
 const categoryToComponent = {
-  G_LEAGUE: GLeagueResults,
+  G_LEAGUE: GLeagueTournamentResults,
   SUPER_LEAGUE: SuperResults,
   CHALLENGE_LEAGUE: ChallengeResults,
   PLAYOFF: PlayoffResults,
@@ -64,6 +64,7 @@ export default function SeasonDynamicPage() {
 
   const category = (matchedSeason.category ??
     'OTHER') as keyof typeof categoryToComponent;
+  console.log(category);
   const Component = categoryToComponent[category] ?? OtherLeagueResults;
 
   return (

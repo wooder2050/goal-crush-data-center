@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -88,9 +92,6 @@ export async function GET(request: NextRequest) {
 
       // group_league_standings에 데이터가 없으면 standing 테이블로 fallback
       if (standings.length === 0) {
-        console.log(
-          'group_league_standings에 데이터가 없어서 standing 테이블로 fallback'
-        );
         const fallbackStandings = await prisma.standing.findMany({
           where: {
             season_id: parseInt(seasonId),

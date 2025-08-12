@@ -20,6 +20,10 @@ export const getAllSeasonsPrisma = async (): Promise<SeasonWithStats[]> => {
   return response.json();
 };
 
+Object.defineProperty(getAllSeasonsPrisma, 'queryKey', {
+  value: 'allSeasons',
+});
+
 // Get season by ID
 export const getSeasonByIdPrisma = async (
   seasonId: number
@@ -34,6 +38,10 @@ export const getSeasonByIdPrisma = async (
   return response.json();
 };
 
+Object.defineProperty(getSeasonByIdPrisma, 'queryKey', {
+  value: 'seasonById',
+});
+
 // Get seasons by year
 export const getSeasonsByYearPrisma = async (
   year: number
@@ -44,6 +52,10 @@ export const getSeasonsByYearPrisma = async (
   }
   return response.json();
 };
+
+Object.defineProperty(getSeasonsByYearPrisma, 'queryKey', {
+  value: 'seasonsByYear',
+});
 
 // Get latest season
 export const getLatestSeasonPrisma = async (): Promise<Season | null> => {
@@ -57,6 +69,10 @@ export const getLatestSeasonPrisma = async (): Promise<Season | null> => {
   return response.json();
 };
 
+Object.defineProperty(getLatestSeasonPrisma, 'queryKey', {
+  value: 'latestSeason',
+});
+
 // Search seasons by name
 export const searchSeasonsByNamePrisma = async (
   name: string
@@ -68,34 +84,9 @@ export const searchSeasonsByNamePrisma = async (
   return response.json();
 };
 
-// Season route mapping
-export const getSeasonRoute = (seasonName: string): string => {
-  const routeMap: Record<string, string> = {
-    '골때리는 그녀들 파일럿': '/seasons/pilot-season',
-    '골때리는 그녀들 시즌 1': '/seasons/season-1',
-    '골때리는 그녀들 시즌 2 조별리그': '/seasons/season-2',
-    '골때리는 그녀들 시즌 2 슈퍼리그': '/seasons/season-2-super',
-    '골때리는 그녀들 시즌 2 플레이오프': '/seasons/season-2-playoff',
-    '골때리는 그녀들 시즌 2 챌린지리그': '/seasons/season-2-challenge',
-    '골때리는 그녀들 시즌 3 슈퍼리그': '/seasons/season-3-super',
-    '골때리는 그녀들 시즌 3 챌린지리그': '/seasons/season-3-challenge',
-    '골때리는 그녀들 시즌 3 플레이오프': '/seasons/season-3-playoff',
-    '골때리는 그녀들 시즌 4 슈퍼리그': '/seasons/season-4-super',
-    '골때리는 그녀들 시즌 4 챌린지리그': '/seasons/season-4-challenge',
-    '골때리는 그녀들 시즌 4 플레이오프': '/seasons/season-4-playoff',
-    '골때리는 그녀들 제1회 SBS컵': '/seasons/sbs-cup-1',
-    '골때리는 그녀들 시즌 5 슈퍼리그': '/seasons/season-5-super',
-    '골때리는 그녀들 시즌 5 챌린지리그': '/seasons/season-5-challenge',
-    '골때리는 그녀들 시즌 5 플레이오프': '/seasons/season-5-playoff',
-    '골때리는 그녀들 제2회 SBS컵': '/seasons/sbs-cup-2',
-    '골때리는 그녀들 시즌 6 슈퍼리그': '/seasons/season-6-super',
-    '골때리는 그녀들 시즌 6 챌린지리그': '/seasons/season-6-challenge',
-    '골때리는 그녀들 시즌 6 플레이오프': '/seasons/season-6-playoff',
-    '골때리는 그녀들 시즌 7 G리그': '/seasons/season-7-g-league',
-  };
-  // For unmapped seasons, return default route
-  return routeMap[seasonName] || `/seasons/unknown`;
-};
+Object.defineProperty(searchSeasonsByNamePrisma, 'queryKey', {
+  value: 'seasonsByName',
+});
 
 // Get season by name
 export const getSeasonByNamePrisma = async (
