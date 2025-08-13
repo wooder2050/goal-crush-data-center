@@ -397,6 +397,7 @@ enum season_category {
   PLAYOFF
   SBS_CUP
   OTHER
+  CHAMPION_MATCH
 
   @@map("season_category")
 }

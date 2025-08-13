@@ -12,6 +12,8 @@ function inferLeague(
   if (name.includes('super') || name.includes('슈퍼')) return 'super';
   if (name.includes('challenge') || name.includes('챌린지')) return 'challenge';
   if (name.includes('playoff') || name.includes('플레이오프')) return 'playoff';
+  // Treat champion match as cup category
+  if (name.includes('champion') || name.includes('챔피언')) return 'cup';
   if (name.includes('sbs') || name.includes('cup') || name.includes('컵'))
     return 'cup';
   return 'other';
@@ -82,7 +84,12 @@ export async function GET(
       .filter((s) => (s.position ?? 0) === 1)
       .filter((s) => {
         const league = inferLeague(s.season?.season_name ?? null);
-        return league === 'super' || league === 'cup';
+        return (
+          league === 'super' ||
+          league === 'cup' ||
+          s.season?.season_id === 2 ||
+          s.season?.season_id === 1
+        );
       })
       .map((s) => ({
         season_id: s.season?.season_id ?? 0,

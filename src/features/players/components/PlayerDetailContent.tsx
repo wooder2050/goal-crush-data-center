@@ -121,19 +121,17 @@ export default function PlayerDetailContent({
       }
     : {};
 
-  const seasonRows = [...(summary?.seasons ?? [])]
-    .sort((a, b) => (b.season_id ?? 0) - (a.season_id ?? 0))
-    .map((s) => ({
-      key: `${s.season_id ?? ''}-${s.team_id ?? ''}`,
-      season: s.season_name ?? `시즌 ${s.year ?? ''}`,
-      team: s.team_name ?? '-',
-      team_logo: s?.team_logo ?? null,
-      appearances: s.appearances ?? 0,
-      goals: s.goals ?? 0,
-      penalty_goals: s.penalty_goals ?? 0,
-      assists: s.assists ?? 0,
-      positions: s.positions ?? [],
-    }));
+  const seasonRows = [...(summary?.seasons ?? [])].reverse().map((s) => ({
+    key: `${s.season_id ?? ''}-${s.team_id ?? ''}`,
+    season: s.season_name ?? `시즌 ${s.year ?? ''}`,
+    team: s.team_name ?? '-',
+    team_logo: s?.team_logo ?? null,
+    appearances: s.appearances ?? 0,
+    goals: s.goals ?? 0,
+    penalty_goals: s.penalty_goals ?? 0,
+    assists: s.assists ?? 0,
+    positions: s.positions ?? [],
+  }));
 
   const goalMatches = (summary?.goal_matches ?? []).slice();
 
