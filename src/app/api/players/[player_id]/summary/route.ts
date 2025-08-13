@@ -59,6 +59,7 @@ export async function GET(
         team_id: true,
         match: { select: { season_id: true } },
         position: true,
+        minutes_played: true,
       },
     });
 
@@ -85,11 +86,21 @@ export async function GET(
       const agg = pmsAggBySeason.get(seasonId)!;
       agg.goals += (r.goals ?? 0) as number;
       agg.assists += (r.assists ?? 0) as number;
-      // count appearance per row (unique per player+match enforced)
-      agg.appearances += 1;
+      // Count appearance only if minutes_played > 0 (bench only is not an appearance)
+      const playedMinutes = (r.minutes_played ?? 0) as number;
+      if (playedMinutes > 0) {
+        agg.appearances += 1;
+      }
       const teamId = r.team_id as number | null;
       if (teamId) {
-        agg.teamCounts.set(teamId, (agg.teamCounts.get(teamId) ?? 0) + 1);
+        // Team count also reflects actual appearances only
+        const increment = playedMinutes > 0 ? 1 : 0;
+        if (increment > 0) {
+          agg.teamCounts.set(
+            teamId,
+            (agg.teamCounts.get(teamId) ?? 0) + increment
+          );
+        }
       }
     }
 
@@ -286,7 +297,11 @@ export async function GET(
       const bucket = perTeamMap.get(tid)!;
       bucket.goals += r.goals ?? 0;
       bucket.assists += r.assists ?? 0;
-      bucket.appearances += 1;
+      // Only count appearances when minutes_played > 0
+      const playedMinutes = (r.minutes_played ?? 0) as number;
+      if (playedMinutes > 0) {
+        bucket.appearances += 1;
+      }
     }
     const teamIds = Array.from(perTeamMap.keys());
     const teamsMeta = teamIds.length

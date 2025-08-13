@@ -28,6 +28,22 @@ export default function SeasonOutcomeBadge({
 }: SeasonOutcomeBadgeProps) {
   const seasonIndex = getSeasonIndex(seasonName) ?? 0;
 
+  // Champion match: treat as a cup-style winner when position is 1
+  const isChampionMatch =
+    typeof seasonName === 'string' &&
+    (seasonName.toLowerCase().includes('champion') ||
+      seasonName.includes('챔피언'));
+  if (isChampionMatch && position === 1) {
+    return (
+      <Badge
+        variant={'emphasisOutline'}
+        className={`px-2.5 py-0.5 text-[11px] shadow-sm border-2 border-[#ff4800] text-[#ff4800] bg-white font-semibold`}
+      >
+        🏆 우승
+      </Badge>
+    );
+  }
+
   const outcome = match({ league, position, seasonIndex })
     .with({ league: 'super', position: 1 }, () => ({
       label: '우승',

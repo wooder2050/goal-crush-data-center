@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
 import { useResolvedPathParams } from '@/common/path-params/client';
+import { Section } from '@/components/ui';
 import {
   getTeamByIdPrisma,
   getTeamPlayersPrisma,
@@ -25,12 +26,14 @@ function TeamDetailSuspenseBody({ teamId }: { teamId: number }) {
   const { data: stats } = useGoalSuspenseQuery(getTeamStatsPrisma, [teamId]);
 
   return (
-    <div className="p-6 space-y-6">
-      <TeamHeader team={team} />
-      {stats && <TeamStatsCard stats={stats} />}
-      <TeamSquadTable players={players} teamId={teamId} />
-      <TeamSeasonStandings teamId={teamId} />
-    </div>
+    <Section padding="sm" className="pt-2 sm:pt-3">
+      <div className="space-y-6">
+        <TeamHeader team={team} />
+        {stats && <TeamStatsCard stats={stats} />}
+        <TeamSquadTable players={players} teamId={teamId} />
+        <TeamSeasonStandings teamId={teamId} />
+      </div>
+    </Section>
   );
 }
 

@@ -38,6 +38,7 @@ export interface Season {
     | 'PLAYOFF'
     | 'SBS_CUP'
     | 'OTHER'
+    | 'CHAMPION_MATCH'
     | null;
   created_at?: string | null;
   updated_at?: string | null;
@@ -459,7 +460,8 @@ export interface Database {
         | 'CHALLENGE_LEAGUE'
         | 'PLAYOFF'
         | 'SBS_CUP'
-        | 'OTHER';
+        | 'OTHER'
+        | 'CHAMPION_MATCH';
     };
     CompositeTypes: { [_ in never]: never };
   };
