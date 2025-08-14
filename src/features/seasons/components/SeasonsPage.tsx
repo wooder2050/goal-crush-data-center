@@ -99,7 +99,7 @@ function SeasonsPageInner() {
                       <div className="mb-3 rounded-md border bg-white p-3">
                         <div className="flex items-center gap-2 text-sm">
                           <span aria-hidden className="text-[14px]">
-                            🥇
+                            {season.champion_label === '승격팀' ? '⬆️' : '🥇'}
                           </span>
                           <span className="text-gray-600">
                             {season.champion_label ?? '우승팀'}
