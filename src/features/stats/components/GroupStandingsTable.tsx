@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { FC } from 'react';
 
+import { GoalWrapper } from '@/common/GoalWrapper';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -13,7 +14,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { getGroupLeagueStandingsPrisma } from '@/features/stats/api-prisma';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+import GroupStandingsTableSkeleton from '@/features/stats/components/GroupStandingsTableSkeleton';
+import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 
 interface GroupStandingsTableProps {
   seasonId: number;
@@ -62,44 +64,19 @@ function getRankEmoji(position: number) {
   }
 }
 
-const GroupStandingsTable: FC<GroupStandingsTableProps> = ({
+function GroupStandingsTableInner({
   seasonId,
   className,
   tournamentStage = 'all',
   groupStage = 'all',
-}) => {
-  const {
-    data: standings = [],
-    isLoading,
-    error,
-  } = useGoalQuery(getGroupLeagueStandingsPrisma, [
-    seasonId,
-    tournamentStage,
-    groupStage,
-  ]);
+}: GroupStandingsTableProps) {
+  const { data: standings = [] } = useGoalSuspenseQuery(
+    getGroupLeagueStandingsPrisma,
+    [seasonId, tournamentStage, groupStage]
+  );
 
   // API에서 이미 토너먼트 스테이지와 조별 필터링을 처리하므로 추가 필터링 불필요
   const filteredStandings = standings;
-
-  if (isLoading) {
-    return (
-      <div className={className}>
-        <div className="text-center text-gray-500 py-8">
-          순위표를 불러오는 중...
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={className}>
-        <div className="text-center text-red-500 py-8">
-          순위표를 불러오지 못했습니다.
-        </div>
-      </div>
-    );
-  }
 
   // 전체를 선택했을 때 조별로 데이터를 분리
   const groupAStandings = filteredStandings.filter(
@@ -479,6 +456,16 @@ const GroupStandingsTable: FC<GroupStandingsTableProps> = ({
         )}
       </div>
     </div>
+  );
+}
+
+const GroupStandingsTable: FC<GroupStandingsTableProps> = (props) => {
+  return (
+    <GoalWrapper
+      fallback={<GroupStandingsTableSkeleton className={props.className} />}
+    >
+      <GroupStandingsTableInner {...props} />
+    </GoalWrapper>
   );
 };
 

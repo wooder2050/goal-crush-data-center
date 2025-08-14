@@ -1,11 +1,12 @@
 'use client';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { GoalWrapper } from '@/common/GoalWrapper';
 import { getSeasonByIdPrisma } from '@/features/seasons/api-prisma';
 import StandingsTable from '@/features/stats/components/StandingsTable';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 
 import { getMatchesBySeasonIdPrisma } from '../api-prisma';
+import ChallengeResultsSkeleton from './ChallengeResultsSkeleton';
 import SeasonMatchCard from './MatchCard/SeasonMatchCard';
 import SeasonSummary from './SeasonSummary';
 
@@ -14,41 +15,14 @@ interface Props {
   title?: string;
 }
 
-export default function ChallengeResults({ seasonId, title }: Props) {
-  const {
-    data: matches = [],
-    isLoading,
-    error,
-  } = useGoalQuery(getMatchesBySeasonIdPrisma, [seasonId]);
-  const { data: season } = useGoalQuery(getSeasonByIdPrisma, [seasonId]);
-
-  if (isLoading) {
-    return (
-      <div>
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4" />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-48 bg-gray-200 rounded" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div>
-        <Alert>
-          <AlertDescription>
-            데이터를 불러올 수 없습니다:{' '}
-            {error instanceof Error ? error.message : 'Unknown error'}
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+function ChallengeResultsInner({ seasonId, title }: Props) {
+  const { data: matches = [] } = useGoalSuspenseQuery(
+    getMatchesBySeasonIdPrisma,
+    [seasonId]
+  );
+  const { data: season } = useGoalSuspenseQuery(getSeasonByIdPrisma, [
+    seasonId,
+  ]);
 
   return (
     <div>
@@ -102,5 +76,13 @@ export default function ChallengeResults({ seasonId, title }: Props) {
         <StandingsTable seasonId={seasonId} />
       </div>
     </div>
+  );
+}
+
+export default function ChallengeResults({ seasonId, title }: Props) {
+  return (
+    <GoalWrapper fallback={<ChallengeResultsSkeleton />}>
+      <ChallengeResultsInner seasonId={seasonId} title={title} />
+    </GoalWrapper>
   );
 }

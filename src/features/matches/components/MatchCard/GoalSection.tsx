@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import type { Assist } from '@/lib/types';
 
 import {
@@ -60,17 +60,14 @@ interface GoalSectionProps {
 }
 
 export default function GoalSection({ match }: GoalSectionProps) {
-  const {
-    data: goals = [] as GoalWithPlayerAndTeam[],
-    isLoading,
-    error,
-  } = useGoalQuery(getMatchGoalsWithAssistsPrisma, [match.match_id]);
-
-  const {
-    data: assists = [] as Assist[],
-    isLoading: assistsLoading,
-    error: assistsError,
-  } = useGoalQuery(getMatchAssistsPrisma, [match.match_id]);
+  const { data: goals = [] as GoalWithPlayerAndTeam[] } = useGoalSuspenseQuery(
+    getMatchGoalsWithAssistsPrisma,
+    [match.match_id]
+  );
+  const { data: assists = [] as Assist[] } = useGoalSuspenseQuery(
+    getMatchAssistsPrisma,
+    [match.match_id]
+  );
 
   const assistsByGoal = assists.reduce<Record<number, AssistWithPlayer[]>>(
     (acc, a) => {
@@ -91,29 +88,7 @@ export default function GoalSection({ match }: GoalSectionProps) {
     {}
   );
 
-  if (isLoading || assistsLoading) {
-    return (
-      <div className="p-4">
-        <h3 className="text-lg font-semibold mb-3">득점</h3>
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded"></div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || assistsError) {
-    return (
-      <div className="p-4">
-        <h3 className="text-lg font-semibold mb-3">득점</h3>
-        <div className="text-red-500">
-          득점 정보를 불러오는 중 오류가 발생했습니다.
-        </div>
-      </div>
-    );
-  }
+  // Error state는 상위 GoalWrapper에서 처리됨
 
   if (goals.length === 0) {
     return (

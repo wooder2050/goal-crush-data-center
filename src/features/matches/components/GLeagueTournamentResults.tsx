@@ -2,14 +2,15 @@
 
 import { useState } from 'react';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { GoalWrapper } from '@/common/GoalWrapper';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getMatchesBySeasonIdPrisma } from '@/features/matches/api-prisma';
+import GLeagueTournamentResultsSkeleton from '@/features/matches/components/GLeagueTournamentResultsSkeleton';
 import GroupStandingsTable from '@/features/stats/components/GroupStandingsTable';
 import StandingsTable from '@/features/stats/components/StandingsTable';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 
 import { SeasonMatchCard } from './MatchCard';
 
@@ -23,11 +24,11 @@ type GroupFilter = 'all' | 'A' | 'B';
 
 type TournamentStage = 'all' | 'group_stage' | 'championship' | 'relegation';
 
-const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
+function GLeagueTournamentResultsInner({
   seasonId: seasonIdProp,
   title,
   className = '',
-}) => {
+}: GLeagueTournamentResultsProps) {
   const [selectedTournament, setSelectedTournament] =
     useState<TournamentStage>('all');
   const [selectedGroup, setSelectedGroup] = useState<GroupFilter>('all');
@@ -37,11 +38,10 @@ const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
 
   const seasonId = seasonIdProp ?? 21;
 
-  const {
-    data: matches = [],
-    isLoading,
-    error,
-  } = useGoalQuery(getMatchesBySeasonIdPrisma, [seasonId]);
+  const { data: matches = [] } = useGoalSuspenseQuery(
+    getMatchesBySeasonIdPrisma,
+    [seasonId]
+  );
 
   // 토너먼트 스테이지별로 경기 필터링
   const filteredByTournament = matches.filter((match) => {
@@ -67,34 +67,6 @@ const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
     relegation: matches.filter((m) => m.tournament_stage === 'relegation')
       .length,
   };
-
-  if (isLoading) {
-    return (
-      <div className={`p-4 sm:p-6 ${className}`}>
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-48 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={`p-4 sm:p-6 ${className}`}>
-        <Alert>
-          <AlertDescription>
-            시즌 7 G리그 데이터를 불러올 수 없습니다:{' '}
-            {error instanceof Error ? error.message : 'Unknown error'}
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
 
   return (
     <div className={`p-4 sm:p-6 ${className}`}>
@@ -393,6 +365,14 @@ const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
       </div>
     </div>
   );
-};
+}
 
-export default GLeagueTournamentResults;
+export default function GLeagueTournamentResults(
+  props: GLeagueTournamentResultsProps
+) {
+  return (
+    <GoalWrapper fallback={<GLeagueTournamentResultsSkeleton />}>
+      <GLeagueTournamentResultsInner {...props} />
+    </GoalWrapper>
+  );
+}

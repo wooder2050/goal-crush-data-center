@@ -2,11 +2,13 @@
 
 import React from 'react';
 
+import { GoalWrapper } from '@/common/GoalWrapper';
 import { Card, CardContent } from '@/components/ui/card';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 
 import { getMatchByIdPrisma } from '../../api-prisma';
 import { hasPenaltyShootout } from '../../lib/matchUtils';
+import DetailMatchCardSkeleton from './DetailMatchCardSkeleton';
 import GoalSection from './GoalSection';
 import MatchFooter from './MatchFooter';
 import MatchHeader from './MatchHeader';
@@ -20,42 +22,17 @@ interface DetailMatchCardProps {
   className?: string;
 }
 
-const DetailMatchCard: React.FC<DetailMatchCardProps> = ({
+function DetailMatchCardInner({
   matchId,
   className = '',
-}) => {
-  const {
-    data: match,
-    isLoading: matchLoading,
-    error: matchError,
-  } = useGoalQuery(getMatchByIdPrisma, [matchId]);
+}: DetailMatchCardProps) {
+  const { data: match } = useGoalSuspenseQuery(getMatchByIdPrisma, [matchId]);
 
-  const isLoading = matchLoading;
-  const error = matchError;
-
-  if (isLoading) {
+  if (!match) {
     return (
       <Card className={className}>
         <CardContent className="px-0 py-3 sm:p-6">
-          <div className="animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-            <div className="h-8 bg-gray-200 rounded w-3/4 mb-4"></div>
-            <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (error || !match) {
-    return (
-      <Card className={className}>
-        <CardContent className="px-0 py-3 sm:p-6">
-          <div className="text-[#ff4800]">
-            {error instanceof Error
-              ? error.message
-              : '매치 정보를 불러올 수 없습니다.'}
-          </div>
+          <div className="text-[#ff4800]">매치 정보를 불러올 수 없습니다.</div>
         </CardContent>
       </Card>
     );
@@ -90,6 +67,17 @@ const DetailMatchCard: React.FC<DetailMatchCardProps> = ({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+const DetailMatchCard: React.FC<DetailMatchCardProps> = ({
+  matchId,
+  className = '',
+}) => {
+  return (
+    <GoalWrapper fallback={<DetailMatchCardSkeleton className={className} />}>
+      <DetailMatchCardInner matchId={matchId} className={className} />
+    </GoalWrapper>
   );
 };
 

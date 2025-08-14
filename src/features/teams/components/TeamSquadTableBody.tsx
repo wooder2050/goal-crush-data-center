@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 
+import { GoalWrapper } from '@/common/GoalWrapper';
 import { TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { getPlayerSummaryPrisma } from '@/features/players';
 import PlayerPositionBadge from '@/features/teams/components/PlayerPositionBadge';
 import SeasonListBadges from '@/features/teams/components/SeasonListBadges';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+import TeamSquadTableRowSkeleton from '@/features/teams/components/TeamSquadTableRowSkeleton';
+import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import type { Player } from '@/lib/types';
 
 interface TeamSquadTableBodyProps {
@@ -35,9 +37,21 @@ export default function TeamSquadTableBody({
           </TableCell>
         </TableRow>
       ) : (
-        playersArray.map((p) => (
-          <TeamSquadTableRow key={p.player_id} player={p} teamId={teamId} />
-        ))
+        <GoalWrapper
+          fallback={
+            <>
+              {Array.from({
+                length: Math.min(playersArray.length || 6, 6),
+              }).map((_, i) => (
+                <TeamSquadTableRowSkeleton key={i} />
+              ))}
+            </>
+          }
+        >
+          {playersArray.map((p) => (
+            <TeamSquadTableRow key={p.player_id} player={p} teamId={teamId} />
+          ))}
+        </GoalWrapper>
       )}
     </TableBody>
   );
@@ -50,15 +64,11 @@ function TeamSquadTableRow({
   player: Player;
   teamId: number;
 }) {
-  const { data, isLoading } = useGoalQuery(
-    getPlayerSummaryPrisma,
-    [player.player_id, teamId],
-    {
-      staleTime: 5 * 60 * 1000,
-      retry: 1,
-      enabled: Boolean(player.player_id),
-    }
-  );
+  const { data } = useGoalSuspenseQuery(getPlayerSummaryPrisma, [
+    player.player_id,
+    teamId,
+  ]);
+  const isLoading = false;
 
   const primaryPosition = data?.primary_position ?? '-';
   const appearances =
