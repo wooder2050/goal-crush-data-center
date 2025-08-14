@@ -64,7 +64,6 @@ export default function SeasonDynamicPage() {
 
   const category = (matchedSeason.category ??
     'OTHER') as keyof typeof categoryToComponent;
-  console.log(category);
   const Component = categoryToComponent[category] ?? OtherLeagueResults;
 
   return (

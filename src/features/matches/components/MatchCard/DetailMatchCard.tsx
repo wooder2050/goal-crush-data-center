@@ -64,7 +64,7 @@ const DetailMatchCard: React.FC<DetailMatchCardProps> = ({
   return (
     <Card className={className}>
       <MatchHeader match={match} />
-      <CardContent className="px-0 py-3 sm:p-6">
+      <CardContent className="px-0 py-2 sm:p-4">
         <MatchMediaLinks match={match} />
         <div
           className={`grid grid-cols-1 ${hasPenaltyShootout(match) ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-4 lg:gap-6`}
