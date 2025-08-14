@@ -1,6 +1,6 @@
 'use client';
-
 import { format } from 'date-fns';
+import Image from 'next/image';
 
 import { Card, CardContent, Grid } from '@/components/ui';
 import { getPositionColor } from '@/features/matches/lib/matchUtils';
@@ -162,17 +162,21 @@ export default function PlayerDetailContent({
     <Grid cols={12} gap="lg">
       {/* Left: Large media area (narrower on md+) */}
       <Card className="col-span-12 md:col-span-5 overflow-hidden">
-        <div className="w-full bg-white flex items-center justify-center p-3 md:p-8">
-          {profile ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={profile}
-              alt="프로필 이미지"
-              className="h-auto max-h-[70vh] max-w-full object-contain"
-            />
-          ) : (
-            <div className="aspect-[3/4] w-full bg-gray-100" />
-          )}
+        <div className="w-full bg-white p-3 md:p-8">
+          <div className="relative mx-auto aspect-[3/4] w-full max-w-[720px]">
+            {profile ? (
+              <Image
+                src={profile}
+                alt="프로필 이미지"
+                fill
+                sizes="(max-width: 768px) 100vw, 40vw"
+                className="object-contain"
+                priority
+              />
+            ) : (
+              <div className="h-full w-full bg-gray-100" />
+            )}
+          </div>
         </div>
       </Card>
 
@@ -274,12 +278,15 @@ export default function PlayerDetailContent({
                   <span className="text-gray-600">소속팀</span>
                   <span className="flex items-center gap-2 min-w-0 w-full sm:w-auto">
                     {displayTeamLogo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={displayTeamLogo}
-                        alt="팀 로고"
-                        className="h-5 w-5 rounded-full object-cover"
-                      />
+                      <span className="relative  h-5 w-5 overflow-hidden rounded-full flex-shrink-0">
+                        <Image
+                          src={displayTeamLogo}
+                          alt="팀 로고"
+                          fill
+                          sizes="20px"
+                          className="object-cover"
+                        />
+                      </span>
                     ) : (
                       <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-[10px] text-gray-700">
                         {(singleTeam?.team_name ?? '?').charAt(0)}
@@ -316,12 +323,15 @@ export default function PlayerDetailContent({
                       >
                         <div className="flex items-center gap-2 min-w-0 w-full sm:w-auto">
                           {t.logo ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={t.logo}
-                              alt="팀 로고"
-                              className="h-5 w-5 rounded-full object-cover"
-                            />
+                            <span className="relative  h-5 w-5 overflow-hidden rounded-full flex-shrink-0">
+                              <Image
+                                src={t.logo}
+                                alt="팀 로고"
+                                fill
+                                sizes="20px"
+                                className="object-cover"
+                              />
+                            </span>
                           ) : (
                             <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-[10px] text-gray-700">
                               {(t.team_name ?? '?').charAt(0)}
@@ -370,12 +380,15 @@ export default function PlayerDetailContent({
                           </div>
                           <div className="flex items-center gap-2 min-w-0">
                             {r.team_logo ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={r.team_logo}
-                                alt="팀 로고"
-                                className="h-4 w-4 rounded-full object-cover"
-                              />
+                              <span className="relative h-5 w-5 overflow-hidden rounded-full flex-shrink-0">
+                                <Image
+                                  src={r.team_logo}
+                                  alt="팀 로고"
+                                  fill
+                                  sizes="20px"
+                                  className="object-cover"
+                                />
+                              </span>
                             ) : (
                               <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 text-[9px] text-gray-700">
                                 {(r.team ?? '-').charAt(0)}
@@ -476,12 +489,15 @@ export default function PlayerDetailContent({
                             <td className="px-3 py-2">
                               <div className="flex items-center gap-2">
                                 {r.team_logo ? (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={r.team_logo}
-                                    alt="팀 로고"
-                                    className="h-4 w-4 rounded-full object-cover"
-                                  />
+                                  <span className="relative h-5 w-5 overflow-hidden rounded-full flex-shrink-0">
+                                    <Image
+                                      src={r.team_logo}
+                                      alt="팀 로고"
+                                      fill
+                                      sizes="20px"
+                                      className="object-cover"
+                                    />
+                                  </span>
                                 ) : (
                                   <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 text-[9px] text-gray-700">
                                     {(r.team ?? '-').charAt(0)}
@@ -557,12 +573,15 @@ export default function PlayerDetailContent({
                         <div className="mt-2 grid grid-cols-2 gap-2">
                           <div className="flex items-center gap-2">
                             {gm.opponent_logo ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={gm.opponent_logo}
-                                alt="상대 로고"
-                                className="h-4 w-4 rounded-full object-cover"
-                              />
+                              <span className="relative h-5 w-5 overflow-hidden rounded-full flex-shrink-0">
+                                <Image
+                                  src={gm.opponent_logo}
+                                  alt="상대 로고"
+                                  fill
+                                  sizes="20px"
+                                  className="object-cover"
+                                />
+                              </span>
                             ) : (
                               <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 text-[9px] text-gray-700">
                                 {(gm.opponent_name ?? '-').charAt(0)}
@@ -574,12 +593,15 @@ export default function PlayerDetailContent({
                           </div>
                           <div className="flex items-center gap-2 justify-end">
                             {gm.team_logo ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={gm.team_logo}
-                                alt="팀 로고"
-                                className="h-4 w-4 rounded-full object-cover"
-                              />
+                              <span className="relative h-5 w-5 overflow-hidden rounded-full flex-shrink-0">
+                                <Image
+                                  src={gm.team_logo}
+                                  alt="팀 로고"
+                                  fill
+                                  sizes="20px"
+                                  className="object-cover"
+                                />
+                              </span>
                             ) : (
                               <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 text-[9px] text-gray-700">
                                 {(gm.team_name ?? '-').charAt(0)}
@@ -657,12 +679,15 @@ export default function PlayerDetailContent({
                             <td className="px-3 py-2">
                               <div className="flex items-center gap-2">
                                 {gm.opponent_logo ? (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={gm.opponent_logo}
-                                    alt="상대 로고"
-                                    className="h-4 w-4 rounded-full object-cover"
-                                  />
+                                  <span className="relative h-5 w-5 overflow-hidden rounded-full flex-shrink-0">
+                                    <Image
+                                      src={gm.opponent_logo}
+                                      alt="상대 로고"
+                                      fill
+                                      sizes="20px"
+                                      className="object-cover"
+                                    />
+                                  </span>
                                 ) : (
                                   <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 text-[9px] text-gray-700">
                                     {(gm.opponent_name ?? '-').charAt(0)}
@@ -674,12 +699,15 @@ export default function PlayerDetailContent({
                             <td className="px-3 py-2">
                               <div className="flex items-center gap-2">
                                 {gm.team_logo ? (
-                                  // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={gm.team_logo}
-                                    alt="팀 로고"
-                                    className="h-4 w-4 rounded-full object-cover"
-                                  />
+                                  <span className="relative h-5 w-5 overflow-hidden rounded-full flex-shrink-0">
+                                    <Image
+                                      src={gm.team_logo}
+                                      alt="팀 로고"
+                                      fill
+                                      sizes="20px"
+                                      className="object-cover"
+                                    />
+                                  </span>
                                 ) : (
                                   <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 text-[9px] text-gray-700">
                                     {(gm.team_name ?? '-').charAt(0)}

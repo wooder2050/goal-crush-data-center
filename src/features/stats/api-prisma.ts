@@ -74,10 +74,24 @@ export const getTopScorersPrisma = async (
   limit: number = 10
 ): Promise<PlayerSeasonStats[]> => {
   const response = await fetch(
-    `/api/stats/player-season?season_id=${seasonId}&limit=${limit}`
+    `/api/stats/player-season?season_id=${seasonId}&limit=${limit}&sort=goals`
   );
   if (!response.ok) {
     throw new Error(`Failed to fetch top scorers: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+// Get top appearances
+export const getTopAppearancesPrisma = async (
+  seasonId: number,
+  limit: number = 10
+): Promise<PlayerSeasonStats[]> => {
+  const response = await fetch(
+    `/api/stats/player-season?season_id=${seasonId}&limit=${limit}&sort=appearances`
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to fetch top appearances: ${response.statusText}`);
   }
   return response.json();
 };

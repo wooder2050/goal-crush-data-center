@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { FC } from 'react';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
-import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -86,18 +85,8 @@ function GroupStandingsTableInner({
     (standing: StandingRow) => standing.group_stage === 'B'
   );
 
-  const renderStandingsTable = (
-    standings: StandingRow[],
-    groupName?: string
-  ) => (
+  const renderStandingsTable = (standings: StandingRow[]) => (
     <div className="mb-6">
-      {groupName && (
-        <div className="mb-3">
-          <Badge variant="outline" className="text-sm">
-            {groupName}
-          </Badge>
-        </div>
-      )}
       <Table>
         <TableHeader>
           <TableRow>
@@ -185,22 +174,6 @@ function GroupStandingsTableInner({
 
   return (
     <div className={className}>
-      {/* 선택된 토너먼트 스테이지와 조 정보 표시 */}
-      <div className="mb-4">
-        <Badge variant="emphasis" className="mb-2">
-          {tournamentStage === 'all'
-            ? '전체 토너먼트'
-            : tournamentStage === 'group_stage'
-              ? groupStage === 'all'
-                ? '조별리그 전체'
-                : `조별리그 ${groupStage}조`
-              : tournamentStage === 'championship'
-                ? '우승 토너먼트'
-                : '멸망 토너먼트'}{' '}
-          순위 ({filteredStandings.length}팀)
-        </Badge>
-      </div>
-
       {/* Mobile cards */}
       <div className="sm:hidden space-y-3">
         {filteredStandings.length === 0 ? (
@@ -447,9 +420,9 @@ function GroupStandingsTableInner({
         ) : tournamentStage === 'group_stage' && groupStage === 'all' ? (
           <div>
             {groupAStandings.length > 0 &&
-              renderStandingsTable(groupAStandings, 'A조')}
+              renderStandingsTable(groupAStandings)}
             {groupBStandings.length > 0 &&
-              renderStandingsTable(groupBStandings, 'B조')}
+              renderStandingsTable(groupBStandings)}
           </div>
         ) : (
           renderStandingsTable(filteredStandings)

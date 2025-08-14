@@ -94,7 +94,7 @@ function SeasonSummaryInner({
         <CardTitle className="hidden sm:block">{baseTitle}</CardTitle>
       </CardHeader>
       <CardContent className="px-0">
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-5 gap-2 md:gap-4">
           {summaryItems.map((item, index) => (
             <div key={index} className="text-center">
               <div className={`text-base sm:text-2xl font-bold ${item.color}`}>
