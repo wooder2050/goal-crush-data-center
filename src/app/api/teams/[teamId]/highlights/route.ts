@@ -3,21 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
-
-function inferLeague(
-  seasonName: string | null
-): 'super' | 'challenge' | 'playoff' | 'cup' | 'other' {
-  if (!seasonName) return 'other';
-  const name = seasonName.toLowerCase();
-  if (name.includes('super') || name.includes('슈퍼')) return 'super';
-  if (name.includes('challenge') || name.includes('챌린지')) return 'challenge';
-  if (name.includes('playoff') || name.includes('플레이오프')) return 'playoff';
-  // Treat champion match as cup category
-  if (name.includes('champion') || name.includes('챔피언')) return 'cup';
-  if (name.includes('sbs') || name.includes('cup') || name.includes('컵'))
-    return 'cup';
-  return 'other';
-}
+import { inferLeague } from '@/lib/utils';
 
 export async function GET(
   _request: NextRequest,

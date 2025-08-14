@@ -15,4 +15,10 @@ export type TeamWithExtras = Team & {
     jersey_number: number | null;
     appearances: number;
   }[];
+  championships_count?: number;
+  championships?: Array<{
+    season_id: number;
+    season_name: string | null;
+    year: number | null;
+  }>;
 };

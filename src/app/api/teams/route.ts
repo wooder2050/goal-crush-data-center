@@ -2,6 +2,7 @@ import type { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
+import { inferLeague } from '@/lib/utils';
 
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
@@ -86,7 +87,43 @@ export async function GET(request: NextRequest) {
               };
         });
 
-        return { ...team, representative_players };
+        // championships_count 계산 (standings 기반)
+        const standings = await prisma.standing.findMany({
+          where: { team_id: team.team_id },
+          select: {
+            position: true,
+            season: {
+              select: { season_id: true, season_name: true, year: true },
+            },
+          },
+          orderBy: [{ season_id: 'asc' }],
+        });
+
+        const championships = standings
+          .filter((s) => (s.position ?? 0) === 1)
+          .filter((s) => {
+            const league = inferLeague(s.season?.season_name ?? null);
+            return (
+              league === 'super' ||
+              league === 'cup' ||
+              s.season?.season_id === 2 ||
+              s.season?.season_id === 1
+            );
+          })
+          .map((s) => ({
+            season_id: s.season?.season_id ?? 0,
+            season_name: s.season?.season_name ?? null,
+            year: s.season?.year ?? null,
+          }));
+
+        const championships_count = championships.length;
+
+        return {
+          ...team,
+          representative_players,
+          championships_count,
+          championships,
+        };
       })
     );
 

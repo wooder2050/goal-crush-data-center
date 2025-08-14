@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { shortenSeasonName } from '@/lib/utils';
 
 interface SeasonListBadgesProps {
   labels: string[];
@@ -25,7 +26,7 @@ export default function SeasonListBadges({
     >
       {visible.map((label, i) => (
         <Badge key={`${label}-${i}`} variant="secondary">
-          {label}
+          {shortenSeasonName(label)}
         </Badge>
       ))}
       {remaining > 0 && <Badge variant="secondary">+{remaining}</Badge>}
