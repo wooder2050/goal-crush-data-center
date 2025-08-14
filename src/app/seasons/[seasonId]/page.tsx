@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 
+import { GoalWrapper } from '@/common/GoalWrapper';
 import { useResolvedPathParams } from '@/common/path-params/client';
 import { Section } from '@/components/ui';
 import ChallengeResults from '@/features/matches/components/ChallengeResults';
@@ -11,7 +12,8 @@ import PlayoffResults from '@/features/matches/components/PlayoffResults';
 import SbsCupResults from '@/features/matches/components/SbsCupResults';
 import SuperResults from '@/features/matches/components/SuperResults';
 import { getAllSeasonsPrisma } from '@/features/seasons/api-prisma';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+import SeasonPageSkeleton from '@/features/seasons/components/SeasonPageSkeleton';
+import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import type { Season } from '@/lib/types';
 
 const categoryToComponent = {
@@ -23,32 +25,16 @@ const categoryToComponent = {
   OTHER: OtherLeagueResults,
 } as const;
 
-export default function SeasonDynamicPage() {
+function SeasonDynamicPageInner() {
   const [seasonIdStr] = useResolvedPathParams('seasonId');
   const idNum = Number(seasonIdStr);
   const resolvedId = Number.isFinite(idNum) ? idNum : null;
 
-  const { data: seasons = [], isLoading } = useGoalQuery(
-    getAllSeasonsPrisma,
-    []
-  );
+  const { data: seasons = [] } = useGoalSuspenseQuery(getAllSeasonsPrisma, []);
 
   const matchedSeason: Season | undefined = useMemo(() => {
     return seasons.find((s) => s.season_id === resolvedId);
   }, [seasons, resolvedId]);
-
-  if (isLoading) {
-    return (
-      <Section padding="sm" className="pt-2 sm:pt-3">
-        <div className="h-6 w-40 rounded bg-gray-200 animate-pulse mb-4" />
-        <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-48 bg-gray-100 rounded animate-pulse" />
-          ))}
-        </div>
-      </Section>
-    );
-  }
 
   if (!matchedSeason || !matchedSeason.season_id) {
     return (
@@ -73,5 +59,13 @@ export default function SeasonDynamicPage() {
         title={matchedSeason.season_name}
       />
     </Section>
+  );
+}
+
+export default function SeasonDynamicPage() {
+  return (
+    <GoalWrapper fallback={<SeasonPageSkeleton />}>
+      <SeasonDynamicPageInner />
+    </GoalWrapper>
   );
 }

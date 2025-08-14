@@ -2,8 +2,10 @@
 
 import React from 'react';
 
+import { GoalWrapper } from '@/common/GoalWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+import SeasonSummarySkeleton from '@/features/matches/components/SeasonSummarySkeleton';
+import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 
 import { getSeasonSummaryBySeasonIdPrisma } from '../api-prisma';
 
@@ -19,16 +21,15 @@ interface SummaryItem {
   color: string;
 }
 
-const SeasonSummary: React.FC<SeasonSummaryProps> = ({
+function SeasonSummaryInner({
   seasonId,
   seasonName,
   className,
-}) => {
-  const {
-    data: summaryArr = [],
-    isLoading,
-    error,
-  } = useGoalQuery(getSeasonSummaryBySeasonIdPrisma, [seasonId]);
+}: SeasonSummaryProps) {
+  const { data: summaryArr = [] } = useGoalSuspenseQuery(
+    getSeasonSummaryBySeasonIdPrisma,
+    [seasonId]
+  );
   const summary = summaryArr[0];
 
   // Mobile: remove the common phrase; Desktop: show full
@@ -38,27 +39,7 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
     .trim();
   const mobileTitle = `${mobileSeason || seasonName} 시즌 요약`;
 
-  if (isLoading) {
-    return (
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>{seasonName ?? '시즌'} 시즌 요약</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="text-center">
-                <div className="mx-auto h-7 w-16 rounded bg-gray-200 animate-pulse md:w-20" />
-                <div className="mx-auto mt-2 h-3 w-20 rounded bg-gray-200 animate-pulse md:w-24" />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (error || !summary) {
+  if (!summary) {
     return (
       <Card className={className}>
         <CardHeader className="px-0 sm:px-6 py-3 sm:py-6">
@@ -127,6 +108,18 @@ const SeasonSummary: React.FC<SeasonSummaryProps> = ({
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+const SeasonSummary: React.FC<SeasonSummaryProps> = (props) => {
+  return (
+    <GoalWrapper
+      fallback={
+        <SeasonSummarySkeleton seasonName={props.seasonName} className="mt-8" />
+      }
+    >
+      <SeasonSummaryInner {...props} />
+    </GoalWrapper>
   );
 };
 

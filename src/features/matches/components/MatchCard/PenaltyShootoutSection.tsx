@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { Badge } from '@/components/ui/badge';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import {
   MatchWithTeams,
   PenaltyShootoutDetailWithPlayers,
@@ -21,14 +21,11 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
   match,
   className = '',
 }) => {
-  // Fetch penalty shootout details via React Query
-  const {
-    data: penaltyRecords = [],
-    isLoading,
-    error,
-  } = useGoalQuery(getPenaltyShootoutDetailsPrisma, [match.match_id], {
-    enabled: hasPenaltyShootout(match),
-  });
+  // Fetch penalty shootout details via Suspense Query
+  const { data: penaltyRecords = [] } = useGoalSuspenseQuery(
+    getPenaltyShootoutDetailsPrisma,
+    [match.match_id]
+  );
 
   // Do not render when the match has no penalty shootout
   if (!hasPenaltyShootout(match)) {
@@ -80,27 +77,8 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
       </div>
 
       <div className="space-y-3 sm:space-y-4 lg:space-y-5">
-        {/* Loading state */}
-        {isLoading && (
-          <div className="text-center py-4">
-            <div className="text-gray-500 text-xs sm:text-sm">
-              승부차기 기록을 불러오는 중...
-            </div>
-          </div>
-        )}
-
-        {/* Error state */}
-        {error && (
-          <div className="text-center py-4">
-            <div className="text-gray-500 text-xs sm:text-sm">
-              승부차기 기록을 불러올 수 없습니다:{' '}
-              {error instanceof Error ? error.message : 'Unknown error'}
-            </div>
-          </div>
-        )}
-
         {/* When data is present */}
-        {!isLoading && !error && penaltyRecords.length > 0 && (
+        {penaltyRecords.length > 0 && (
           <>
             {/* Highlight final result */}
             <div className="bg-gray-50 border border-gray-200 rounded-lg px-2 py-3 sm:p-4 mb-4">
@@ -281,7 +259,7 @@ const PenaltyShootoutSection: React.FC<PenaltyShootoutSectionProps> = ({
         )}
 
         {/* When no data */}
-        {!isLoading && !error && penaltyRecords.length === 0 && (
+        {penaltyRecords.length === 0 && (
           <div className="text-center py-4">
             <div className="text-gray-500 text-xs sm:text-sm">
               승부차기 상세 기록이 없습니다.

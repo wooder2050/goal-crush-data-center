@@ -2,12 +2,14 @@
 
 import { useMemo } from 'react';
 
+import { GoalWrapper } from '@/common/GoalWrapper';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getPositionColor } from '@/features/matches/lib/matchUtils';
 import { getPlayerSummaryPrisma } from '@/features/players';
+import TeamSquadMobileRowSkeleton from '@/features/teams/components/TeamSquadMobileRowSkeleton';
 import TeamSquadTableBody from '@/features/teams/components/TeamSquadTableBody';
-import { useGoalQuery } from '@/hooks/useGoalQuery';
+import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import type { Player } from '@/lib/types';
 
 // Derived row type to include optional stats fields
@@ -42,13 +44,27 @@ export default function TeamSquadTable({
               등록된 선수가 없습니다.
             </div>
           ) : (
-            playersArray.map((p) => (
-              <TeamSquadMobileRow
-                key={p.player_id}
-                player={p}
-                teamId={teamId}
-              />
-            ))
+            <GoalWrapper
+              fallback={
+                <div className="space-y-2">
+                  {Array.from({
+                    length: Math.min(playersArray.length || 6, 6),
+                  }).map((_, i) => (
+                    <TeamSquadMobileRowSkeleton key={i} />
+                  ))}
+                </div>
+              }
+            >
+              <div className="space-y-2">
+                {playersArray.map((p) => (
+                  <TeamSquadMobileRow
+                    key={p.player_id}
+                    player={p}
+                    teamId={teamId}
+                  />
+                ))}
+              </div>
+            </GoalWrapper>
           )}
         </div>
 
@@ -81,15 +97,11 @@ function TeamSquadMobileRow({
   player: SquadRow;
   teamId: number;
 }) {
-  const { data, isLoading } = useGoalQuery(
-    getPlayerSummaryPrisma,
-    [player.player_id, teamId],
-    {
-      staleTime: 5 * 60 * 1000,
-      retry: 1,
-      enabled: Boolean(player.player_id),
-    }
-  );
+  const { data } = useGoalSuspenseQuery(getPlayerSummaryPrisma, [
+    player.player_id,
+    teamId,
+  ]);
+  const isLoading = false;
 
   const primaryPosition = data?.primary_position ?? '-';
   const appearances =
