@@ -78,6 +78,8 @@ export interface Match {
   description: string | null;
   group_stage?: string | null;
   tournament_stage?: string | null;
+  highlight_url?: string | null;
+  full_video_url?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
 }

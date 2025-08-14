@@ -6,7 +6,7 @@ import StandingsTable from '@/features/stats/components/StandingsTable';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
 import { getMatchesBySeasonIdPrisma } from '../api-prisma';
-import MatchCard from './MatchCard/MatchCard';
+import SeasonMatchCard from './MatchCard/SeasonMatchCard';
 import SeasonSummary from './SeasonSummary';
 
 interface Props {
@@ -87,7 +87,7 @@ export default function GLeagueResults({ seasonId, title }: Props) {
                     new Date(b.match_date).getTime()
                 )
                 .map((m) => (
-                  <MatchCard key={m.match_id} matchId={m.match_id} />
+                  <SeasonMatchCard key={m.match_id} matchId={m.match_id} />
                 ))}
             </div>
           </div>
