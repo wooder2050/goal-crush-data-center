@@ -20,7 +20,9 @@ const MatchHeader: React.FC<MatchHeaderProps> = ({ match, className = '' }) => {
     baseLabel.replace(/\s*골\s*때리는\s*그녀들\s*/g, '').trim() || baseLabel;
 
   return (
-    <CardHeader className={`px-0 py-3 sm:px-6 sm:py-6 ${className}`}>
+    <CardHeader
+      className={`px-0 pt-3 pb-0 sm:px-6 sm:pt-6 sm:pb-0 ${className}`}
+    >
       <div className="flex flex-col items-start gap-3 w-full">
         {/* Mobile: remove the common phrase; Desktop: show full */}
         <Badge variant="secondary" className="text-sm sm:hidden">

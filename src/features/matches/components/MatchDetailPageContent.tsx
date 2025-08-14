@@ -4,7 +4,7 @@ import React from 'react';
 
 import { useResolvedPathParams } from '@/common/path-params/client';
 import { Section } from '@/components/ui';
-import MatchCard from '@/features/matches/components/MatchCard/MatchCard';
+import DetailMatchCard from '@/features/matches/components/MatchCard/DetailMatchCard';
 
 export default function MatchDetailPageContent() {
   const [matchIdParam] = useResolvedPathParams('matchId');
@@ -23,7 +23,7 @@ export default function MatchDetailPageContent() {
               </div>
             </div>
           ) : (
-            <MatchCard matchId={matchId} />
+            <DetailMatchCard matchId={matchId} />
           )}
         </div>
       </Section>

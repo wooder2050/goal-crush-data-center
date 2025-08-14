@@ -148,6 +148,8 @@ model Match {
   penalty_away_score       Int?
   group_stage              String?                 @db.VarChar(10)
   tournament_stage         String?                 @db.VarChar(50)
+  highlight_url            String?                 @db.VarChar(1000)
+  full_video_url           String?                 @db.VarChar(1000)
   Assist                   Assist[]
   goals                    Goal[]
   away_team                Team?                   @relation("AwayTeam", fields: [away_team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)

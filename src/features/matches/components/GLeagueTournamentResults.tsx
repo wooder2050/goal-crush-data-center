@@ -11,7 +11,7 @@ import GroupStandingsTable from '@/features/stats/components/GroupStandingsTable
 import StandingsTable from '@/features/stats/components/StandingsTable';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
-import { MatchCard } from './MatchCard';
+import { SeasonMatchCard } from './MatchCard';
 
 interface GLeagueTournamentResultsProps {
   seasonId?: number;
@@ -222,7 +222,7 @@ const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
                         </Badge>
                       )}
                     </div>
-                    <MatchCard matchId={match.match_id} />
+                    <SeasonMatchCard matchId={match.match_id} />
                   </div>
                 ))}
             </div>
@@ -289,7 +289,7 @@ const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
                         조별리그
                       </Badge>
                     </div>
-                    <MatchCard matchId={match.match_id} />
+                    <SeasonMatchCard matchId={match.match_id} />
                   </div>
                 ))}
             </div>
@@ -333,7 +333,7 @@ const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
                         우승 토너먼트
                       </Badge>
                     </div>
-                    <MatchCard matchId={match.match_id} />
+                    <SeasonMatchCard matchId={match.match_id} />
                   </div>
                 ))}
             </div>
@@ -377,7 +377,7 @@ const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
                         멸망 토너먼트
                       </Badge>
                     </div>
-                    <MatchCard matchId={match.match_id} />
+                    <SeasonMatchCard matchId={match.match_id} />
                   </div>
                 ))}
             </div>

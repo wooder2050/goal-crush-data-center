@@ -83,25 +83,33 @@ export async function GET() {
     );
 
     // 각 경기에 대해 시즌별 팀명 적용
-    const updatedMatches = matches.map((match) => ({
-      ...match,
-      home_team: match.home_team
-        ? {
-            ...match.home_team,
-            team_name:
-              teamNameMap.get(`${match.home_team_id}-${match.season_id}`) ||
-              match.home_team.team_name,
-          }
-        : null,
-      away_team: match.away_team
-        ? {
-            ...match.away_team,
-            team_name:
-              teamNameMap.get(`${match.away_team_id}-${match.season_id}`) ||
-              match.away_team.team_name,
-          }
-        : null,
-    }));
+    const updatedMatches = matches.map((match) => {
+      const { highlight_url = null, full_video_url = null } = match as {
+        highlight_url?: string | null;
+        full_video_url?: string | null;
+      };
+      return {
+        ...match,
+        highlight_url,
+        full_video_url,
+        home_team: match.home_team
+          ? {
+              ...match.home_team,
+              team_name:
+                teamNameMap.get(`${match.home_team_id}-${match.season_id}`) ||
+                match.home_team.team_name,
+            }
+          : null,
+        away_team: match.away_team
+          ? {
+              ...match.away_team,
+              team_name:
+                teamNameMap.get(`${match.away_team_id}-${match.season_id}`) ||
+                match.away_team.team_name,
+            }
+          : null,
+      };
+    });
 
     return NextResponse.json(updatedMatches);
   } catch (error) {

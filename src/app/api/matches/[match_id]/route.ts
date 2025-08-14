@@ -74,8 +74,14 @@ export async function GET(
     );
 
     // 시즌별 팀명으로 업데이트
+    const { highlight_url = null, full_video_url = null } = match as {
+      highlight_url?: string | null;
+      full_video_url?: string | null;
+    };
     const updatedMatch = {
       ...match,
+      highlight_url,
+      full_video_url,
       home_team: match.home_team
         ? {
             ...match.home_team,

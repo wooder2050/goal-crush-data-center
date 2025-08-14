@@ -4,6 +4,15 @@ import { Season } from '@/lib/types';
 export interface SeasonWithStats extends Season {
   status?: 'upcoming' | 'ongoing' | 'completed';
   match_count?: number;
+  champion_team_id?: number | null;
+  champion_team_name?: string | null;
+  champion_team_logo?: string | null;
+  champion_label?: '우승팀' | '승격팀' | '1위' | null;
+  champion_teams?: Array<{
+    team_id: number | null;
+    team_name: string | null;
+    logo: string | null;
+  }>;
 }
 
 // Prisma-based Seasons API client functions
