@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
@@ -45,11 +46,12 @@ export default function PlayersListBody({
                 <Link href={`/players/${p.player_id}`}>
                   <div className="relative w-full aspect-[3/4] bg-white flex items-center justify-center">
                     {hasImage ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={p.profile_image_url || ''}
                         alt={`${p.name} 프로필 이미지`}
-                        className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                        fill
+                        sizes="(max-width: 640px) 100vw, 25vw"
+                        className="object-contain transition-transform duration-300 group-hover:scale-[1.02]"
                       />
                     ) : (
                       <div className="h-full w-full bg-gray-200" />
@@ -59,12 +61,15 @@ export default function PlayersListBody({
                     <div className="text-xs text-gray-600 flex items-center gap-4">
                       <span className="inline-flex items-center gap-1">
                         {p.team?.team_id && p.team?.logo ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={p.team.logo}
-                            alt={`${p.team.team_name} 로고`}
-                            className="h-4 w-4 rounded-full object-cover"
-                          />
+                          <span className="relative inline-block h-5 w-5 overflow-hidden rounded-full align-middle">
+                            <Image
+                              src={p.team.logo}
+                              alt={`${p.team.team_name} 로고`}
+                              fill
+                              sizes="20px"
+                              className="object-cover"
+                            />
+                          </span>
                         ) : (
                           <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 text-[10px] text-gray-700">
                             {(p.team?.team_name ?? '팀').charAt(0)}

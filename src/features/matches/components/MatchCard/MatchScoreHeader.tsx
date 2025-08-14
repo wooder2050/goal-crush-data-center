@@ -29,18 +29,18 @@ const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
 
   const TeamWithLogo: React.FC<TeamWithLogoProps> = ({ team, isWinner }) => (
     <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-      <div className="w-6 h-6 sm:w-8 sm:h-8 relative flex-shrink-0 rounded-full overflow-hidden">
+      <div className="w-5 h-5 relative flex-shrink-0 rounded-full overflow-hidden">
         {team?.logo ? (
           <Image
             src={team.logo}
             alt={`${team.team_name} 로고`}
             fill
             className="object-cover"
-            sizes="24px"
+            sizes="20px"
           />
         ) : (
-          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-200 rounded-full flex items-center justify-center">
-            <span className="text-[10px] sm:text-xs text-gray-500 font-medium">
+          <div className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center">
+            <span className="text-[10px] text-gray-500 font-medium">
               {team?.team_name?.charAt(0) || '?'}
             </span>
           </div>

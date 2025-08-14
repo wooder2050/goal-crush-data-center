@@ -2,6 +2,7 @@
 
 import { isAfter, isBefore, parseISO, startOfDay } from 'date-fns';
 import { ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
@@ -112,12 +113,15 @@ function SeasonsPageInner() {
                                   className="inline-flex items-center gap-1"
                                 >
                                   {t.logo ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img
-                                      src={t.logo}
-                                      alt={t.team_name ?? '팀 로고'}
-                                      className="h-5 w-5 rounded-full object-cover"
-                                    />
+                                    <span className="relative w-5 h-5 overflow-hidden rounded-full flex-shrink-0">
+                                      <Image
+                                        src={t.logo}
+                                        alt={t.team_name ?? '팀 로고'}
+                                        fill
+                                        className="object-cover"
+                                        sizes="20px"
+                                      />
+                                    </span>
                                   ) : (
                                     <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-[10px] text-gray-700">
                                       {(t.team_name ?? '?').charAt(0)}
@@ -132,14 +136,17 @@ function SeasonsPageInner() {
                           ) : (
                             <span className="ml-1 inline-flex items-center gap-2 overflow-hidden whitespace-nowrap">
                               {season.champion_team_logo ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={season.champion_team_logo}
-                                  alt={
-                                    season.champion_team_name ?? '우승팀 로고'
-                                  }
-                                  className="h-5 w-5 rounded-full object-cover"
-                                />
+                                <span className="relative w-5 h-5 overflow-hidden rounded-full flex-shrink-0">
+                                  <Image
+                                    src={season.champion_team_logo}
+                                    alt={
+                                      season.champion_team_name ?? '우승팀 로고'
+                                    }
+                                    fill
+                                    className="object-cover"
+                                    sizes="20px"
+                                  />
+                                </span>
                               ) : (
                                 <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-[10px] text-gray-700">
                                   {(season.champion_team_name ?? '?').charAt(0)}

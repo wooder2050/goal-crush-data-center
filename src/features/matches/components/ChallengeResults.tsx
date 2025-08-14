@@ -1,7 +1,9 @@
 'use client';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getSeasonByIdPrisma } from '@/features/seasons/api-prisma';
+import PlayerSeasonRankingTable from '@/features/stats/components/PlayerSeasonRankingTable';
 import StandingsTable from '@/features/stats/components/StandingsTable';
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 
@@ -34,47 +36,68 @@ function ChallengeResultsInner({ seasonId, title }: Props) {
           )}
         </div>
       )}
-      <div className="space-y-6 sm:space-y-8">
-        {matches.length === 0 ? (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              경기 데이터가 아직 없습니다
-            </h3>
-            <p className="text-gray-500">
-              경기 데이터가 입력되면 여기에 표시됩니다.
-            </p>
-          </div>
-        ) : (
-          <div>
-            <div className="mb-4">
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                경기 결과
-              </h2>
-              <div className="h-0.5 bg-gradient-to-r from-blue-500 to-transparent" />
+
+      <Tabs defaultValue="matches" className="space-y-6 sm:space-y-8">
+        <TabsList className="grid w-full grid-cols-3 gap-1 sm:gap-2">
+          <TabsTrigger value="matches" className="text-xs sm:text-sm">
+            경기 결과
+          </TabsTrigger>
+          <TabsTrigger value="teams" className="text-xs sm:text-sm">
+            팀 순위
+          </TabsTrigger>
+          <TabsTrigger value="players" className="text-xs sm:text-sm">
+            개인 순위
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="matches" className="space-y-6 sm:space-y-8">
+          {matches.length === 0 ? (
+            <div className="text-center py-12">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                경기 데이터가 아직 없습니다
+              </h3>
+              <p className="text-gray-500">
+                경기 데이터가 입력되면 여기에 표시됩니다.
+              </p>
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
-              {matches
-                .slice()
-                .sort(
-                  (a, b) =>
-                    new Date(a.match_date).getTime() -
-                    new Date(b.match_date).getTime()
-                )
-                .map((m) => (
-                  <SeasonMatchCard key={m.match_id} matchId={m.match_id} />
-                ))}
+          ) : (
+            <div>
+              <div className="mb-4">
+                <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                  경기 결과
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-2">
+                {matches
+                  .slice()
+                  .sort(
+                    (a, b) =>
+                      new Date(a.match_date).getTime() -
+                      new Date(b.match_date).getTime()
+                  )
+                  .map((m) => (
+                    <SeasonMatchCard key={m.match_id} matchId={m.match_id} />
+                  ))}
+              </div>
             </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="teams">
+          <SeasonSummary
+            seasonId={seasonId}
+            seasonName={title ?? '시즌'}
+            className="mt-2"
+          />
+          <div className="mt-6 sm:mt-8">
+            <StandingsTable seasonId={seasonId} />
           </div>
-        )}
-      </div>
-      <SeasonSummary
-        seasonId={seasonId}
-        seasonName={title ?? '시즌'}
-        className="mt-6 sm:mt-8"
-      />
-      <div className="mt-6 sm:mt-8">
-        <StandingsTable seasonId={seasonId} />
-      </div>
+        </TabsContent>
+
+        <TabsContent value="players">
+          <PlayerSeasonRankingTable seasonId={seasonId} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

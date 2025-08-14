@@ -3,12 +3,19 @@
 import { useState } from 'react';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getMatchesBySeasonIdPrisma } from '@/features/matches/api-prisma';
 import GLeagueTournamentResultsSkeleton from '@/features/matches/components/GLeagueTournamentResultsSkeleton';
+import SeasonSummary from '@/features/matches/components/SeasonSummary';
 import GroupStandingsTable from '@/features/stats/components/GroupStandingsTable';
+import PlayerSeasonRankingTable from '@/features/stats/components/PlayerSeasonRankingTable';
 import StandingsTable from '@/features/stats/components/StandingsTable';
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 
@@ -69,7 +76,7 @@ function GLeagueTournamentResultsInner({
   };
 
   return (
-    <div className={`p-4 sm:p-6 ${className}`}>
+    <div className={`p-2 sm:p-6 ${className}`}>
       <div className="mb-6">
         <h1 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2">
           {title ?? 'G리그 토너먼트'}
@@ -82,93 +89,166 @@ function GLeagueTournamentResultsInner({
         </p>
       </div>
 
-      {/* 토너먼트 스테이지별 통계 */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border">
-          <div className="text-[11px] text-center sm:text-sm text-gray-500">
-            전체 경기
-          </div>
-          <div className="text-base text-center sm:text-xl md:text-2xl font-bold text-gray-900">
-            {matches.length}
-          </div>
-        </div>
-        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border">
-          <div className="text-[11px] text-center sm:text-sm text-gray-500">
-            조별리그
-          </div>
-          <div className="text-base text-center sm:text-xl md:text-2xl font-bold text-blue-600">
-            {tournamentStats.group_stage}
-          </div>
-        </div>
-        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border">
-          <div className="text-[11px] text-center sm:text-sm text-gray-500">
-            우승<span className="hidden sm:inline sm:ml-1">토너먼트</span>
-          </div>
-          <div className="text-base text-center sm:text-xl md:text-2xl font-bold text-yellow-600">
-            {tournamentStats.championship}
-          </div>
-        </div>
-        <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border">
-          <div className="text-[11px] text-center sm:text-sm text-gray-500">
-            멸망<span className="hidden sm:inline sm:ml-1">토너먼트</span>
-          </div>
-          <div className="text-base text-center sm:text-xl md:text-2xl font-bold text-red-600">
-            {tournamentStats.relegation}
-          </div>
-        </div>
-      </div>
-
-      <Tabs
-        value={selectedTournament}
-        onValueChange={(value) => {
-          setSelectedTournament(value as TournamentStage);
-          setSelectedGroup('all');
-        }}
-      >
-        <TabsList className="grid w-full grid-cols-4 gap-1 sm:gap-2">
+      <Tabs defaultValue="matches" className="space-y-6 sm:space-y-8">
+        <TabsList className="grid w-full grid-cols-12 gap-1 sm:gap-2">
           <TabsTrigger
-            value="all"
-            className="w-full text-center text-[11px] sm:text-sm"
+            value="matches"
+            className="col-span-6 text-xs sm:text-sm"
           >
-            전체
+            경기 결과
+          </TabsTrigger>
+          <TabsTrigger value="teams" className="col-span-3 text-xs sm:text-sm">
+            팀 순위
           </TabsTrigger>
           <TabsTrigger
-            value="group_stage"
-            className="w-full text-center text-[11px] sm:text-sm"
+            value="players"
+            className="col-span-3 text-xs sm:text-sm"
           >
-            조별리그
-          </TabsTrigger>
-          <TabsTrigger
-            value="championship"
-            className="w-full text-center text-[11px] sm:text-sm"
-          >
-            우승<span className="hidden sm:inline sm:ml-1">토너먼트</span>
-          </TabsTrigger>
-          <TabsTrigger
-            value="relegation"
-            className="w-full text-center text-[11px] sm:text-sm"
-          >
-            멸망<span className="hidden sm:inline sm:ml-1">토너먼트</span>
+            개인 순위
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="space-y-3 sm:space-y-4">
-          <div className="flex items-center justify-between mb-4">
+        <TabsContent value="matches" className="space-y-6 sm:space-y-8">
+          <div className="grid grid-cols-4 gap-4">
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border">
+              <div className="text-[11px] text-center sm:text-sm text-gray-500">
+                전체 경기
+              </div>
+              <div className="text-base text-center sm:text-xl md:text-2xl font-bold text-gray-900">
+                {matches.length}
+              </div>
+            </div>
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border">
+              <div className="text-[11px] text-center sm:text-sm text-gray-500">
+                조별리그
+              </div>
+              <div className="text-base text-center sm:text-xl md:text-2xl font-bold text-blue-600">
+                {tournamentStats.group_stage}
+              </div>
+            </div>
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border">
+              <div className="text-[11px] text-center sm:text-sm text-gray-500">
+                우승<span className="hidden sm:inline sm:ml-1">토너먼트</span>
+              </div>
+              <div className="text-base text-center sm:text-xl md:text-2xl font-bold text-yellow-600">
+                {tournamentStats.championship}
+              </div>
+            </div>
+            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border">
+              <div className="text-[11px] text-center sm:text-sm text-gray-500">
+                멸망<span className="hidden sm:inline sm:ml-1">토너먼트</span>
+              </div>
+              <div className="text-base text-center sm:text-xl md:text-2xl font-bold text-red-600">
+                {tournamentStats.relegation}
+              </div>
+            </div>
+          </div>
+
+          {/* 방식 선택: 탭형 바 + (우측) 조 선택 셀렉트 */}
+          <div className="rounded border bg-white overflow-hidden">
+            <div className="flex h-12 items-stretch">
+              <nav className="flex flex-1 items-center px-2 sm:px-3">
+                {[
+                  { label: '전체', value: 'all' },
+                  { label: '조별리그', value: 'group_stage' },
+                  { label: '우승 토너먼트', value: 'championship' },
+                  { label: '멸망 토너먼트', value: 'relegation' },
+                ].map((item, idx, arr) => {
+                  const isActive = selectedTournament === item.value;
+                  return (
+                    <div key={item.value} className="flex items-center">
+                      <button
+                        type="button"
+                        className={`h-full px-3 text-sm ${
+                          isActive
+                            ? 'font-semibold text-gray-900'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                        onClick={() => {
+                          setSelectedTournament(item.value as TournamentStage);
+                          setSelectedGroup('all');
+                        }}
+                      >
+                        {item.value === 'championship' ? (
+                          <>
+                            <span className="sm:hidden">우승</span>
+                            <span className="hidden sm:inline">
+                              우승 토너먼트
+                            </span>
+                          </>
+                        ) : item.value === 'relegation' ? (
+                          <>
+                            <span className="sm:hidden">멸망</span>
+                            <span className="hidden sm:inline">
+                              멸망 토너먼트
+                            </span>
+                          </>
+                        ) : (
+                          item.label
+                        )}
+                      </button>
+                      {idx < arr.length - 1 && (
+                        <span className="mx-2 h-5 w-px bg-gray-200 sm:mx-3" />
+                      )}
+                    </div>
+                  );
+                })}
+              </nav>
+              <div className="relative hidden min-w-[140px] sm:flex">
+                {selectedTournament === 'group_stage' && (
+                  <div className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gray-200" />
+                )}
+                {selectedTournament === 'group_stage' ? (
+                  <Select
+                    value={selectedGroup}
+                    onValueChange={(val) =>
+                      setSelectedGroup((val as GroupFilter) ?? 'all')
+                    }
+                  >
+                    <SelectTrigger className="h-12 w-full rounded-none border-0 px-4 text-sm text-gray-900 shadow-none focus:ring-0 focus-visible:ring-0 focus:outline-none">
+                      <SelectValue placeholder="전체" />
+                    </SelectTrigger>
+                    <SelectContent align="end" className="shadow-md">
+                      <SelectItem value="all" className="focus:bg-transparent">
+                        전체
+                      </SelectItem>
+                      <SelectItem value="A" className="focus:bg-transparent">
+                        A조
+                      </SelectItem>
+                      <SelectItem value="B" className="focus:bg-transparent">
+                        B조
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="h-12 w-full" />
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between mb-2">
             <h2 className="text-base sm:text-xl font-semibold text-gray-800">
-              전체 경기
+              {selectedTournament === 'all' &&
+                `전체 경기 (${filteredMatches.length}경기)`}
+              {selectedTournament === 'group_stage' &&
+                `조별리그 ${selectedGroup === 'all' ? '전체' : selectedGroup + '조'} (${filteredMatches.length}경기)`}
+              {selectedTournament === 'championship' &&
+                `우승 토너먼트 (${filteredMatches.length}경기)`}
+              {selectedTournament === 'relegation' &&
+                `멸망 토너먼트 (${filteredMatches.length}경기)`}
             </h2>
+            {/* 조 선택은 상단 내비게이션 우측 Select로 이동 */}
           </div>
-          <div className="mb-4">
-            <Badge variant="emphasis" className="mb-2">
-              전체 경기 ({filteredMatches.length}경기)
-            </Badge>
-          </div>
+
           {filteredMatches.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-gray-500">
-                {selectedGroup === 'all'
-                  ? '경기 데이터가 없습니다.'
-                  : `${selectedGroup}조 경기 데이터가 없습니다.`}
+                {selectedTournament === 'group_stage'
+                  ? selectedGroup === 'all'
+                    ? '조별리그 경기 데이터가 없습니다.'
+                    : `${selectedGroup}조 경기 데이터가 없습니다.`
+                  : '경기 데이터가 없습니다.'}
               </div>
             </div>
           ) : (
@@ -188,181 +268,58 @@ function GLeagueTournamentResultsInner({
           )}
         </TabsContent>
 
-        <TabsContent value="group_stage" className="space-y-3 sm:space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base sm:text-xl font-semibold text-gray-800">
-              조별리그 경기
-            </h2>
-            <div className="flex gap-1.5 sm:gap-2">
-              <Button
-                variant={selectedGroup === 'all' ? 'primary' : 'outline'}
-                className="h-7 px-2.5 py-1 text-[11px] sm:h-8 sm:px-4 sm:py-2 sm:text-xs"
-                onClick={() => setSelectedGroup('all')}
+        <TabsContent value="teams">
+          <SeasonSummary
+            seasonId={seasonId}
+            seasonName={title ?? '시즌'}
+            className="mt-2"
+          />
+          <div className="mt-4 sm:mt-6">
+            <div className="mb-3">
+              <Tabs
+                value={selectedGroupStandings}
+                onValueChange={(val) =>
+                  setSelectedGroupStandings((val as 'all' | 'A' | 'B') ?? 'all')
+                }
               >
-                전체
-              </Button>
-              <Button
-                variant={selectedGroup === 'A' ? 'primary' : 'outline'}
-                className="h-7 px-2.5 py-1 text-[11px] sm:h-8 sm:px-4 sm:py-2 sm:text-xs"
-                onClick={() => setSelectedGroup('A')}
-              >
-                A조
-              </Button>
-              <Button
-                variant={selectedGroup === 'B' ? 'primary' : 'outline'}
-                className="h-7 px-2.5 py-1 text-[11px] sm:h-8 sm:px-4 sm:py-2 sm:text-xs"
-                onClick={() => setSelectedGroup('B')}
-              >
-                B조
-              </Button>
+                <TabsList className="grid w-full grid-cols-3 gap-1 sm:gap-2">
+                  <TabsTrigger
+                    value="all"
+                    className="w-full text-center text-[11px] sm:text-sm"
+                  >
+                    전체
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="A"
+                    className="w-full text-center text-[11px] sm:text-sm"
+                  >
+                    조별리그 A조
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="B"
+                    className="w-full text-center text-[11px] sm:text-sm"
+                  >
+                    조별리그 B조
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
+            {selectedGroupStandings === 'all' ? (
+              <StandingsTable seasonId={seasonId} />
+            ) : (
+              <GroupStandingsTable
+                seasonId={seasonId}
+                tournamentStage="group_stage"
+                groupStage={selectedGroupStandings}
+              />
+            )}
           </div>
-          {filteredMatches.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500">
-                조별리그{' '}
-                {selectedGroup === 'all'
-                  ? '경기 데이터가 없습니다.'
-                  : `${selectedGroup}조 경기 데이터가 없습니다.`}
-              </div>
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-              {filteredMatches
-                .sort(
-                  (a, b) =>
-                    new Date(a.match_date).getTime() -
-                    new Date(b.match_date).getTime()
-                )
-                .map((match) => (
-                  <div key={match.match_id} className="relative">
-                    <SeasonMatchCard matchId={match.match_id} />
-                  </div>
-                ))}
-            </div>
-          )}
         </TabsContent>
 
-        <TabsContent value="championship" className="space-y-3 sm:space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base sm:text-xl font-semibold text-gray-800">
-              우승<span className="hidden sm:inline sm:ml-1">토너먼트</span>{' '}
-              경기
-            </h2>
-          </div>
-          <div className="mb-4">
-            <Badge variant="emphasis" className="mb-2">
-              우승<span className="hidden sm:inline sm:ml-1">토너먼트</span>{' '}
-              경기 ({filteredMatches.length}경기)
-            </Badge>
-          </div>
-          {filteredMatches.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500">
-                아직 우승 토너먼트 경기가 진행되지 않았습니다.
-              </div>
-              <div className="text-sm text-gray-400 mt-2">
-                조별리그가 완료된 후 우승 토너먼트가 진행됩니다.
-              </div>
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-              {filteredMatches
-                .sort(
-                  (a, b) =>
-                    new Date(a.match_date).getTime() -
-                    new Date(b.match_date).getTime()
-                )
-                .map((match) => (
-                  <div key={match.match_id} className="relative">
-                    <SeasonMatchCard matchId={match.match_id} />
-                  </div>
-                ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="relegation" className="space-y-3 sm:space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base sm:text-xl font-semibold text-gray-800">
-              멸망<span className="hidden sm:inline sm:ml-1">토너먼트</span>{' '}
-              경기
-            </h2>
-          </div>
-          <div className="mb-4">
-            <Badge variant="emphasis" className="mb-2">
-              멸망<span className="hidden sm:inline sm:ml-1">토너먼트</span>{' '}
-              경기 ({filteredMatches.length}경기)
-            </Badge>
-          </div>
-          {filteredMatches.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="text-gray-500">
-                아직 멸망 토너먼트 경기가 진행되지 않았습니다.
-              </div>
-              <div className="text-sm text-gray-400 mt-2">
-                조별리그가 완료된 후 멸망 토너먼트가 진행됩니다.
-              </div>
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-              {filteredMatches
-                .sort(
-                  (a, b) =>
-                    new Date(a.match_date).getTime() -
-                    new Date(b.match_date).getTime()
-                )
-                .map((match) => (
-                  <div key={match.match_id} className="relative">
-                    <SeasonMatchCard matchId={match.match_id} />
-                  </div>
-                ))}
-            </div>
-          )}
+        <TabsContent value="players">
+          <PlayerSeasonRankingTable seasonId={seasonId} />
         </TabsContent>
       </Tabs>
-
-      {/* Standings tabs: 전체(standings) / A조 / B조 */}
-      <div className="mt-8">
-        <div className="mb-3">
-          <Tabs
-            value={selectedGroupStandings}
-            onValueChange={(val) =>
-              setSelectedGroupStandings((val as 'all' | 'A' | 'B') ?? 'all')
-            }
-          >
-            <TabsList className="grid w-full grid-cols-3 gap-1 sm:gap-2">
-              <TabsTrigger
-                value="all"
-                className="w-full text-center text-[11px] sm:text-sm"
-              >
-                전체
-              </TabsTrigger>
-              <TabsTrigger
-                value="A"
-                className="w-full text-center text-[11px] sm:text-sm"
-              >
-                조별리그 A조
-              </TabsTrigger>
-              <TabsTrigger
-                value="B"
-                className="w-full text-center text-[11px] sm:text-sm"
-              >
-                조별리그 B조
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-        {selectedGroupStandings === 'all' ? (
-          <StandingsTable seasonId={seasonId} />
-        ) : (
-          <GroupStandingsTable
-            seasonId={seasonId}
-            tournamentStage="group_stage"
-            groupStage={selectedGroupStandings}
-          />
-        )}
-      </div>
     </div>
   );
 }
