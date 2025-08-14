@@ -209,19 +209,6 @@ const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
                 )
                 .map((match) => (
                   <div key={match.match_id} className="relative">
-                    <div className="absolute top-2 right-2 z-10 flex gap-1">
-                      {match.tournament_stage && (
-                        <Badge variant="emphasis" className="text-xs">
-                          {match.tournament_stage === 'group_stage'
-                            ? '조별리그'
-                            : match.tournament_stage === 'championship'
-                              ? '우승 토너먼트'
-                              : match.tournament_stage === 'relegation'
-                                ? '멸망 토너먼트'
-                                : match.tournament_stage}
-                        </Badge>
-                      )}
-                    </div>
                     <SeasonMatchCard matchId={match.match_id} />
                   </div>
                 ))}
@@ -258,13 +245,6 @@ const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
               </Button>
             </div>
           </div>
-          <div className="mb-4">
-            <Badge variant="emphasis" className="mb-2">
-              조별리그{' '}
-              {selectedGroup === 'all' ? '전체 조' : `${selectedGroup}조`} 경기
-              ({filteredMatches.length}경기)
-            </Badge>
-          </div>
           {filteredMatches.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-gray-500">
@@ -284,11 +264,6 @@ const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
                 )
                 .map((match) => (
                   <div key={match.match_id} className="relative">
-                    <div className="absolute top-2 right-2 z-10 flex gap-1">
-                      <Badge variant="emphasis" className="text-xs">
-                        조별리그
-                      </Badge>
-                    </div>
                     <SeasonMatchCard matchId={match.match_id} />
                   </div>
                 ))}
@@ -328,11 +303,6 @@ const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
                 )
                 .map((match) => (
                   <div key={match.match_id} className="relative">
-                    <div className="absolute top-2 right-2 z-10 flex gap-1">
-                      <Badge variant="emphasis" className="text-xs">
-                        우승 토너먼트
-                      </Badge>
-                    </div>
                     <SeasonMatchCard matchId={match.match_id} />
                   </div>
                 ))}
@@ -372,11 +342,6 @@ const GLeagueTournamentResults: React.FC<GLeagueTournamentResultsProps> = ({
                 )
                 .map((match) => (
                   <div key={match.match_id} className="relative">
-                    <div className="absolute top-2 right-2 z-10 flex gap-1">
-                      <Badge variant="emphasis" className="text-xs">
-                        멸망 토너먼트
-                      </Badge>
-                    </div>
                     <SeasonMatchCard matchId={match.match_id} />
                   </div>
                 ))}

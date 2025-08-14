@@ -1,15 +1,14 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
 import { getMatchByIdPrisma } from '../../api-prisma';
-import GoalSection from './GoalSection';
 import MatchFooter from './MatchFooter';
 import MatchHeader from './MatchHeader';
-import MatchMediaLinks from './MatchMediaLinks';
 import MatchScoreHeader from './MatchScoreHeader';
 
 interface SeasonMatchCardProps {
@@ -29,6 +28,7 @@ const SeasonMatchCard: React.FC<SeasonMatchCardProps> = ({
 
   const isLoading = matchLoading;
   const error = matchError;
+  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -59,15 +59,24 @@ const SeasonMatchCard: React.FC<SeasonMatchCardProps> = ({
   }
 
   return (
-    <Card className={className}>
-      <MatchHeader match={match} />
-      <CardContent className="px-0 py-3 sm:p-6">
-        <MatchMediaLinks match={match} />
-        <div className="space-y-3 sm:space-y-4 lg:space-y-5">
+    <Card
+      className={`transition-shadow hover:shadow-md cursor-pointer ${className}`}
+      onClick={() => router.push(`/matches/${match.match_id}`)}
+      role="link"
+      aria-label={`경기 상세 보기 ${match.match_id}`}
+    >
+      <MatchHeader match={match} compact />
+      <CardContent className="px-0 py-1.5 sm:p-3">
+        {/* <MatchMediaLinks match={match} /> */}
+        <div className="space-y-2">
           <MatchScoreHeader match={match} />
-          <GoalSection match={match} />
-          {/* 시즌 카드에서는 상세 섹션 숨김: 승부차기/라인업 제외 */}
-          <MatchFooter match={match} />
+          <MatchFooter
+            match={match}
+            showDividerTop={false}
+            hideDetailButton
+            allRight
+          />
+          {/* 카드 전체 클릭으로 이동. 별도 상세보기 링크는 제거 */}
         </div>
       </CardContent>
     </Card>
