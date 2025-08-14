@@ -7,7 +7,50 @@ import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import type { SeasonBasic, TeamWithExtras } from '@/features/teams/types';
-import { shortenSeasonName } from '@/lib/utils';
+import { inferLeague, shortenSeasonName } from '@/lib/utils';
+
+function StarsArc({
+  count,
+  radius = 60,
+  startDeg = -140,
+  endDeg = -40,
+  twoSpan = 24,
+  className = 'text-yellow-400 text-[16px] sm:text-[20px] drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)]',
+}: {
+  count: number;
+  radius?: number;
+  startDeg?: number;
+  endDeg?: number;
+  twoSpan?: number;
+  className?: string;
+}) {
+  const n = Math.min(Math.max(count, 0), 8);
+  if (n <= 0) return null;
+  // 두 개일 때는 상단 중앙(-90°) 기준으로 더 좁은 범위로 압축 배치
+  const mid = (startDeg + endDeg) / 2;
+  const localStart = n === 2 ? mid - twoSpan / 2 : startDeg;
+  const localEnd = n === 2 ? mid + twoSpan / 2 : endDeg;
+  const angles = Array.from({ length: n }, (_, i) =>
+    n === 1 ? mid : localStart + (i * (localEnd - localStart)) / (n - 1)
+  );
+  return (
+    <div className="pointer-events-none absolute inset-0" aria-hidden>
+      {angles.map((deg, i) => (
+        <span
+          key={i}
+          className={`absolute left-1/2 top-1/2 leading-none ${className}`}
+          style={{
+            transform: `translate(-50%,-50%) rotate(${deg}deg) translate(${radius}px) rotate(${-deg}deg)`,
+          }}
+        >
+          ⭐️
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// TROPHY ICON WAS PREVIOUSLY AROUND THE LOGO. NOW WE PLACE IT AT CARD CORNER.
 
 function sanitizeSeasonName(name: string) {
   return shortenSeasonName(name);
@@ -95,9 +138,17 @@ export default function TeamGrid({ teams }: TeamGridProps) {
           )
           .join(', ');
 
+        // 우승 타입 분류: 챔피언 매치 / SBS 컵(cup) vs 그 외(리그 등)
+        const championships = team.championships ?? [];
+        const cupWinsCount = championships.filter(
+          (c) => inferLeague(c.season_name ?? null) === 'cup'
+        ).length;
+        const totalWins = championships.length;
+        const leagueWinsCount = Math.max(totalWins - cupWinsCount, 0);
+
         return (
           <Link key={team.team_id} href={`/teams/${team.team_id}`}>
-            <Card className="group overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+            <Card className="relative p-0 sm:p-0 group overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
               <CardContent className="p-0">
                 {/* 이미지 영역 (정사각 비율) */}
                 <div
@@ -135,25 +186,43 @@ export default function TeamGrid({ teams }: TeamGridProps) {
                       )}
                     </div>
                   </div>
+                  {leagueWinsCount > 0 && (
+                    <div className="absolute inset-0 z-10 pointer-events-none">
+                      <div className="block md:hidden">
+                        <StarsArc
+                          count={leagueWinsCount}
+                          radius={66}
+                          startDeg={-140}
+                          endDeg={-40}
+                        />
+                      </div>
+                      <div className="hidden md:block">
+                        <StarsArc
+                          count={leagueWinsCount}
+                          radius={78}
+                          startDeg={-140}
+                          endDeg={-40}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {cupWinsCount > 0 && (
+                    <div className="absolute top-1 right-1 sm:top-2 sm:right-2 z-20 pointer-events-none">
+                      <div
+                        className="leading-none text-yellow-500 text-[18px] sm:text-[22px] drop-shadow-[0_1px_1px_rgba(0,0,0,0.35)] text-right"
+                        aria-label={`컵 우승 ${cupWinsCount}회`}
+                        title={`컵 우승 ${cupWinsCount}회`}
+                      >
+                        {'🏆'.repeat(Math.min(cupWinsCount, 8))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* 텍스트 영역 */}
                 <div className="p-3 space-y-2 min-h-[12rem] md:min-h-[13rem] flex flex-col">
                   <div className="text-lg font-semibold flex items-center gap-1">
                     <span className="truncate">{team.team_name}</span>
-                    {typeof team.championships_count === 'number' &&
-                      team.championships_count > 0 && (
-                        <span
-                          className="ml-1 text-yellow-500 shrink-0"
-                          aria-label={`우승 ${team.championships_count}회`}
-                          title={`우승 ${team.championships_count}회`}
-                        >
-                          {'⭐️'.repeat(Math.min(team.championships_count, 5))}
-                          {team.championships_count > 5
-                            ? `+${team.championships_count - 5}`
-                            : ''}
-                        </span>
-                      )}
                   </div>
                   <div className="text-sm text-gray-500 truncate">
                     {team.founded_year
