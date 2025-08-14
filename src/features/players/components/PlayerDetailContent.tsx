@@ -9,6 +9,7 @@ import {
   getPlayerSummaryPrisma,
 } from '@/features/players/api-prisma';
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
+import { shortenSeasonName } from '@/lib/utils';
 
 type PositionFreq = { position: string; matches: number };
 
@@ -135,9 +136,6 @@ export default function PlayerDetailContent({
 
   const goalMatches = (summary?.goal_matches ?? []).slice();
 
-  const shortenSeasonName = (label: string): string =>
-    label.replace(/골때리는 그녀들/g, '').trim();
-
   const getMatchOutcome = (
     gm: NonNullable<(typeof summary)['goal_matches']>[number]
   ): 'WIN' | 'DRAW' | 'LOSS' | null => {
@@ -236,7 +234,7 @@ export default function PlayerDetailContent({
                       key={idx}
                       className="inline-flex items-center rounded border px-2 py-1 text-xs text-gray-700 bg-gray-50"
                     >
-                      {label}
+                      {shortenSeasonName(label)}
                     </span>
                   ))}
                 </div>
@@ -258,7 +256,11 @@ export default function PlayerDetailContent({
                       className={`inline-flex items-center rounded border border-current px-2 py-1 text-xs ${getPositionColor(p.position)}`}
                     >
                       {p.position}{' '}
-                      <span className="ml-1 text-gray-500">({p.matches})</span>
+                      <span
+                        className={`ml-1 text-xs ${getPositionColor(p.position)}`}
+                      >
+                        ({p.matches})
+                      </span>
                     </span>
                   ))}
                 </div>
@@ -364,7 +366,7 @@ export default function PlayerDetailContent({
                       <div key={r.key} className="rounded-md border p-3">
                         <div className="flex items-center justify-between gap-2">
                           <div className="text-xs font-semibold text-gray-600">
-                            {r.season}
+                            {shortenSeasonName(r.season)}
                           </div>
                           <div className="flex items-center gap-2 min-w-0">
                             {r.team_logo ? (
@@ -468,7 +470,9 @@ export default function PlayerDetailContent({
                       <tbody className="divide-y">
                         {seasonRows.map((r) => (
                           <tr key={r.key} className="hover:bg-gray-50">
-                            <td className="px-3 py-2">{r.season}</td>
+                            <td className="px-3 py-2">
+                              {shortenSeasonName(r.season)}
+                            </td>
                             <td className="px-3 py-2">
                               <div className="flex items-center gap-2">
                                 {r.team_logo ? (

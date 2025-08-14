@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { getTeamHighlightsPrisma } from '@/features/teams/api-prisma';
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import type { Team } from '@/lib/types';
+import { shortenSeasonName } from '@/lib/utils';
 
 interface TeamHeaderProps {
   team: Team;
@@ -121,7 +122,10 @@ export default function TeamHeader({ team }: TeamHeaderProps) {
                     key={s.season_id}
                     className="inline-flex items-center rounded-full border border-amber-200 bg-amber-100/70 px-2.5 py-0.5 text-xs font-medium text-amber-800"
                   >
-                    🏆 {s.season_name ?? `시즌 ${s.year ?? ''}`}
+                    🏆{' '}
+                    {s.season_name
+                      ? shortenSeasonName(s.season_name)
+                      : `시즌 ${s.year ?? ''}`}
                   </span>
                 ))}
               </div>

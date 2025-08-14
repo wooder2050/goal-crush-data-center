@@ -19,6 +19,7 @@ import LeagueBadge from '@/features/teams/components/LeagueBadge';
 import PositionBadge from '@/features/teams/components/PositionBadge';
 import SeasonOutcomeBadge from '@/features/teams/components/SeasonOutcomeBadge';
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
+import { shortenSeasonName } from '@/lib/utils';
 
 export default function TeamSeasonStandings({ teamId }: { teamId: number }) {
   const { data } = useGoalSuspenseQuery(getTeamSeasonStandingsPrisma, [teamId]);
@@ -58,7 +59,7 @@ export default function TeamSeasonStandings({ teamId }: { teamId: number }) {
                       href={`/seasons/${encodeURIComponent(row.season_name)}`}
                       className="hover:underline text-sm font-semibold truncate inline-block max-w-full"
                     >
-                      {row.season_name}
+                      {shortenSeasonName(row.season_name)}
                     </Link>
                   ) : (
                     <span className="text-gray-400 text-sm">-</span>
@@ -125,7 +126,7 @@ export default function TeamSeasonStandings({ teamId }: { teamId: number }) {
                           href={`/seasons/${encodeURIComponent(row.season_name)}`}
                           className="hover:underline"
                         >
-                          {row.season_name}
+                          {shortenSeasonName(row.season_name)}
                         </Link>
                         <LeagueBadge league={row.league} />
                       </div>
