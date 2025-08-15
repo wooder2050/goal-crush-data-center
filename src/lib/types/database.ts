@@ -69,6 +69,8 @@ export interface Match {
   season_id: number | null;
   home_team_id: number | null;
   away_team_id: number | null;
+  home_coach_id?: number | null;
+  away_coach_id?: number | null;
   home_score: number | null;
   away_score: number | null;
   penalty_home_score: number | null;
@@ -274,6 +276,37 @@ export interface PlayerCurrentPositionRow {
   position: string | null;
 }
 
+// 코치(감독) 관련 타입들
+export interface Coach {
+  coach_id: number;
+  name: string;
+  birth_date: string | null;
+  nationality: string | null;
+  profile_image_url: string | null;
+  created_at: string | null;
+}
+
+export interface TeamCoachHistory {
+  id: number;
+  coach_id: number;
+  team_id: number;
+  season_id: number;
+  start_date: string;
+  end_date: string | null;
+  role: string;
+  is_current: boolean;
+  created_at: string | null;
+}
+
+export interface MatchCoach {
+  id: number;
+  match_id: number;
+  team_id: number;
+  coach_id: number;
+  role: string;
+  created_at: string | null;
+}
+
 // Input types (for auto-generated IDs)
 export type PlayerInput = Omit<
   Player,
@@ -311,6 +344,9 @@ export type AssistInput = Omit<
   Assist,
   'assist_id' | 'created_at' | 'updated_at'
 >;
+export type CoachInput = Omit<Coach, 'coach_id' | 'created_at'>;
+export type TeamCoachHistoryInput = Omit<TeamCoachHistory, 'id' | 'created_at'>;
+export type MatchCoachInput = Omit<MatchCoach, 'id' | 'created_at'>;
 
 // Update types (all fields optional)
 export type PlayerUpdate = Partial<
@@ -335,6 +371,9 @@ export type GoalUpdate = Partial<
 export type AssistUpdate = Partial<
   Omit<Assist, 'assist_id' | 'created_at' | 'updated_at'>
 >;
+export type CoachUpdate = Partial<Omit<Coach, 'coach_id' | 'created_at'>>;
+export type TeamCoachHistoryUpdate = Partial<Omit<TeamCoachHistory, 'id'>>;
+export type MatchCoachUpdate = Partial<Omit<MatchCoach, 'id'>>;
 
 // Joined data types
 export interface PlayerWithTeam extends Player {
@@ -345,6 +384,8 @@ export interface MatchWithTeams extends Match {
   home_team: Team;
   away_team: Team;
   season: Season;
+  home_coach?: Coach | null;
+  away_coach?: Coach | null;
 }
 
 export interface PlayerMatchStatsWithDetails extends PlayerMatchStats {
@@ -381,6 +422,166 @@ export interface AssistWithDetails extends Assist {
   match: MatchWithTeams;
 }
 
+// 코치 관련 조인 타입들
+export interface CoachWithHistory extends Coach {
+  team_coach_history: Array<{
+    id: number;
+    team_id: number;
+    season_id: number;
+    start_date: Date;
+    end_date: Date | null;
+    role: string;
+    is_current: boolean | null;
+    team: {
+      team_id: number;
+      team_name: string;
+      logo: string | null;
+    };
+    season: {
+      season_id: number;
+      season_name: string;
+      year: number;
+    };
+  }>;
+}
+
+export interface CoachDetail extends Coach {
+  team_coach_history: Array<{
+    id: number;
+    team_id: number;
+    season_id: number;
+    start_date: Date;
+    end_date: Date | null;
+    role: string;
+    is_current: boolean | null;
+    team: {
+      team_id: number;
+      team_name: string;
+      logo: string | null;
+    };
+    season: {
+      season_id: number;
+      season_name: string;
+      year: number;
+    };
+  }>;
+  match_coaches: Array<{
+    id: number;
+    match_id: number;
+    team_id: number;
+    role: string;
+    match: {
+      match_id: number;
+      match_date: string;
+      home_team_id: number | null;
+      away_team_id: number | null;
+      home_score: number | null;
+      away_score: number | null;
+      home_team: {
+        team_id: number;
+        team_name: string;
+        logo: string | null;
+      } | null;
+      away_team: {
+        team_id: number;
+        team_name: string;
+        logo: string | null;
+      } | null;
+    };
+    team: {
+      team_id: number;
+      team_name: string;
+      logo: string | null;
+    };
+  }>;
+}
+
+export interface CoachSeasonStats {
+  season_id: number;
+  season_name: string;
+  year: number;
+  matches_played: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goals_for: number;
+  goals_against: number;
+  points: number;
+  win_rate: number;
+  goal_difference: number;
+  teams: string[];
+  position?: number | null;
+}
+
+export interface CoachOverview {
+  coach_id: number;
+  total_matches: number;
+  season_stats: CoachSeasonStats[];
+  trophies: CoachTrophies;
+}
+
+export interface CoachFull {
+  coach: CoachDetail;
+  overview: CoachOverview;
+  current_team_verified: TeamCurrentHeadCoach | null;
+}
+
+export interface MatchCoaches {
+  match_id: number;
+  home_team_coaches: Array<{
+    id: number;
+    team_id: number;
+    coach_id: number;
+    role: string;
+    coach: {
+      coach_id: number;
+      name: string;
+    };
+    team: {
+      team_id: number;
+      team_name: string;
+    };
+  }>;
+  away_team_coaches: Array<{
+    id: number;
+    team_id: number;
+    coach_id: number;
+    role: string;
+    coach: {
+      coach_id: number;
+      name: string;
+    };
+    team: {
+      team_id: number;
+      team_name: string;
+    };
+  }>;
+}
+
+// 현재팀(헤드코치) 뷰 응답 타입
+export interface TeamCurrentHeadCoach {
+  team_id: number;
+  team_name: string;
+  logo: string | null;
+  coach_id: number;
+  coach_name?: string;
+  nationality?: string | null;
+  profile_image_url?: string | null;
+  last_match_date: string;
+}
+
+export interface CoachTrophies {
+  coach_id: number;
+  total: number;
+  league_wins: number;
+  cup_wins: number;
+  items: Array<{
+    season_id: number;
+    season_name: string;
+    category: Season['category'];
+  }>;
+}
+
 // Table name types
 export type TableName =
   | 'players'
@@ -400,7 +601,10 @@ export type TableName =
   | 'substitutions'
   | 'penalty_shootout_details'
   | 'player_positions'
-  | 'player_current_position';
+  | 'player_current_position'
+  | 'coaches'
+  | 'team_coach_history'
+  | 'match_coaches';
 
 // Database schema types
 export interface Database {
@@ -452,6 +656,17 @@ export interface Database {
       penalty_shootout_details: { Row: PenaltyShootoutDetail };
       player_positions: { Row: PlayerPosition };
       player_current_position: { Row: PlayerCurrentPositionRow };
+      coaches: { Row: Coach; Insert: CoachInput; Update: CoachUpdate };
+      team_coach_history: {
+        Row: TeamCoachHistory;
+        Insert: TeamCoachHistoryInput;
+        Update: TeamCoachHistoryUpdate;
+      };
+      match_coaches: {
+        Row: MatchCoach;
+        Insert: MatchCoachInput;
+        Update: MatchCoachUpdate;
+      };
     };
     Views: { [_ in never]: never };
     Functions: { [_ in never]: never };

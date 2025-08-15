@@ -53,6 +53,7 @@ const MatchHeader: React.FC<MatchHeaderProps> = ({
         <Badge variant="secondary" className="hidden text-sm sm:inline-flex">
           {baseLabel}
         </Badge>
+        {/* 감독 노출 제거 (요청에 따라 헤더에서는 표시하지 않음) */}
         <div className="w-full text-sm text-gray-500 flex justify-end">
           {format(matchDate, 'yyyy년 M월 d일 (EEE)', { locale: ko })}
         </div>

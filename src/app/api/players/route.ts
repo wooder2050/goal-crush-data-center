@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     const wherePosition = positionParam
       ? {
-          player_positions: {
+          playerPosition: {
             some: {
               position: {
                 equals: positionParam,
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
           created_at: Date | null;
           season_id: number | null;
         }>;
-        player_positions: Array<{
+        playerPosition: Array<{
           position: string | null;
           season_id: number | null;
           start_date: Date | null;
@@ -207,7 +207,7 @@ export async function GET(request: NextRequest) {
               logo: teamLogoMap.get(baseTeam.team_id) ?? null,
             }
           : null;
-        const latestPosition = p.player_positions?.[0]?.position ?? null;
+        const latestPosition = p.playerPosition?.[0]?.position ?? null;
         return {
           player_id: p.player_id,
           name: p.name,
@@ -320,7 +320,7 @@ export async function GET(request: NextRequest) {
             orderBy: [{ end_date: 'desc' }, { created_at: 'desc' }],
             take: 1,
           },
-          player_positions: {
+          playerPosition: {
             select: {
               position: true,
               season_id: true,
@@ -422,7 +422,7 @@ export async function GET(request: NextRequest) {
             orderBy: [{ end_date: 'desc' }, { created_at: 'desc' }],
             take: 1,
           },
-          player_positions: {
+          playerPosition: {
             select: {
               position: true,
               season_id: true,
@@ -474,7 +474,7 @@ export async function GET(request: NextRequest) {
           orderBy: [{ end_date: 'desc' }, { created_at: 'desc' }],
           take: 1,
         },
-        player_positions: {
+        playerPosition: {
           select: {
             position: true,
             season_id: true,

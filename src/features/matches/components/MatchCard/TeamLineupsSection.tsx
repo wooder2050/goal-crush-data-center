@@ -110,7 +110,7 @@ function TeamLineupsSectionInner({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 lg:gap-6">
             {/* Home Team Players */}
             <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-              <div className="text-sm font-semibold text-gray-800 mb-2 flex items-center">
+              <div className="text-sm font-semibold text-gray-800 mb-1 flex items-center">
                 <div
                   className="w-3 h-3 rounded-full mr-2"
                   style={{
@@ -120,6 +120,21 @@ function TeamLineupsSectionInner({
                 ></div>
                 {match.home_team?.team_name}
               </div>
+              {match.home_coach?.name && (
+                <div className="text-[11px] text-gray-600 mb-2">
+                  감독:{' '}
+                  {typeof match.home_coach.coach_id === 'number' ? (
+                    <Link
+                      href={`/coaches/${match.home_coach.coach_id}`}
+                      className="text-blue-600 hover:underline"
+                    >
+                      {match.home_coach.name}
+                    </Link>
+                  ) : (
+                    match.home_coach.name
+                  )}
+                </div>
+              )}
 
               {/* Starters */}
               <div className="mb-3">
@@ -354,7 +369,7 @@ function TeamLineupsSectionInner({
 
             {/* Away Team Players */}
             <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-              <div className="text-sm font-semibold text-gray-800 mb-2 flex items-center">
+              <div className="text-sm font-semibold text-gray-800 mb-1 flex items-center">
                 <div
                   className="w-3 h-3 rounded-full mr-2"
                   style={{
@@ -364,6 +379,21 @@ function TeamLineupsSectionInner({
                 ></div>
                 {match.away_team?.team_name}
               </div>
+              {match.away_coach?.name && (
+                <div className="text-[11px] text-gray-600 mb-2">
+                  감독:{' '}
+                  {typeof match.away_coach.coach_id === 'number' ? (
+                    <Link
+                      href={`/coaches/${match.away_coach.coach_id}`}
+                      className="text-blue-600 hover:underline"
+                    >
+                      {match.away_coach.name}
+                    </Link>
+                  ) : (
+                    match.away_coach.name
+                  )}
+                </div>
+              )}
 
               {/* Starters */}
               <div className="mb-3">

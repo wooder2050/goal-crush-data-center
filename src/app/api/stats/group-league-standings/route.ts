@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
       }
       // 전체를 선택했을 때는 조별 필터링을 하지 않음 (모든 조 데이터 반환)
 
-      const standings = await prisma.groupLeagueStandings.findMany({
+      const standings = await prisma.groupLeagueStanding.findMany({
         where,
         include: {
           team: {

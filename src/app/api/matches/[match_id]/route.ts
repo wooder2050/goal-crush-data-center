@@ -42,6 +42,8 @@ export async function GET(
         home_team: true,
         away_team: true,
         season: true,
+        home_coach: true,
+        away_coach: true,
       },
     });
 

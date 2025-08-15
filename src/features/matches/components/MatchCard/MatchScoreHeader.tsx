@@ -19,6 +19,7 @@ interface MatchScoreHeaderProps {
 interface TeamWithLogoProps {
   team: Pick<Team, 'team_name' | 'logo'> | null;
   isWinner: boolean;
+  teamId: number | null;
 }
 
 const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
@@ -27,40 +28,64 @@ const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
 }) => {
   const winner = getWinnerTeam(match);
 
-  const TeamWithLogo: React.FC<TeamWithLogoProps> = ({ team, isWinner }) => (
-    <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-      <div className="w-5 h-5 relative flex-shrink-0 rounded-full overflow-hidden">
-        {team?.logo ? (
-          <Image
-            src={team.logo}
-            alt={`${team.team_name} 로고`}
-            fill
-            className="object-cover"
-            sizes="20px"
-          />
-        ) : (
-          <div className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center">
-            <span className="text-[10px] text-gray-500 font-medium">
-              {team?.team_name?.charAt(0) || '?'}
-            </span>
+  const TeamWithLogo: React.FC<TeamWithLogoProps> = ({
+    team,
+    isWinner,
+    teamId,
+  }) => {
+    const headCoachName =
+      (teamId === match.home_team_id
+        ? match.home_coach?.name
+        : teamId === match.away_team_id
+          ? match.away_coach?.name
+          : undefined) || undefined;
+
+    return (
+      <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+        <div className="w-5 h-5 relative flex-shrink-0 rounded-full overflow-hidden">
+          {team?.logo ? (
+            <Image
+              src={team.logo}
+              alt={`${team.team_name} 로고`}
+              fill
+              className="object-cover"
+              sizes="20px"
+            />
+          ) : (
+            <div className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center">
+              <span className="text-[10px] text-gray-500 font-medium">
+                {team?.team_name?.charAt(0) || '?'}
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col items-center">
+          <div
+            className={`text-xs sm:text-sm font-medium ${
+              isWinner ? 'text-black font-bold' : 'text-gray-700'
+            }`}
+          >
+            {team?.team_name || '알 수 없음'}
           </div>
-        )}
+          {headCoachName && (
+            <div className="text-[10px] text-gray-500 mt-0.5">
+              {headCoachName}
+            </div>
+          )}
+        </div>
       </div>
-      <div
-        className={`text-xs sm:text-sm font-medium ${
-          isWinner ? 'text-black font-bold' : 'text-gray-700'
-        }`}
-      >
-        {team?.team_name || '알 수 없음'}
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className={`flex items-center justify-between ${className}`}>
       {/* Home Team */}
       <div className="flex-1 text-center">
-        <TeamWithLogo team={match.home_team} isWinner={winner === 'home'} />
+        <TeamWithLogo
+          team={match.home_team}
+          isWinner={winner === 'home'}
+          teamId={match.home_team_id}
+        />
       </div>
 
       {/* Score */}
@@ -80,7 +105,11 @@ const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
 
       {/* Away Team */}
       <div className="flex-1 text-center">
-        <TeamWithLogo team={match.away_team} isWinner={winner === 'away'} />
+        <TeamWithLogo
+          team={match.away_team}
+          isWinner={winner === 'away'}
+          teamId={match.away_team_id}
+        />
       </div>
     </div>
   );

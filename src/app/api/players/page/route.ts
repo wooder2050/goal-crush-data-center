@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
           orderBy: [{ end_date: 'asc' }, { created_at: 'desc' }],
           take: 1,
         },
-        player_positions: {
+        playerPosition: {
           select: {
             position: true,
             season_id: true,
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
             logo: teamLogoMap.get(baseTeam.team_id) ?? null,
           }
         : null;
-      const latestPosition = p.player_positions?.[0]?.position ?? null;
+      const latestPosition = p.playerPosition?.[0]?.position ?? null;
       return {
         player_id: p.player_id,
         name: p.name,
