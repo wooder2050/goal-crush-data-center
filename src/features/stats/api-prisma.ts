@@ -186,5 +186,5 @@ export const getGroupLeagueStandingsPrisma = async (
 };
 
 Object.defineProperty(getGroupLeagueStandingsPrisma, 'queryKey', {
-  value: 'groupLeagueStandings',
+  value: 'groupLeagueStanding',
 });

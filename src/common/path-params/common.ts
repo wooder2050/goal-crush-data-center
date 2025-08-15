@@ -3,6 +3,7 @@ type DynamicSegment = {
   playerId: string;
   matchId: string;
   seasonId: string;
+  coachId: string;
 };
 export type PathParamName = keyof DynamicSegment;
 
@@ -23,6 +24,10 @@ const resolverMap = {
   },
   seasonId: (value) => {
     if (value === undefined) throw new Error("'seasonId' not defined");
+    return value;
+  },
+  coachId: (value) => {
+    if (value === undefined) throw new Error("'coachId' not defined");
     return value;
   },
 } satisfies {

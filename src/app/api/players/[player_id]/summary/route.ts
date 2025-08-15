@@ -230,7 +230,7 @@ export async function GET(
         }
       });
     } else {
-      const posPeriods = await prisma.player_positions.findMany({
+      const posPeriods = await prisma.playerPosition.findMany({
         where: { player_id: playerId },
         orderBy: [{ end_date: 'desc' }, { start_date: 'desc' }],
         take: 1,
@@ -239,12 +239,10 @@ export async function GET(
     }
 
     // Positions by season
-    const positionsBySeasonFromPeriods = await prisma.player_positions.findMany(
-      {
-        where: { player_id: playerId },
-        select: { season_id: true, position: true },
-      }
-    );
+    const positionsBySeasonFromPeriods = await prisma.playerPosition.findMany({
+      where: { player_id: playerId },
+      select: { season_id: true, position: true },
+    });
     const positionsBySeasonMap = new Map<number, Set<string>>();
     for (let i = 0; i < positionsBySeasonFromPeriods.length; i++) {
       const p = positionsBySeasonFromPeriods[i];

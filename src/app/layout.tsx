@@ -102,6 +102,7 @@ export default function RootLayout({
           <NavItem href="/seasons">시즌</NavItem>
           <NavItem href="/teams">팀</NavItem>
           <NavItem href="/players">선수</NavItem>
+          <NavItem href="/coaches">감독</NavItem>
         </Header>
         <div className="pt-24 md:pt-28">
           <Providers>{children}</Providers>

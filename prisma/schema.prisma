@@ -8,51 +8,28 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Player {
-  player_id           Int                     @id @default(autoincrement())
-  name                String                  @unique @db.VarChar(100)
-  birth_date          DateTime?               @db.Date
-  nationality         String?                 @db.VarChar(50)
-  height_cm           Int?
-  profile_image_url   String?
-  created_at          DateTime?               @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime?               @default(now()) @updatedAt @db.Timestamptz(6)
-  jersey_number       Int?
-  Assist              Assist[]
-  goals               Goal[]
-  penalty_goalkeeping PenaltyShootoutDetail[] @relation("Goalkeeper")
-  penalty_kicks       PenaltyShootoutDetail[] @relation("Kicker")
-  player_match_stats  PlayerMatchStats[]
-  player_positions    player_positions[]
-  player_season_stats PlayerSeasonStats[]
-  player_team_history PlayerTeamHistory[]
-  substitutions_in    Substitution[]          @relation("PlayerIn")
-  substitutions_out   Substitution[]          @relation("PlayerOut")
-
-  @@index([jersey_number], map: "idx_players_jersey_number")
-  @@index([name], map: "idx_players_name")
-  @@map("players")
-}
-
 model Team {
-  team_id                  Int                     @id @default(autoincrement())
-  team_name                String                  @unique @db.VarChar(100)
+  team_id                  Int                       @id @default(autoincrement())
+  team_name                String                    @unique @db.VarChar(100)
   founded_year             Int?
   description              String?
-  created_at               DateTime?               @default(now()) @db.Timestamptz(6)
-  updated_at               DateTime?               @default(now()) @db.Timestamptz(6)
-  primary_color            String?                 @default("#000000") @db.VarChar(7)
-  secondary_color          String?                 @default("#FFFFFF") @db.VarChar(7)
-  logo                     String?                 @db.VarChar(500)
-  GroupLeagueStandings     GroupLeagueStandings[]
-  away_matches             Match[]                 @relation("AwayTeam")
-  home_matches             Match[]                 @relation("HomeTeam")
+  created_at               DateTime?                 @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime?                 @default(now()) @db.Timestamptz(6)
+  primary_color            String?                   @default("#000000") @db.VarChar(7)
+  secondary_color          String?                   @default("#FFFFFF") @db.VarChar(7)
+  logo                     String?                   @db.VarChar(500)
+  group_league_standings   GroupLeagueStanding[]
+  match_coaches            MatchCoach[]
+  matches_away             Match[]                   @relation("AwayTeam")
+  matches_home             Match[]                   @relation("HomeTeam")
   penalty_shootout_details PenaltyShootoutDetail[]
   player_match_stats       PlayerMatchStats[]
   player_season_stats      PlayerSeasonStats[]
   player_team_history      PlayerTeamHistory[]
   standings                Standing[]
   substitutions            Substitution[]
+  team_coach_history       TeamCoachHistory[]
+  team_current_head_coach  team_current_head_coach[]
   team_season_names        TeamSeasonName[]
   team_season_stats        TeamSeasonStats[]
   team_seasons             TeamSeason[]
@@ -61,42 +38,54 @@ model Team {
   @@map("teams")
 }
 
-model TeamSeasonName {
-  id         Int       @id @default(autoincrement())
-  team_id    Int
-  season_id  Int
-  team_name  String    @db.VarChar(255)
-  is_current Boolean   @default(false)
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @default(now()) @db.Timestamptz(6)
-  season     Season    @relation(fields: [season_id], references: [season_id], onDelete: Cascade)
-  team       Team      @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
+model Player {
+  player_id                           Int                     @id @default(autoincrement())
+  name                                String                  @unique @db.VarChar(100)
+  birth_date                          DateTime?               @db.Date
+  nationality                         String?                 @db.VarChar(50)
+  height_cm                           Int?
+  profile_image_url                   String?
+  created_at                          DateTime?               @default(now()) @db.Timestamptz(6)
+  updated_at                          DateTime?               @default(now()) @db.Timestamptz(6)
+  jersey_number                       Int?
+  assists                             Assist[]
+  goals                               Goal[]
+  penalty_shootout_details_goalkeeper PenaltyShootoutDetail[] @relation("Goalkeeper")
+  penalty_shootout_details_kicker     PenaltyShootoutDetail[] @relation("Kicker")
+  player_match_stats                  PlayerMatchStats[]
+  playerPosition                      PlayerPosition[]
+  player_season_stats                 PlayerSeasonStats[]
+  player_team_history                 PlayerTeamHistory[]
+  substitutions_in                    Substitution[]          @relation("PlayerIn")
+  substitutions_out                   Substitution[]          @relation("PlayerOut")
 
-  @@unique([team_id, season_id])
-  @@map("team_season_names")
+  @@index([jersey_number], map: "idx_players_jersey_number")
+  @@index([name], map: "idx_players_name")
+  @@map("players")
 }
 
 model Season {
-  season_id            Int                    @id @default(autoincrement())
-  season_name          String                 @unique @db.VarChar(100)
-  year                 Int
-  start_date           DateTime?              @db.Date
-  end_date             DateTime?              @db.Date
-  created_at           DateTime?              @default(now()) @db.Timestamptz(6)
-  updated_at           DateTime?              @default(now()) @db.Timestamptz(6)
-  // New: season category synced from Supabase enum
-  category             season_category        @default(OTHER)
-  GroupLeagueStandings GroupLeagueStandings[]
-  matches              Match[]
-  player_positions     player_positions[]
-  player_season_stats  PlayerSeasonStats[]
-  player_team_history  PlayerTeamHistory[]
-  standings            Standing[]
-  team_season_names    TeamSeasonName[]
-  team_season_stats    TeamSeasonStats[]
-  team_seasons         TeamSeason[]
+  season_id              Int                   @id @default(autoincrement())
+  season_name            String                @unique @db.VarChar(100)
+  year                   Int
+  start_date             DateTime?             @db.Date
+  end_date               DateTime?             @db.Date
+  created_at             DateTime?             @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime?             @default(now()) @db.Timestamptz(6)
+  category               SeasonCategory        @default(OTHER)
+  group_league_standings GroupLeagueStanding[]
+  matches                Match[]
+  playerPosition         PlayerPosition[]
+  player_season_stats    PlayerSeasonStats[]
+  player_team_history    PlayerTeamHistory[]
+  standings              Standing[]
+  team_coach_history     TeamCoachHistory[]
+  team_season_names      TeamSeasonName[]
+  team_season_stats      TeamSeasonStats[]
+  team_seasons           TeamSeason[]
 
   @@index([year], map: "idx_seasons_year")
+  @@index([category])
   @@map("seasons")
 }
 
@@ -123,7 +112,7 @@ model PlayerTeamHistory {
   is_active  Boolean?  @default(true)
   created_at DateTime? @default(now()) @db.Timestamptz(6)
   player     Player?   @relation(fields: [player_id], references: [player_id], onDelete: Cascade, onUpdate: NoAction)
-  seasons    Season?   @relation(fields: [season_id], references: [season_id], onDelete: Cascade, onUpdate: NoAction)
+  season     Season?   @relation(fields: [season_id], references: [season_id], onDelete: Cascade, onUpdate: NoAction)
   team       Team?     @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([player_id, season_id], map: "unique_player_season")
@@ -143,23 +132,30 @@ model Match {
   status                   String?                 @default("scheduled") @db.VarChar(50)
   description              String?
   created_at               DateTime?               @default(now()) @db.Timestamptz(6)
-  updated_at               DateTime?               @default(now()) @updatedAt @db.Timestamptz(6)
+  updated_at               DateTime?               @default(now()) @db.Timestamptz(6)
   penalty_home_score       Int?
   penalty_away_score       Int?
   group_stage              String?                 @db.VarChar(10)
   tournament_stage         String?                 @db.VarChar(50)
   highlight_url            String?                 @db.VarChar(1000)
   full_video_url           String?                 @db.VarChar(1000)
-  Assist                   Assist[]
+  home_coach_id            Int?
+  away_coach_id            Int?
+  assists                  Assist[]
   goals                    Goal[]
+  match_coaches            MatchCoach[]
+  away_coach               Coach?                  @relation("AwayCoach", fields: [away_coach_id], references: [coach_id], onUpdate: NoAction)
   away_team                Team?                   @relation("AwayTeam", fields: [away_team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+  home_coach               Coach?                  @relation("HomeCoach", fields: [home_coach_id], references: [coach_id], onUpdate: NoAction)
   home_team                Team?                   @relation("HomeTeam", fields: [home_team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
   season                   Season?                 @relation(fields: [season_id], references: [season_id], onDelete: Cascade, onUpdate: NoAction)
   penalty_shootout_details PenaltyShootoutDetail[]
   player_match_stats       PlayerMatchStats[]
   substitutions            Substitution[]
 
+  @@index([away_coach_id], map: "idx_matches_away_coach")
   @@index([match_date], map: "idx_matches_date")
+  @@index([home_coach_id], map: "idx_matches_home_coach")
   @@index([season_id], map: "idx_matches_season")
   @@map("matches")
 }
@@ -179,7 +175,7 @@ model PlayerMatchStats {
   position       String?   @db.VarChar(50)
   updated_at     DateTime? @default(now()) @db.Timestamptz(6)
   card_type      String?   @default("none") @db.VarChar(20)
-  Goal           Goal[]
+  goal_records   Goal[]    @relation("GoalsByPlayerMatch")
   match          Match?    @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction)
   player         Player?   @relation(fields: [player_id], references: [player_id], onDelete: Cascade, onUpdate: NoAction)
   team           Team?     @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
@@ -190,6 +186,94 @@ model PlayerMatchStats {
   @@index([match_id], map: "idx_player_stats_match")
   @@index([player_id], map: "idx_player_stats_player")
   @@map("player_match_stats")
+}
+
+model Goal {
+  goal_id                          Int              @id @default(autoincrement())
+  match_id                         Int
+  player_id                        Int
+  goal_time                        Int?
+  goal_type                        String?          @default("regular") @db.VarChar(50)
+  description                      String?
+  created_at                       DateTime?        @default(now()) @db.Timestamptz(6)
+  updated_at                       DateTime?        @default(now()) @db.Timestamptz(6)
+  assist_id                        Int?
+  assists                          Assist[]
+  assists_goals_assist_idToassists Assist?          @relation("goals_assist_idToassists", fields: [assist_id], references: [assist_id], onUpdate: NoAction, map: "fk_goals_assist")
+  player_match_stats               PlayerMatchStats @relation("GoalsByPlayerMatch", fields: [player_id, match_id], references: [player_id, match_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_goals_player_match_stats")
+  match                            Match            @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction)
+  player                           Player           @relation(fields: [player_id], references: [player_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([assist_id], map: "idx_goals_assist_id")
+  @@index([match_id], map: "idx_goals_match_id")
+  @@index([match_id, player_id], map: "idx_goals_match_player")
+  @@index([player_id], map: "idx_goals_player_id")
+  @@map("goals")
+}
+
+model Assist {
+  assist_id                      Int       @id @default(autoincrement())
+  match_id                       Int
+  player_id                      Int
+  goal_id                        Int
+  assist_time                    Int?
+  assist_type                    String?   @default("regular") @db.VarChar(50)
+  description                    String?
+  created_at                     DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at                     DateTime? @default(now()) @db.Timestamptz(6)
+  goal                           Goal      @relation(fields: [goal_id], references: [goal_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_assists_goal")
+  match                          Match     @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_assists_match")
+  player                         Player    @relation(fields: [player_id], references: [player_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_assists_player")
+  goals_goals_assist_idToassists Goal[]    @relation("goals_assist_idToassists")
+
+  @@index([goal_id], map: "idx_assists_goal_id")
+  @@index([match_id], map: "idx_assists_match_id")
+  @@index([match_id, player_id], map: "idx_assists_match_player")
+  @@index([player_id], map: "idx_assists_player_id")
+  @@map("assists")
+}
+
+model Substitution {
+  substitution_id     Int       @id @default(autoincrement())
+  match_id            Int
+  player_in_id        Int
+  team_id             Int
+  created_at          DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime? @default(now()) @db.Timestamptz(6)
+  player_out_id       Int?
+  substitution_time   Int?
+  substitution_reason String?
+  match               Match     @relation(fields: [match_id], references: [match_id], onDelete: NoAction, onUpdate: NoAction)
+  player_in           Player    @relation("PlayerIn", fields: [player_in_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
+  player_out          Player?   @relation("PlayerOut", fields: [player_out_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
+  team                Team      @relation(fields: [team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([match_id], map: "idx_substitutions_match_id")
+  @@index([player_in_id], map: "idx_substitutions_player_in_id")
+  @@index([team_id], map: "idx_substitutions_team_id")
+  @@map("substitutions")
+}
+
+model PenaltyShootoutDetail {
+  penalty_detail_id Int       @id @default(autoincrement())
+  match_id          Int
+  team_id           Int
+  goalkeeper_id     Int?
+  kicker_order      Int
+  kicker_id         Int
+  is_successful     Boolean
+  kick_description  String?
+  created_at        DateTime? @default(now()) @db.Timestamptz(6)
+  goalkeeper        Player?   @relation("Goalkeeper", fields: [goalkeeper_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
+  kicker            Player    @relation("Kicker", fields: [kicker_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
+  match             Match     @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction)
+  team              Team      @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([match_id, team_id, kicker_order])
+  @@index([kicker_id], map: "idx_penalty_details_kicker")
+  @@index([match_id], map: "idx_penalty_details_match")
+  @@index([team_id], map: "idx_penalty_details_team")
+  @@map("penalty_shootout_details")
 }
 
 model PlayerSeasonStats {
@@ -259,7 +343,38 @@ model Standing {
   @@map("standings")
 }
 
-model GroupLeagueStandings {
+model PlayerPosition {
+  player_position_id Int       @id @default(autoincrement())
+  player_id          Int
+  position           String    @db.VarChar(50)
+  season_id          Int?
+  start_date         DateTime  @db.Date
+  end_date           DateTime? @db.Date
+  created_at         DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime? @default(now()) @db.Timestamptz(6)
+  player             Player    @relation(fields: [player_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
+  season             Season?   @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([player_id, position, season_id, start_date], map: "unique_player_position_period")
+  @@map("player_positions")
+}
+
+model TeamSeasonName {
+  id         Int       @id @default(autoincrement())
+  team_id    Int
+  season_id  Int
+  team_name  String    @db.VarChar(255)
+  is_current Boolean   @default(false)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  season     Season    @relation(fields: [season_id], references: [season_id], onDelete: Cascade)
+  team       Team      @relation(fields: [team_id], references: [team_id], onDelete: Cascade)
+
+  @@unique([team_id, season_id])
+  @@map("team_season_names")
+}
+
+model GroupLeagueStanding {
   group_standing_id Int       @id @default(autoincrement())
   season_id         Int
   group_stage       String    @db.VarChar(1)
@@ -288,117 +403,86 @@ model GroupLeagueStandings {
   @@map("group_league_standings")
 }
 
-model Goal {
-  goal_id                          Int              @id @default(autoincrement())
-  match_id                         Int
-  player_id                        Int
-  goal_time                        Int?
-  goal_type                        String?          @default("regular") @db.VarChar(50)
-  description                      String?
-  created_at                       DateTime?        @default(now()) @db.Timestamptz(6)
-  updated_at                       DateTime?        @default(now()) @updatedAt @db.Timestamptz(6)
-  assist_id                        Int?
-  assists                          Assist[]         @relation("GoalAssists")
-  assists_goals_assist_idToassists Assist?          @relation("goals_assist_idToassists", fields: [assist_id], references: [assist_id], onUpdate: NoAction, map: "fk_goals_assist")
-  player_match_stats               PlayerMatchStats @relation(fields: [player_id, match_id], references: [player_id, match_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_goals_player_match_stats")
-  match                            Match            @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction)
-  player                           Player           @relation(fields: [player_id], references: [player_id], onDelete: Cascade, onUpdate: NoAction)
+model Coach {
+  coach_id                Int                       @id @default(autoincrement())
+  name                    String                    @db.VarChar
+  birth_date              DateTime?                 @db.Date
+  nationality             String?                   @db.VarChar
+  profile_image_url       String?
+  created_at              DateTime?                 @default(now()) @db.Timestamptz(6)
+  match_coaches           MatchCoach[]
+  away_matches            Match[]                   @relation("AwayCoach")
+  home_matches            Match[]                   @relation("HomeCoach")
+  team_coach_history      TeamCoachHistory[]
+  team_current_head_coach team_current_head_coach[]
 
-  @@index([match_id], map: "idx_goals_match_id")
-  @@index([match_id, player_id], map: "idx_goals_match_player")
-  @@index([player_id], map: "idx_goals_player_id")
-  @@index([assist_id], map: "idx_goals_assist_id")
-  @@map("goals")
+  @@index([name], map: "idx_coaches_name")
+  @@map("coaches")
 }
 
-model Assist {
-  assist_id                      Int       @id @default(autoincrement())
-  match_id                       Int
-  player_id                      Int
-  goal_id                        Int
-  assist_time                    Int?
-  assist_type                    String?   @default("regular") @db.VarChar(50)
-  description                    String?
-  created_at                     DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at                     DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
-  goal                           Goal      @relation("GoalAssists", fields: [goal_id], references: [goal_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_assists_goal")
-  match                          Match     @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_assists_match")
-  player                         Player    @relation(fields: [player_id], references: [player_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_assists_player")
-  goals_goals_assist_idToassists Goal[]    @relation("goals_assist_idToassists")
+model TeamCoachHistory {
+  id         Int       @id @default(autoincrement())
+  coach_id   Int
+  team_id    Int
+  season_id  Int
+  start_date DateTime  @db.Date
+  end_date   DateTime? @db.Date
+  role       String    @default("head") @db.VarChar
+  is_current Boolean?  @default(false)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  coach      Coach     @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade, onUpdate: NoAction)
+  season     Season    @relation(fields: [season_id], references: [season_id], onDelete: Cascade, onUpdate: NoAction)
+  team       Team      @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([match_id], map: "idx_assists_match_id")
-  @@index([player_id], map: "idx_assists_player_id")
-  @@index([goal_id], map: "idx_assists_goal_id")
-  @@index([match_id, player_id], map: "idx_assists_match_player")
-  @@map("assists")
+  @@unique([coach_id, team_id, season_id, role, start_date])
+  @@index([coach_id], map: "idx_team_coach_history_coach_id")
+  @@index([start_date, end_date], map: "idx_team_coach_history_dates")
+  @@index([is_current], map: "idx_team_coach_history_is_current")
+  @@index([season_id], map: "idx_team_coach_history_season_id")
+  @@index([team_id], map: "idx_team_coach_history_team_id")
+  @@map("team_coach_history")
 }
 
-model Substitution {
-  substitution_id     Int       @id @default(autoincrement())
-  match_id            Int
-  player_in_id        Int
-  team_id             Int
-  created_at          DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
-  player_out_id       Int?
-  substitution_time   Int?
-  substitution_reason String?
-  match               Match     @relation(fields: [match_id], references: [match_id], onDelete: NoAction, onUpdate: NoAction)
-  player_in           Player    @relation("PlayerIn", fields: [player_in_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
-  player_out          Player?   @relation("PlayerOut", fields: [player_out_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
-  team                Team      @relation(fields: [team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction)
+model MatchCoach {
+  id         Int       @id @default(autoincrement())
+  match_id   Int
+  team_id    Int
+  coach_id   Int
+  role       String    @default("head") @db.VarChar
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  coach      Coach     @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade, onUpdate: NoAction)
+  match      Match     @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction)
+  team       Team      @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([match_id], map: "idx_substitutions_match_id")
-  @@index([player_in_id], map: "idx_substitutions_player_in_id")
-  @@index([team_id], map: "idx_substitutions_team_id")
-  @@map("substitutions")
+  @@unique([match_id, team_id, role])
+  @@unique([match_id, team_id, role], map: "uniq_match_coaches_match_team_role")
+  @@index([coach_id], map: "idx_match_coaches_coach_id")
+  @@index([match_id], map: "idx_match_coaches_match_id")
+  @@index([role], map: "idx_match_coaches_role")
+  @@index([team_id], map: "idx_match_coaches_team_id")
+  @@map("match_coaches")
 }
 
-model PenaltyShootoutDetail {
-  penalty_detail_id Int       @id @default(autoincrement())
-  match_id          Int
+model team_current_head_coach {
+  coach_id          Int
   team_id           Int
-  goalkeeper_id     Int?
-  kicker_order      Int
-  kicker_id         Int
-  is_successful     Boolean
-  kick_description  String?
-  created_at        DateTime? @default(now()) @db.Timestamptz(6)
-  goalkeeper        Player?   @relation("Goalkeeper", fields: [goalkeeper_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
-  kicker            Player    @relation("Kicker", fields: [kicker_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
-  match             Match     @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction)
-  team              Team      @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
+  team_name         String   @db.VarChar(255)
+  logo              String?  @db.VarChar(1000)
+  profile_image_url String?  @db.VarChar(1000)
+  last_match_date   DateTime @db.Timestamptz(6)
+  coaches           Coach    @relation(fields: [coach_id], references: [coach_id], onDelete: Cascade, onUpdate: NoAction)
+  teams             Team     @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@unique([match_id, team_id, kicker_order])
-  @@index([kicker_id], map: "idx_penalty_details_kicker")
-  @@index([match_id], map: "idx_penalty_details_match")
-  @@index([team_id], map: "idx_penalty_details_team")
-  @@map("penalty_shootout_details")
+  @@id([coach_id, team_id], map: "team_current_head_coach_pk")
 }
 
-model player_positions {
-  player_position_id Int       @id @default(autoincrement())
-  player_id          Int
-  position           String    @db.VarChar(50)
-  season_id          Int?
-  start_date         DateTime  @db.Date
-  end_date           DateTime? @db.Date
-  created_at         DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at         DateTime? @default(now()) @db.Timestamptz(6)
-  players            Player    @relation(fields: [player_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction)
-  seasons            Season?   @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([player_id, position, season_id, start_date], map: "unique_player_position_period")
-}
-
-// New: PostgreSQL enum mapped for season category
-enum season_category {
+enum SeasonCategory {
   G_LEAGUE
   SUPER_LEAGUE
   CHALLENGE_LEAGUE
   PLAYOFF
-  SBS_CUP
   OTHER
+  SBS_CUP
   CHAMPION_MATCH
 
   @@map("season_category")
