@@ -3,9 +3,11 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 
+import { GoalWrapper } from '@/common/GoalWrapper';
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 
 import { fetchCoachFull } from '../api-prisma';
+import CoachDetailSkeleton from './CoachDetailSkeleton';
 import CoachSeasonStats from './CoachSeasonStats';
 import CoachTimeline from './CoachTimeline';
 
@@ -203,7 +205,11 @@ function CoachDetailPageInner({ coachId }: CoachDetailPageProps) {
 }
 
 const CoachDetailPage: React.FC<CoachDetailPageProps> = ({ coachId }) => {
-  return <CoachDetailPageInner coachId={coachId} />;
+  return (
+    <GoalWrapper fallback={<CoachDetailSkeleton />}>
+      <CoachDetailPageInner coachId={coachId} />
+    </GoalWrapper>
+  );
 };
 
 export default CoachDetailPage;

@@ -68,7 +68,7 @@ export default function HomePage() {
 
         {/* 다가오는 경기 */}
         <div className="mb-8 sm:mb-10">
-          <GoalWrapper fallback={<UpcomingMatchesSkeleton items={6} />}>
+          <GoalWrapper fallback={<UpcomingMatchesSkeleton items={1} />}>
             <UpcomingMatches />
           </GoalWrapper>
         </div>

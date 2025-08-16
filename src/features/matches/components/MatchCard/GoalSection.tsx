@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React from 'react';
 
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
@@ -24,20 +25,13 @@ type GoalWithPlayerAndTeam = {
     name: string;
     jersey_number: number | null;
   };
-  team?: {
+  team: {
     team_id: number;
     team_name: string;
   } | null;
 };
 
-type AssistWithPlayer = {
-  assist_id: number;
-  match_id: number;
-  player_id: number;
-  goal_id: number;
-  assist_time: number | null;
-  assist_type: string | null;
-  description: string | null;
+type AssistWithPlayer = Assist & {
   player: {
     player_id: number;
     name: string;
@@ -64,30 +58,14 @@ export default function GoalSection({ match }: GoalSectionProps) {
     getMatchGoalsWithAssistsPrisma,
     [match.match_id]
   );
-  const { data: assists = [] as Assist[] } = useGoalSuspenseQuery(
+  const { data: assists = [] as AssistWithPlayer[] } = useGoalSuspenseQuery(
     getMatchAssistsPrisma,
     [match.match_id]
   );
 
-  const assistsDetailed = assists as unknown as AssistWithPlayer[];
-  const assistsByGoal = assistsDetailed.reduce<
+  const assistsByGoal = (assists as AssistWithPlayer[]).reduce<
     Record<number, AssistWithPlayer[]>
-  >((acc, a) => {
-    const playerName = a.player?.name ?? '';
-    const assist: AssistWithPlayer = {
-      assist_id: a.assist_id,
-      match_id: a.match_id,
-      player_id: a.player_id,
-      goal_id: a.goal_id,
-      assist_time: a.assist_time ?? null,
-      assist_type: a.assist_type ?? null,
-      description: a.description ?? null,
-      player: {
-        player_id: a.player?.player_id ?? a.player_id,
-        name: playerName,
-        jersey_number: a.player?.jersey_number ?? null,
-      },
-    };
+  >((acc, assist) => {
     if (!acc[assist.goal_id]) acc[assist.goal_id] = [];
     acc[assist.goal_id].push(assist);
     return acc;
@@ -124,7 +102,12 @@ export default function GoalSection({ match }: GoalSectionProps) {
         {/* Home Team Goals */}
         <div className="min-w-0 space-y-1 text-center">
           <div className="text-xs font-semibold text-gray-600 mb-1 text-center">
-            {match.home_team.team_name}
+            <Link
+              href={`/teams/${match.home_team.team_id}`}
+              className="text-inherit no-underline hover:underline"
+            >
+              {match.home_team.team_name}
+            </Link>
           </div>
           {homeTeamGoals
             .sort((a, b) => (a.goal_time || 999) - (b.goal_time || 999))
@@ -134,7 +117,20 @@ export default function GoalSection({ match }: GoalSectionProps) {
                 className="flex items-center justify-center text-xs text-gray-700"
               >
                 <div className="w-1.5 h-1.5 bg-black rounded-full mr-2"></div>
-                <span className="font-medium">{goal.player?.name}</span>
+                <span className="font-medium">
+                  {goal.player &&
+                  'player_id' in goal.player &&
+                  goal.player.player_id ? (
+                    <Link
+                      href={`/players/${goal.player.player_id}`}
+                      className="text-inherit no-underline hover:underline"
+                    >
+                      {goal.player.name}
+                    </Link>
+                  ) : (
+                    goal.player?.name || '알 수 없음'
+                  )}
+                </span>
                 <span className="ml-1 text-gray-500">
                   {goal.goal_time && `${goal.goal_time}' `}
                   {goal.goal_type === 'penalty'
@@ -147,9 +143,21 @@ export default function GoalSection({ match }: GoalSectionProps) {
                   assistsByGoal[goal.goal_id].length > 0 && (
                     <span className="ml-1 text-[11px] sm:text-xs">
                       (
-                      {assistsByGoal[goal.goal_id]
-                        .map((assist) => assist.player?.name)
-                        .join(', ')}{' '}
+                      {assistsByGoal[goal.goal_id].map((assist, index) => (
+                        <React.Fragment key={assist.assist_id}>
+                          {index > 0 && ', '}
+                          {assist.player && assist.player.player_id ? (
+                            <Link
+                              href={`/players/${assist.player.player_id}`}
+                              className="text-inherit no-underline hover:underline"
+                            >
+                              {assist.player.name}
+                            </Link>
+                          ) : (
+                            '알 수 없음'
+                          )}
+                        </React.Fragment>
+                      ))}{' '}
                       🎯)
                     </span>
                   )}
@@ -166,7 +174,12 @@ export default function GoalSection({ match }: GoalSectionProps) {
         {/* Away Team Goals */}
         <div className="min-w-0 space-y-1 text-center">
           <div className="text-xs font-semibold text-gray-600 mb-1 text-center">
-            {match.away_team.team_name}
+            <Link
+              href={`/teams/${match.away_team.team_id}`}
+              className="text-inherit no-underline hover:underline"
+            >
+              {match.away_team.team_name}
+            </Link>
           </div>
           {awayTeamGoals
             .sort((a, b) => (a.goal_time || 999) - (b.goal_time || 999))
@@ -176,7 +189,20 @@ export default function GoalSection({ match }: GoalSectionProps) {
                 className="flex items-center justify-center text-xs text-gray-700"
               >
                 <div className="w-1.5 h-1.5 bg-gray-600 rounded-full mr-2"></div>
-                <span className="font-medium">{goal.player?.name}</span>
+                <span className="font-medium">
+                  {goal.player &&
+                  'player_id' in goal.player &&
+                  goal.player.player_id ? (
+                    <Link
+                      href={`/players/${goal.player.player_id}`}
+                      className="text-inherit no-underline hover:underline"
+                    >
+                      {goal.player.name}
+                    </Link>
+                  ) : (
+                    goal.player?.name || '알 수 없음'
+                  )}
+                </span>
                 <span className="ml-1 text-gray-500">
                   {goal.goal_time && `${goal.goal_time}' `}
                   {goal.goal_type === 'penalty'
@@ -189,9 +215,21 @@ export default function GoalSection({ match }: GoalSectionProps) {
                   assistsByGoal[goal.goal_id].length > 0 && (
                     <span className="ml-1 text-[11px] sm:text-xs">
                       (
-                      {assistsByGoal[goal.goal_id]
-                        .map((assist) => assist.player?.name)
-                        .join(', ')}{' '}
+                      {assistsByGoal[goal.goal_id].map((assist, index) => (
+                        <React.Fragment key={assist.assist_id}>
+                          {index > 0 && ', '}
+                          {assist.player && assist.player.player_id ? (
+                            <Link
+                              href={`/players/${assist.player.player_id}`}
+                              className="text-inherit no-underline hover:underline"
+                            >
+                              {assist.player.name}
+                            </Link>
+                          ) : (
+                            '알 수 없음'
+                          )}
+                        </React.Fragment>
+                      ))}{' '}
                       🎯)
                     </span>
                   )}

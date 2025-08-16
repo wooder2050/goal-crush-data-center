@@ -1,8 +1,10 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { FC, useMemo } from 'react';
 
+import { GoalWrapper } from '@/common/GoalWrapper';
 import {
   Table,
   TableBody,
@@ -29,10 +31,60 @@ interface PlayerSeasonRankingTableProps {
   className?: string;
 }
 
-const PlayerSeasonRankingTable: FC<PlayerSeasonRankingTableProps> = ({
+function PlayerSeasonRankingTableSkeleton({
+  className = '',
+}: {
+  className?: string;
+}) {
+  return (
+    <div className={className}>
+      <h3 className="text-lg font-bold mb-2">개인 순위</h3>
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-10">
+        <div>
+          <h4 className="mb-3 sm:mb-4 font-semibold">득점 TOP 10</h4>
+          <div className="space-y-2">
+            {Array.from({ length: 10 }).map((_, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-3 p-2 bg-gray-50 rounded animate-pulse"
+              >
+                <div className="w-6 h-4 bg-gray-200 rounded"></div>
+                <div className="w-24 h-4 bg-gray-200 rounded"></div>
+                <div className="w-20 h-4 bg-gray-200 rounded"></div>
+                <div className="w-12 h-4 bg-gray-200 rounded"></div>
+                <div className="w-8 h-4 bg-gray-200 rounded"></div>
+                <div className="w-8 h-4 bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <h4 className="mb-3 sm:mb-4 font-semibold">출전 TOP 10</h4>
+          <div className="space-y-2">
+            {Array.from({ length: 10 }).map((_, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-3 p-2 bg-gray-50 rounded animate-pulse"
+              >
+                <div className="w-6 h-4 bg-gray-200 rounded"></div>
+                <div className="w-24 h-4 bg-gray-200 rounded"></div>
+                <div className="w-20 h-4 bg-gray-200 rounded"></div>
+                <div className="w-12 h-4 bg-gray-200 rounded"></div>
+                <div className="w-8 h-4 bg-gray-200 rounded"></div>
+                <div className="w-8 h-4 bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PlayerSeasonRankingTableInner({
   seasonId,
   className,
-}) => {
+}: PlayerSeasonRankingTableProps) {
   const { data: topScorers = [] } = useGoalSuspenseQuery(
     (id) =>
       getTopScorersPrisma(id, 10) as unknown as Promise<
@@ -53,11 +105,9 @@ const PlayerSeasonRankingTable: FC<PlayerSeasonRankingTableProps> = ({
       const aApps = a.matches_played ?? 0;
       const bApps = b.matches_played ?? 0;
       if (bApps !== aApps) return bApps - aApps;
-      // 동률일 때 골 많은 순으로 보조 정렬
       const aGoals = a.goals ?? 0;
       const bGoals = b.goals ?? 0;
       if (bGoals !== aGoals) return bGoals - aGoals;
-      // 그래도 동률이면 어시스트 많은 순
       const aAst = a.assists ?? 0;
       const bAst = b.assists ?? 0;
       return bAst - aAst;
@@ -98,50 +148,44 @@ const PlayerSeasonRankingTable: FC<PlayerSeasonRankingTableProps> = ({
               ) : (
                 topScorers.map(
                   (row: PlayerSeasonStatsWithNames, idx: number) => (
-                    <TableRow key={row.player_id ?? idx}>
-                      <TableCell>{idx + 1}</TableCell>
-                      <TableCell>
-                        <a
-                          href={`/players/${row.player_id}`}
-                          className="hover:underline"
-                        >
-                          {row.player_name ?? '-'}
-                        </a>
+                    <TableRow key={row.stat_id}>
+                      <TableCell className="text-center font-medium">
+                        {idx + 1}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {row.team_logo ? (
-                            <div className="w-5 h-5 relative flex-shrink-0 rounded-full overflow-hidden">
+                          <div className="w-8 h-8 relative rounded-full overflow-hidden bg-gray-100">
+                            {row.team_logo ? (
                               <Image
                                 src={row.team_logo}
-                                alt={row.team_name ?? 'team'}
+                                alt={row.player_name ?? '선수'}
                                 fill
                                 className="object-cover"
-                                sizes="20px"
                               />
-                            </div>
-                          ) : (
-                            <div className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center">
-                              <span className="text-[8px] text-gray-500 font-medium">
-                                {row.team_name?.charAt(0) || '?'}
-                              </span>
-                            </div>
-                          )}
-                          <a
-                            href={`/teams/${row.team_id}`}
-                            className="hover:underline"
+                            ) : (
+                              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                                ?
+                              </div>
+                            )}
+                          </div>
+                          <Link
+                            href={`/players/${row.player_id}`}
+                            className="font-medium hover:underline  transition-colors"
                           >
-                            {row.team_name ?? '-'}
-                          </a>
+                            {row.player_name ?? '알 수 없음'}
+                          </Link>
                         </div>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">
+                      <TableCell className="text-gray-600">
+                        {row.team_name ?? '알 수 없음'}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell text-center text-gray-600">
                         {row.matches_played ?? 0}
                       </TableCell>
-                      <TableCell className="font-semibold text-blue-600">
+                      <TableCell className="text-center font-semibold text-blue-600">
                         {row.goals ?? 0}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell font-semibold">
+                      <TableCell className="hidden sm:table-cell text-center text-gray-600">
                         {row.assists ?? 0}
                       </TableCell>
                     </TableRow>
@@ -151,6 +195,7 @@ const PlayerSeasonRankingTable: FC<PlayerSeasonRankingTableProps> = ({
             </TableBody>
           </Table>
         </div>
+
         <div>
           <h4 className="mb-3 sm:mb-4 font-semibold">출전 TOP 10</h4>
           <Table>
@@ -159,17 +204,17 @@ const PlayerSeasonRankingTable: FC<PlayerSeasonRankingTableProps> = ({
                 <TableHead className="whitespace-nowrap">순위</TableHead>
                 <TableHead className="whitespace-nowrap">선수</TableHead>
                 <TableHead className="whitespace-nowrap">팀</TableHead>
-                <TableHead className="whitespace-nowrap">경기</TableHead>
                 <TableHead className="hidden sm:table-cell whitespace-nowrap">
-                  골
+                  경기
                 </TableHead>
+                <TableHead className="whitespace-nowrap">골</TableHead>
                 <TableHead className="hidden sm:table-cell whitespace-nowrap">
                   도움
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {topAppearances.length === 0 ? (
+              {sortedAppearances.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={6}
@@ -181,50 +226,44 @@ const PlayerSeasonRankingTable: FC<PlayerSeasonRankingTableProps> = ({
               ) : (
                 sortedAppearances.map(
                   (row: PlayerSeasonStatsWithNames, idx: number) => (
-                    <TableRow key={row.player_id ?? idx}>
-                      <TableCell>{idx + 1}</TableCell>
-                      <TableCell>
-                        <a
-                          href={`/players/${row.player_id}`}
-                          className="hover:underline"
-                        >
-                          {row.player_name ?? '-'}
-                        </a>
+                    <TableRow key={row.stat_id}>
+                      <TableCell className="text-center font-medium">
+                        {idx + 1}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {row.team_logo ? (
-                            <div className="w-5 h-5 relative flex-shrink-0 rounded-full overflow-hidden">
+                          <div className="w-8 h-8 relative rounded-full overflow-hidden bg-gray-100">
+                            {row.team_logo ? (
                               <Image
                                 src={row.team_logo}
-                                alt={row.team_name ?? 'team'}
+                                alt={row.player_name ?? '선수'}
                                 fill
                                 className="object-cover"
-                                sizes="20px"
                               />
-                            </div>
-                          ) : (
-                            <div className="w-5 h-5 bg-gray-200 rounded-full flex items-center justify-center">
-                              <span className="text-[10px] text-gray-500 font-medium">
-                                {row.team_name?.charAt(0) || '?'}
-                              </span>
-                            </div>
-                          )}
-                          <a
-                            href={`/teams/${row.team_id}`}
-                            className="hover:underline"
+                            ) : (
+                              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
+                                ?
+                              </div>
+                            )}
+                          </div>
+                          <Link
+                            href={`/players/${row.player_id}`}
+                            className="font-medium hover:underline transition-colors"
                           >
-                            {row.team_name ?? '-'}
-                          </a>
+                            {row.player_name ?? '알 수 없음'}
+                          </Link>
                         </div>
                       </TableCell>
-                      <TableCell className="font-semibold text-blue-600">
+                      <TableCell className="text-gray-600">
+                        {row.team_name ?? '알 수 없음'}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell text-center text-gray-600">
                         {row.matches_played ?? 0}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">
+                      <TableCell className="text-center font-semibold text-blue-600">
                         {row.goals ?? 0}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">
+                      <TableCell className="hidden sm:table-cell text-center text-gray-600">
                         {row.assists ?? 0}
                       </TableCell>
                     </TableRow>
@@ -236,6 +275,22 @@ const PlayerSeasonRankingTable: FC<PlayerSeasonRankingTableProps> = ({
         </div>
       </div>
     </div>
+  );
+}
+
+const PlayerSeasonRankingTable: FC<PlayerSeasonRankingTableProps> = ({
+  seasonId,
+  className,
+}) => {
+  return (
+    <GoalWrapper
+      fallback={<PlayerSeasonRankingTableSkeleton className={className} />}
+    >
+      <PlayerSeasonRankingTableInner
+        seasonId={seasonId}
+        className={className}
+      />
+    </GoalWrapper>
   );
 };
 

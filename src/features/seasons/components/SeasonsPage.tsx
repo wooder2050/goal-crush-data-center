@@ -62,7 +62,7 @@ function SeasonsPageInner() {
           </Body>
         </div>
         <div className="mb-6 sm:mb-8">
-          <GoalWrapper fallback={<UpcomingMatchesSkeleton items={6} />}>
+          <GoalWrapper fallback={<UpcomingMatchesSkeleton items={1} />}>
             <UpcomingMatches />
           </GoalWrapper>
         </div>

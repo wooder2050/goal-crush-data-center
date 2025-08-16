@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function UpcomingMatchesSkeleton({
-  items = 6,
+  items = 1,
   className = '',
 }: Props) {
   return (

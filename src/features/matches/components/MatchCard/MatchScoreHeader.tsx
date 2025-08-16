@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import React from 'react';
 
 import type { MatchWithTeams, Team } from '@/lib/types/database';
@@ -39,6 +40,12 @@ const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
         : teamId === match.away_team_id
           ? match.away_coach?.name
           : undefined) || undefined;
+    const headCoachId =
+      teamId === match.home_team_id
+        ? match.home_coach?.coach_id
+        : teamId === match.away_team_id
+          ? match.away_coach?.coach_id
+          : undefined;
 
     return (
       <div className="flex items-center justify-center gap-1.5 sm:gap-2">
@@ -65,11 +72,29 @@ const MatchScoreHeader: React.FC<MatchScoreHeaderProps> = ({
               isWinner ? 'text-black font-bold' : 'text-gray-700'
             }`}
           >
-            {team?.team_name || '알 수 없음'}
+            {teamId ? (
+              <Link
+                href={`/teams/${teamId}`}
+                className="text-inherit no-underline"
+              >
+                {team?.team_name || '알 수 없음'}
+              </Link>
+            ) : (
+              team?.team_name || '알 수 없음'
+            )}
           </div>
           {headCoachName && (
             <div className="text-[10px] text-gray-500 mt-0.5">
-              {headCoachName}
+              {headCoachId ? (
+                <Link
+                  href={`/coaches/${headCoachId}`}
+                  className="text-inherit no-underline"
+                >
+                  {headCoachName}
+                </Link>
+              ) : (
+                headCoachName
+              )}
             </div>
           )}
         </div>

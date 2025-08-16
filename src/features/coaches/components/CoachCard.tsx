@@ -4,11 +4,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
+import { GoalWrapper } from '@/common/GoalWrapper';
 import { Card, CardContent } from '@/components/ui/card';
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import type { CoachSeasonStats, CoachWithHistory } from '@/lib/types/database';
 
 import { fetchCoachOverview } from '../api-prisma';
+import CoachCardSkeleton from './CoachCardSkeleton';
 
 type VerifiedCurrentTeam = {
   team_id: number;
@@ -27,6 +29,14 @@ interface CoachCardProps {
 }
 
 const CoachCard: React.FC<CoachCardProps> = ({ coach }) => {
+  return (
+    <GoalWrapper fallback={<CoachCardSkeleton />}>
+      <CoachCardInner coach={coach} />
+    </GoalWrapper>
+  );
+};
+
+function CoachCardInner({ coach }: CoachCardProps) {
   const verifiedCurrentTeam = coach.current_team_verified ?? null;
   const totalTeams = new Set(coach.team_coach_history.map((h) => h.team_id))
     .size;
@@ -148,6 +158,6 @@ const CoachCard: React.FC<CoachCardProps> = ({ coach }) => {
       </Card>
     </Link>
   );
-};
+}
 
 export default CoachCard;
