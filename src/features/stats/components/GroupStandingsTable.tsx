@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { FC } from 'react';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
@@ -23,7 +24,6 @@ interface GroupStandingsTableProps {
   groupStage?: 'A' | 'B' | 'all';
 }
 
-// API 응답 타입 정의
 type StandingRow = {
   standing_id?: number;
   group_standing_id?: number;
@@ -74,10 +74,8 @@ function GroupStandingsTableInner({
     [seasonId, tournamentStage, groupStage]
   );
 
-  // API에서 이미 토너먼트 스테이지와 조별 필터링을 처리하므로 추가 필터링 불필요
   const filteredStandings = standings;
 
-  // 전체를 선택했을 때 조별로 데이터를 분리
   const groupAStandings = filteredStandings.filter(
     (standing: StandingRow) => standing.group_stage === 'A'
   );
@@ -134,7 +132,12 @@ function GroupStandingsTableInner({
                         </div>
                       )}
                     </div>
-                    <span>{standing.team?.team_name || 'Unknown Team'}</span>
+                    <Link
+                      href={`/teams/${standing.team?.team_id}`}
+                      className="hover:underline  transition-colors"
+                    >
+                      {standing.team?.team_name || 'Unknown Team'}
+                    </Link>
                   </div>
                 </TableCell>
                 <TableCell>{standing.matches_played || 0}</TableCell>
@@ -228,9 +231,12 @@ function GroupStandingsTableInner({
                               </div>
                             )}
                           </div>
-                          <span className="truncate text-sm font-semibold">
+                          <Link
+                            href={`/teams/${row.team?.team_id}`}
+                            className="truncate text-sm font-semibold hover:underline transition-colors"
+                          >
                             {row.team?.team_name ?? '-'}
-                          </span>
+                          </Link>
                         </div>
                       </div>
                       <div className="mt-2 grid grid-cols-3 gap-2">
@@ -300,9 +306,12 @@ function GroupStandingsTableInner({
                               </div>
                             )}
                           </div>
-                          <span className="truncate text-sm font-semibold">
+                          <Link
+                            href={`/teams/${row.team?.team_id}`}
+                            className="truncate text-sm font-semibold hover:underline text-blue-600 hover:text-blue-800 transition-colors"
+                          >
                             {row.team?.team_name ?? '-'}
-                          </span>
+                          </Link>
                         </div>
                       </div>
                       <div className="mt-2 grid grid-cols-3 gap-2">
@@ -369,9 +378,12 @@ function GroupStandingsTableInner({
                         </div>
                       )}
                     </div>
-                    <span className="truncate text-sm font-semibold">
+                    <Link
+                      href={`/teams/${row.team?.team_id}`}
+                      className="truncate text-sm font-semibold hover:underline text-blue-600 hover:text-blue-800 transition-colors"
+                    >
                       {row.team?.team_name ?? '-'}
-                    </span>
+                    </Link>
                   </div>
                 </div>
                 <div className="mt-2 grid grid-cols-3 gap-2">
@@ -432,12 +444,22 @@ function GroupStandingsTableInner({
   );
 }
 
-const GroupStandingsTable: FC<GroupStandingsTableProps> = (props) => {
+const GroupStandingsTable: FC<GroupStandingsTableProps> = ({
+  seasonId,
+  className,
+  tournamentStage = 'all',
+  groupStage = 'all',
+}) => {
   return (
     <GoalWrapper
-      fallback={<GroupStandingsTableSkeleton className={props.className} />}
+      fallback={<GroupStandingsTableSkeleton className={className} />}
     >
-      <GroupStandingsTableInner {...props} />
+      <GroupStandingsTableInner
+        seasonId={seasonId}
+        className={className}
+        tournamentStage={tournamentStage}
+        groupStage={groupStage}
+      />
     </GoalWrapper>
   );
 };

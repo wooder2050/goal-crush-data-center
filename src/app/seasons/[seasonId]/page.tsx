@@ -57,7 +57,7 @@ function SeasonDynamicPageInner() {
   return (
     <Section padding="sm" className="pt-2 sm:pt-3">
       <div className="space-y-6">
-        <GoalWrapper fallback={<UpcomingMatchesSkeleton items={10} />}>
+        <GoalWrapper fallback={<UpcomingMatchesSkeleton items={1} />}>
           <UpcomingMatches seasonId={matchedSeason.season_id} limit={10} />
         </GoalWrapper>
         <Component

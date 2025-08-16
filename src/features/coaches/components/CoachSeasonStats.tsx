@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React, { useMemo } from 'react';
 
+import { GoalWrapper } from '@/common/GoalWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -16,6 +17,7 @@ import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import { shortenSeasonName } from '@/lib/utils';
 
 import { fetchCoachStats } from '../api-prisma';
+import CoachSeasonStatsSkeleton from './CoachSeasonStatsSkeleton';
 
 interface CoachSeasonStatsProps {
   coachId: number;
@@ -26,6 +28,14 @@ const CoachSeasonStats: React.FC<CoachSeasonStatsProps> = ({
   coachId,
   stats,
 }) => {
+  return (
+    <GoalWrapper fallback={<CoachSeasonStatsSkeleton />}>
+      <CoachSeasonStatsInner coachId={coachId} stats={stats} />
+    </GoalWrapper>
+  );
+};
+
+function CoachSeasonStatsInner({ coachId, stats }: CoachSeasonStatsProps) {
   const { data: fetched } = useGoalSuspenseQuery(fetchCoachStats, [coachId]);
   const rawEffective = stats ?? fetched?.season_stats;
   const effective = useMemo(() => {
@@ -162,6 +172,6 @@ const CoachSeasonStats: React.FC<CoachSeasonStatsProps> = ({
       </CardContent>
     </Card>
   );
-};
+}
 
 export default CoachSeasonStats;

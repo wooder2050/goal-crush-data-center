@@ -2,10 +2,12 @@
 
 import React from 'react';
 
+import { GoalWrapper } from '@/common/GoalWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 
 import { getSeasonSummariesPrisma } from '../api-prisma';
+import SeasonSummaryTableSkeleton from './SeasonSummaryTableSkeleton';
 
 const columns = [
   { key: 'season_id', label: '시즌 ID' },
@@ -18,6 +20,14 @@ const columns = [
 ];
 
 const SeasonSummaryTable: React.FC = () => {
+  return (
+    <GoalWrapper fallback={<SeasonSummaryTableSkeleton />}>
+      <SeasonSummaryTableInner />
+    </GoalWrapper>
+  );
+};
+
+function SeasonSummaryTableInner() {
   const { data } = useGoalSuspenseQuery(getSeasonSummariesPrisma, []);
 
   return (
@@ -116,6 +126,6 @@ const SeasonSummaryTable: React.FC = () => {
       </CardContent>
     </Card>
   );
-};
+}
 
 export default SeasonSummaryTable;

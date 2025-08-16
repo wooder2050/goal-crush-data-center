@@ -32,7 +32,7 @@ function TeamDetailSuspenseBody({ teamId }: { teamId: number }) {
       <div className="space-y-6">
         <TeamHeader team={team} />
         {stats && <TeamStatsCard stats={stats} />}
-        <GoalWrapper fallback={<UpcomingMatchesSkeleton items={3} />}>
+        <GoalWrapper fallback={<UpcomingMatchesSkeleton items={1} />}>
           <UpcomingMatches teamId={teamId} limit={3} />
         </GoalWrapper>
         <TeamSquadTable players={players} teamId={teamId} />

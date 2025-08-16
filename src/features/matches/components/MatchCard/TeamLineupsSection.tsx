@@ -10,9 +10,11 @@ import type { Assist } from '@/lib/types';
 import { MatchWithTeams } from '@/lib/types/database';
 
 import {
+  getLastMatchLineupsPrisma,
   getMatchAssistsPrisma,
   getMatchLineupsPrisma,
   getPredictedMatchLineupsPrisma,
+  getSeasonPlayersPrisma,
 } from '../../api-prisma';
 import { getPositionColor, getPositionText } from '../../lib/matchUtils';
 import LineupsEmpty from './LineupsEmpty';
@@ -30,6 +32,10 @@ interface LineupPlayer {
   red_cards: number;
   card_type: 'none' | 'yellow' | 'red_direct' | 'red_accumulated';
   assists?: number;
+  // Optional fields for different data sources
+  stat_id?: number;
+  match_id?: number;
+  team_id?: number;
 }
 
 interface TeamLineupsSectionProps {
@@ -41,8 +47,6 @@ function TeamLineupsSectionInner({
   match,
   className = '',
 }: TeamLineupsSectionProps) {
-  // Fetch lineup data via Suspense Query
-  // 실제 라인업이 없을 경우 예측 라인업으로 대체
   const { data: actualLineups = {} } = useGoalSuspenseQuery(
     getMatchLineupsPrisma,
     [match.match_id]
@@ -52,12 +56,99 @@ function TeamLineupsSectionInner({
     Object.values(actualLineups).every(
       (arr: unknown) => !Array.isArray(arr) || arr.length === 0
     );
+
+  // 시즌 정보 추출 (season_name에서 시즌 ID 추출)
+  const seasonName = match.season?.season_name;
+  const isSeasonFirstMatch = seasonName && seasonName.includes('시즌');
+
+  // 예상 라인업 또는 시즌 선수/최근 경기 선수 가져오기
   const { data: predictedLineups = {} } = useGoalSuspenseQuery(
     getPredictedMatchLineupsPrisma,
     [match.match_id]
   );
-  const lineups = actualEmpty ? predictedLineups : actualLineups;
-  const isPredicted = actualEmpty;
+
+  const { data: seasonPlayers = [] } = useGoalSuspenseQuery(
+    getSeasonPlayersPrisma,
+    [match.season?.season_id || 0, match.home_team_id || 0]
+  );
+
+  const { data: awaySeasonPlayers = [] } = useGoalSuspenseQuery(
+    getSeasonPlayersPrisma,
+    [match.season?.season_id || 0, match.away_team_id || 0]
+  );
+
+  const { data: lastMatchLineups = [] } = useGoalSuspenseQuery(
+    getLastMatchLineupsPrisma,
+    [match.home_team_id || 0, match.match_date]
+  );
+
+  const { data: awayLastMatchLineups = [] } = useGoalSuspenseQuery(
+    getLastMatchLineupsPrisma,
+    [match.away_team_id || 0, match.match_date]
+  );
+
+  let lineups: Record<string, LineupPlayer[]> = actualLineups;
+  let isPredicted = false;
+
+  if (actualEmpty) {
+    if (
+      isSeasonFirstMatch &&
+      (lastMatchLineups.length > 0 || awayLastMatchLineups.length > 0)
+    ) {
+      const homeTeamKey = `${match.match_id}_${match.home_team_id}`;
+      const awayTeamKey = `${match.match_id}_${match.away_team_id}`;
+
+      lineups = {
+        [homeTeamKey]: lastMatchLineups.map((p) => ({
+          ...p,
+          participation_status: 'starting' as const,
+          goals: 0,
+          yellow_cards: 0,
+          red_cards: 0,
+          card_type: 'none' as const,
+          assists: 0,
+        })) as LineupPlayer[],
+        [awayTeamKey]: awayLastMatchLineups.map((p) => ({
+          ...p,
+          participation_status: 'starting' as const,
+          goals: 0,
+          yellow_cards: 0,
+          red_cards: 0,
+          card_type: 'none' as const,
+          assists: 0,
+        })) as LineupPlayer[],
+      };
+      isPredicted = true;
+    } else if (seasonPlayers.length > 0 || awaySeasonPlayers.length > 0) {
+      const homeTeamKey = `${match.match_id}_${match.home_team_id}`;
+      const awayTeamKey = `${match.match_id}_${match.away_team_id}`;
+
+      lineups = {
+        [homeTeamKey]: seasonPlayers.map((p) => ({
+          ...p,
+          participation_status: 'starting' as const,
+          goals: 0,
+          yellow_cards: 0,
+          red_cards: 0,
+          card_type: 'none' as const,
+          assists: 0,
+        })) as LineupPlayer[],
+        [awayTeamKey]: awaySeasonPlayers.map((p) => ({
+          ...p,
+          participation_status: 'starting' as const,
+          goals: 0,
+          yellow_cards: 0,
+          red_cards: 0,
+          card_type: 'none' as const,
+          assists: 0,
+        })) as LineupPlayer[],
+      };
+      isPredicted = true;
+    } else {
+      lineups = predictedLineups as Record<string, LineupPlayer[]>;
+      isPredicted = true;
+    }
+  }
 
   // Fetch assist data via Suspense Query
   const { data: assists = [] as Assist[] } = useGoalSuspenseQuery(
@@ -111,6 +202,9 @@ function TeamLineupsSectionInner({
       return aOrder - bOrder;
     });
   };
+
+  console.log('homeLineups : ', homeLineups);
+  console.log('awayLineups : ', awayLineups);
 
   return (
     <div className={`mt-4 pt-3 border-t border-gray-200 ${className}`}>

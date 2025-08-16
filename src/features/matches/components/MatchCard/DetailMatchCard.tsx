@@ -9,18 +9,28 @@ import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import { getMatchByIdPrisma } from '../../api-prisma';
 import { hasPenaltyShootout } from '../../lib/matchUtils';
 import CoachHeadToHeadList from './CoachHeadToHeadList';
+import CoachHeadToHeadListSkeleton from './CoachHeadToHeadListSkeleton';
 import CoachHeadToHeadSection from './CoachHeadToHeadSection';
+import CoachHeadToHeadSectionSkeleton from './CoachHeadToHeadSectionSkeleton';
 import DetailMatchCardSkeleton from './DetailMatchCardSkeleton';
 import FeaturedPlayersSection from './FeaturedPlayersSection';
+import FeaturedPlayersSectionSkeleton from './FeaturedPlayersSectionSkeleton';
 import GoalSection from './GoalSection';
+import GoalSectionSkeleton from './GoalSectionSkeleton';
 import HeadToHeadList from './HeadToHeadList';
+import HeadToHeadListSkeleton from './HeadToHeadListSkeleton';
 import HeadToHeadSection from './HeadToHeadSection';
+import HeadToHeadSectionSkeleton from './HeadToHeadSectionSkeleton';
 import KeyPlayersSection from './KeyPlayersSection';
+import KeyPlayersSectionSkeleton from './KeyPlayersSectionSkeleton';
 import MatchFooter from './MatchFooter';
 import MatchHeader from './MatchHeader';
 import MatchMediaLinks from './MatchMediaLinks';
 import MatchScoreHeader from './MatchScoreHeader';
 import PenaltyShootoutSection from './PenaltyShootoutSection';
+import PenaltyShootoutSectionSkeleton from './PenaltyShootoutSectionSkeleton';
+import RecentFormSection from './RecentFormSection';
+import RecentFormSectionSkeleton from './RecentFormSectionSkeleton';
 import TeamLineupsSection from './TeamLineupsSection';
 
 interface DetailMatchCardProps {
@@ -57,31 +67,54 @@ function DetailMatchCardInner({
           >
             <MatchScoreHeader match={match} />
             {match.home_score == null && match.away_score == null ? (
-              <KeyPlayersSection matchId={match.match_id} />
+              <>
+                <GoalWrapper fallback={<RecentFormSectionSkeleton />}>
+                  <RecentFormSection match={match} />
+                </GoalWrapper>
+                <GoalWrapper fallback={<KeyPlayersSectionSkeleton />}>
+                  <KeyPlayersSection matchId={match.match_id} />
+                </GoalWrapper>
+              </>
             ) : (
-              <GoalSection match={match} />
+              <GoalWrapper fallback={<GoalSectionSkeleton />}>
+                <GoalSection match={match} />
+              </GoalWrapper>
             )}
             {hasPenaltyShootout(match) ? (
               <>
                 <TeamLineupsSection match={match} />
                 <div className="mt-2 sm:mt-3">
-                  <FeaturedPlayersSection match={match} />
+                  <GoalWrapper fallback={<FeaturedPlayersSectionSkeleton />}>
+                    <FeaturedPlayersSection match={match} />
+                  </GoalWrapper>
                 </div>
               </>
             ) : null}
-            <HeadToHeadSection matchId={match.match_id} />
-            <HeadToHeadList matchId={match.match_id} />
-            <CoachHeadToHeadSection matchId={match.match_id} />
-            <CoachHeadToHeadList matchId={match.match_id} />
+            <GoalWrapper fallback={<HeadToHeadSectionSkeleton />}>
+              <HeadToHeadSection matchId={match.match_id} />
+            </GoalWrapper>
+            <GoalWrapper fallback={<HeadToHeadListSkeleton />}>
+              <HeadToHeadList matchId={match.match_id} />
+            </GoalWrapper>
+            <GoalWrapper fallback={<CoachHeadToHeadSectionSkeleton />}>
+              <CoachHeadToHeadSection matchId={match.match_id} />
+            </GoalWrapper>
+            <GoalWrapper fallback={<CoachHeadToHeadListSkeleton />}>
+              <CoachHeadToHeadList matchId={match.match_id} />
+            </GoalWrapper>
           </div>
           <div className="lg:col-span-1">
             {hasPenaltyShootout(match) ? (
-              <PenaltyShootoutSection match={match} />
+              <GoalWrapper fallback={<PenaltyShootoutSectionSkeleton />}>
+                <PenaltyShootoutSection match={match} />
+              </GoalWrapper>
             ) : (
               <>
                 <TeamLineupsSection match={match} />
                 <div className="mt-2 sm:mt-3">
-                  <FeaturedPlayersSection match={match} />
+                  <GoalWrapper fallback={<FeaturedPlayersSectionSkeleton />}>
+                    <FeaturedPlayersSection match={match} />
+                  </GoalWrapper>
                 </div>
               </>
             )}

@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { FC } from 'react';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
@@ -21,7 +22,6 @@ interface StandingsTableProps {
   className?: string;
 }
 
-// API 응답 타입 정의
 type StandingRow = {
   standing_id: number;
   season_id: number | null;
@@ -58,6 +58,14 @@ function getRankEmoji(position: number) {
 }
 
 const StandingsTable: FC<StandingsTableProps> = ({ seasonId, className }) => {
+  return (
+    <GoalWrapper fallback={<StandingsTableSkeleton className={className} />}>
+      <StandingsTableInner seasonId={seasonId} className={className} />
+    </GoalWrapper>
+  );
+};
+
+function StandingsTableInner({ seasonId, className }: StandingsTableProps) {
   const { data: standings = [] } = useGoalSuspenseQuery(
     getStandingsWithTeamPrisma,
     [seasonId]
@@ -114,7 +122,12 @@ const StandingsTable: FC<StandingsTableProps> = ({ seasonId, className }) => {
                     )}
                   </div>
                   <span className="truncate text-base font-semibold">
-                    {row.team?.team_name ?? '-'}
+                    <Link
+                      href={`/teams/${row.team?.team_id}`}
+                      className="hover:underline transition-colors"
+                    >
+                      {row.team?.team_name ?? '-'}
+                    </Link>
                   </span>
                 </div>
               </div>
@@ -196,7 +209,12 @@ const StandingsTable: FC<StandingsTableProps> = ({ seasonId, className }) => {
                         )}
                       </div>
                       <span className="font-medium">
-                        {row.team?.team_name ?? '-'}
+                        <Link
+                          href={`/teams/${row.team?.team_id}`}
+                          className="hover:underline transition-colors"
+                        >
+                          {row.team?.team_name ?? '-'}
+                        </Link>
                       </span>
                     </div>
                   </TableCell>
@@ -215,16 +233,10 @@ const StandingsTable: FC<StandingsTableProps> = ({ seasonId, className }) => {
       </div>
     </div>
   );
-};
+}
 
 const StandingsTableWithSuspense: FC<StandingsTableProps> = (props) => {
-  return (
-    <GoalWrapper
-      fallback={<StandingsTableSkeleton className={props.className} />}
-    >
-      <StandingsTable {...props} />
-    </GoalWrapper>
-  );
+  return <StandingsTable {...props} />;
 };
 
 export default StandingsTableWithSuspense;

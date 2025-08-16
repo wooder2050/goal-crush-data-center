@@ -17,6 +17,38 @@ interface Props {
   match: MatchWithTeams;
 }
 
+// 타입 정의를 명확하게
+interface KeyPlayer {
+  player_id: number;
+  player_name: string;
+  goals: number;
+  assists: number;
+  jersey_number: number | null;
+  profile_image_url: string | null;
+  position: string | null;
+}
+
+interface LineupRow {
+  player_id: number;
+  player_name: string;
+  goals?: number | null;
+  assists?: number | null;
+  minutes_played?: number | null;
+  jersey_number?: number | null;
+  profile_image_url?: string | null;
+  position?: string | null;
+}
+
+interface SelectedPlayer {
+  player_id: number;
+  name: string;
+  goals: number;
+  assists: number;
+  jersey_number: number | null;
+  profile_image_url: string | null;
+  position: string | null;
+}
+
 export default function FeaturedPlayersSection({ match }: Props) {
   const isScheduled = match.home_score == null && match.away_score == null;
 
@@ -32,98 +64,73 @@ export default function FeaturedPlayersSection({ match }: Props) {
   const homeKey = `${match.match_id}_${match.home_team_id}`;
   const awayKey = `${match.match_id}_${match.away_team_id}`;
 
+  const getLineupRows = (data: unknown): LineupRow[] => {
+    if (!Array.isArray(data)) return [];
+
+    return data.filter((item): item is LineupRow => {
+      return (
+        typeof item === 'object' &&
+        item !== null &&
+        'player_id' in item &&
+        'player_name' in item &&
+        typeof item.player_id === 'number' &&
+        typeof item.player_name === 'string'
+      );
+    });
+  };
+
   const [homePick, awayPick] = useMemo(() => {
     if (isScheduled) {
       const home = predicted?.home?.[0] ?? null;
       const away = predicted?.away?.[0] ?? null;
-      return [
-        home
-          ? {
-              player_id: home.player_id,
-              name: home.player_name,
-              goals: home.goals,
-              assists: home.assists,
-              jersey_number:
-                typeof (home as { jersey_number?: unknown }).jersey_number ===
-                'number'
-                  ? ((home as { jersey_number: number })
-                      .jersey_number as number)
-                  : null,
-              profile_image_url:
-                typeof (home as { profile_image_url?: unknown })
-                  .profile_image_url === 'string'
-                  ? ((home as { profile_image_url: string })
-                      .profile_image_url as string)
-                  : null,
-              position:
-                typeof (home as { position?: unknown }).position === 'string'
-                  ? ((home as { position: string }).position as string)
-                  : null,
-            }
-          : null,
-        away
-          ? {
-              player_id: away.player_id,
-              name: away.player_name,
-              goals: away.goals,
-              assists: away.assists,
-              jersey_number:
-                typeof (away as { jersey_number?: unknown }).jersey_number ===
-                'number'
-                  ? ((away as { jersey_number: number })
-                      .jersey_number as number)
-                  : null,
-              profile_image_url:
-                typeof (away as { profile_image_url?: unknown })
-                  .profile_image_url === 'string'
-                  ? ((away as { profile_image_url: string })
-                      .profile_image_url as string)
-                  : null,
-              position:
-                typeof (away as { position?: unknown }).position === 'string'
-                  ? ((away as { position: string }).position as string)
-                  : null,
-            }
-          : null,
-      ] as const;
+
+      const mapToSelectedPlayer = (
+        player: KeyPlayer | null
+      ): SelectedPlayer | null => {
+        if (!player) return null;
+        return {
+          player_id: player.player_id,
+          name: player.player_name,
+          goals: player.goals,
+          assists: player.assists,
+          jersey_number: player.jersey_number,
+          profile_image_url: player.profile_image_url,
+          position: player.position,
+        };
+      };
+
+      return [mapToSelectedPlayer(home), mapToSelectedPlayer(away)] as const;
     }
 
-    type LineupRow = {
-      player_id: number;
-      player_name: string;
-      goals?: number | null;
-      assists?: number | null;
-      minutes_played?: number | null;
-      jersey_number?: number | null;
-      profile_image_url?: string | null;
-      position?: string | null;
-    };
-    const selectBest = (arr: unknown, concededGoals: number) => {
+    const selectBest = (
+      arr: LineupRow[],
+      concededGoals: number
+    ): SelectedPlayer | null => {
       if (!Array.isArray(arr) || arr.length === 0) return null;
-      const rows = arr as LineupRow[];
-      const hasAnyContribution = rows.some(
-        (r) =>
-          (typeof r.goals === 'number' && r.goals > 0) ||
-          (typeof r.assists === 'number' && r.assists > 0)
+
+      const getGoals = (x: LineupRow): number => x.goals ?? 0;
+      const getAssists = (x: LineupRow): number => x.assists ?? 0;
+      const getMinutes = (x: LineupRow): number => x.minutes_played ?? 0;
+
+      const hasAnyContribution = arr.some(
+        (r) => getGoals(r) > 0 || getAssists(r) > 0
       );
-      const sorted = [...rows].sort((a, b) => {
-        const g = (x: LineupRow) => (typeof x.goals === 'number' ? x.goals : 0);
-        const as = (x: LineupRow) =>
-          typeof x.assists === 'number' ? x.assists : 0;
-        const min = (x: LineupRow) =>
-          typeof x.minutes_played === 'number' ? x.minutes_played : 0;
-        if (g(b) !== g(a)) return g(b) - g(a);
-        if (as(b) !== as(a)) return as(b) - as(a);
-        return min(b) - min(a);
+
+      const sorted = [...arr].sort((a, b) => {
+        if (getGoals(b) !== getGoals(a)) return getGoals(b) - getGoals(a);
+        if (getAssists(b) !== getAssists(a))
+          return getAssists(b) - getAssists(a);
+        return getMinutes(b) - getMinutes(a);
       });
+
       if (hasAnyContribution) {
         const p = sorted[0];
         return p
           ? {
               player_id: p.player_id,
               name: p.player_name,
-              goals: p.goals ?? 0,
-              assists: p.assists ?? 0,
+              goals: getGoals(p),
+              assists: getAssists(p),
               jersey_number: p.jersey_number ?? null,
               profile_image_url: p.profile_image_url ?? null,
               position: p.position ?? null,
@@ -131,24 +138,23 @@ export default function FeaturedPlayersSection({ match }: Props) {
           : null;
       }
 
-      // No goals/assists from any player: if clean sheet, select goalkeeper; else none
       if (concededGoals === 0) {
-        const goalkeepers = rows.filter(
+        const goalkeepers = arr.filter(
           (r) =>
             (r.position || '').toLowerCase() === 'goalkeeper' ||
             (r.position || '').toLowerCase() === 'gk'
         );
         if (goalkeepers.length > 0) {
           const gkSorted = [...goalkeepers].sort(
-            (a, b) => (b.minutes_played || 0) - (a.minutes_played || 0)
+            (a, b) => getMinutes(b) - getMinutes(a)
           );
           const gk = gkSorted[0];
           return gk
             ? {
                 player_id: gk.player_id,
                 name: gk.player_name,
-                goals: gk.goals ?? 0,
-                assists: gk.assists ?? 0,
+                goals: getGoals(gk),
+                assists: getAssists(gk),
                 jersey_number: gk.jersey_number ?? null,
                 profile_image_url: gk.profile_image_url ?? null,
                 position: gk.position ?? 'Goalkeeper',
@@ -165,17 +171,19 @@ export default function FeaturedPlayersSection({ match }: Props) {
     const concededAway =
       typeof match.home_score === 'number' ? match.home_score : 0;
 
-    const home = selectBest(
-      (lineups as Record<string, unknown> | undefined)?.[homeKey],
-      concededHome
-    );
-    const away = selectBest(
-      (lineups as Record<string, unknown> | undefined)?.[awayKey],
-      concededAway
-    );
+    const home = selectBest(getLineupRows(lineups?.[homeKey]), concededHome);
+    const away = selectBest(getLineupRows(lineups?.[awayKey]), concededAway);
+
     return [home, away] as const;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isScheduled, predicted, lineups, homeKey, awayKey]);
+  }, [
+    isScheduled,
+    predicted,
+    lineups,
+    homeKey,
+    awayKey,
+    match.away_score,
+    match.home_score,
+  ]);
 
   if (!homePick && !awayPick) return null;
 
@@ -211,10 +219,7 @@ export default function FeaturedPlayersSection({ match }: Props) {
             <div className="flex flex-col gap-2">
               <FullImage
                 name={homePick.name}
-                url={
-                  (homePick as { profile_image_url?: string | null })
-                    .profile_image_url ?? null
-                }
+                url={homePick.profile_image_url}
               />
               <div className="flex flex-col gap-0.5">
                 <div className="flex items-center gap-2 min-w-0">
@@ -224,17 +229,15 @@ export default function FeaturedPlayersSection({ match }: Props) {
                   >
                     {homePick.name}
                   </Link>
-                  {typeof homePick.jersey_number === 'number' && (
+                  {homePick.jersey_number && (
                     <span className="text-[11px] text-gray-500">
                       #{homePick.jersey_number}
                     </span>
                   )}
                 </div>
-                {((homePick as { position?: string | null }).position ??
-                  null) && (
+                {homePick.position && (
                   <div className="text-[11px] text-gray-500">
-                    포지션:{' '}
-                    {(homePick as { position?: string | null }).position}
+                    포지션: {homePick.position}
                   </div>
                 )}
                 <div className="flex items-center gap-1">
@@ -261,10 +264,7 @@ export default function FeaturedPlayersSection({ match }: Props) {
             <div className="flex flex-col gap-2">
               <FullImage
                 name={awayPick.name}
-                url={
-                  (awayPick as { profile_image_url?: string | null })
-                    .profile_image_url ?? null
-                }
+                url={awayPick.profile_image_url}
               />
               <div className="flex flex-col gap-0.5">
                 <div className="flex items-center gap-2 min-w-0">
@@ -274,17 +274,15 @@ export default function FeaturedPlayersSection({ match }: Props) {
                   >
                     {awayPick.name}
                   </Link>
-                  {typeof awayPick.jersey_number === 'number' && (
+                  {awayPick.jersey_number && (
                     <span className="text-[11px] text-gray-500">
                       #{awayPick.jersey_number}
                     </span>
                   )}
                 </div>
-                {((awayPick as { position?: string | null }).position ??
-                  null) && (
+                {awayPick.position && (
                   <div className="text-[11px] text-gray-500">
-                    포지션:{' '}
-                    {(awayPick as { position?: string | null }).position}
+                    포지션: {awayPick.position}
                   </div>
                 )}
                 <div className="flex items-center gap-1">

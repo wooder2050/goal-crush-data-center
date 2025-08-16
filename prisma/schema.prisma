@@ -476,6 +476,22 @@ model team_current_head_coach {
   @@id([coach_id, team_id], map: "team_current_head_coach_pk")
 }
 
+model H2hPairStats {
+  team_small_id Int
+  team_large_id Int
+  total_matches Int      @default(0)
+  small_wins    Int      @default(0)
+  draws         Int      @default(0)
+  large_wins    Int      @default(0)
+  small_goals   Int      @default(0)
+  large_goals   Int      @default(0)
+  updated_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@id([team_small_id, team_large_id])
+  @@index([team_small_id, team_large_id], map: "h2h_pair_stats_small_large")
+  @@map("h2h_pair_stats")
+}
+
 enum SeasonCategory {
   G_LEAGUE
   SUPER_LEAGUE
@@ -486,19 +502,4 @@ enum SeasonCategory {
   CHAMPION_MATCH
 
   @@map("season_category")
-}
-
-// Head-to-Head 집계 테이블 매핑
-model H2hPairStats {
-  team_small_id Int
-  team_large_id Int
-  total_matches Int
-  small_wins    Int
-  draws         Int
-  large_wins    Int
-  small_goals   Int
-  large_goals   Int
-
-  @@id([team_small_id, team_large_id])
-  @@map("h2h_pair_stats")
 }

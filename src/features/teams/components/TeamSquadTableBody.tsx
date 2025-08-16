@@ -64,6 +64,20 @@ function TeamSquadTableRow({
   player: Player;
   teamId: number;
 }) {
+  return (
+    <GoalWrapper fallback={<TeamSquadTableRowSkeleton />}>
+      <TeamSquadTableRowInner player={player} teamId={teamId} />
+    </GoalWrapper>
+  );
+}
+
+function TeamSquadTableRowInner({
+  player,
+  teamId,
+}: {
+  player: Player;
+  teamId: number;
+}) {
   const { data } = useGoalSuspenseQuery(getPlayerSummaryPrisma, [
     player.player_id,
     teamId,

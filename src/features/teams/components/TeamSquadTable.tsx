@@ -7,7 +7,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getPositionColor } from '@/features/matches/lib/matchUtils';
 import { getPlayerSummaryPrisma } from '@/features/players';
-import TeamSquadMobileRowSkeleton from '@/features/teams/components/TeamSquadMobileRowSkeleton';
 import TeamSquadTableBody from '@/features/teams/components/TeamSquadTableBody';
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import type { Player } from '@/lib/types';
@@ -97,6 +96,20 @@ function TeamSquadMobileRow({
   player: SquadRow;
   teamId: number;
 }) {
+  return (
+    <GoalWrapper fallback={<TeamSquadMobileRowSkeleton />}>
+      <TeamSquadMobileRowInner player={player} teamId={teamId} />
+    </GoalWrapper>
+  );
+}
+
+function TeamSquadMobileRowInner({
+  player,
+  teamId,
+}: {
+  player: SquadRow;
+  teamId: number;
+}) {
   const { data } = useGoalSuspenseQuery(getPlayerSummaryPrisma, [
     player.player_id,
     teamId,
@@ -145,6 +158,37 @@ function TeamSquadMobileRow({
           >
             {isLoading ? '…' : primaryPosition}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TeamSquadMobileRowSkeleton() {
+  return (
+    <div className="rounded-md border p-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-xs text-gray-600">#-</div>
+        <div className="w-12 h-4 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+      <div className="mt-1 flex items-center justify-between gap-2">
+        <div className="truncate text-sm font-semibold">
+          <div className="w-24 h-4 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        <div className="w-16 h-3 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+      <div className="mt-1 grid grid-cols-3 gap-2 text-center">
+        <div className="rounded bg-gray-50 border px-2 py-1">
+          <div className="text-[11px] text-gray-600">골</div>
+          <div className="w-6 h-4 bg-gray-200 rounded animate-pulse mx-auto"></div>
+        </div>
+        <div className="rounded bg-gray-50 border px-2 py-1">
+          <div className="text-[11px] text-gray-600">도움</div>
+          <div className="w-6 h-4 bg-gray-200 rounded animate-pulse mx-auto"></div>
+        </div>
+        <div className="rounded bg-gray-50 border px-2 py-1">
+          <div className="text-[11px] text-gray-600">포지션</div>
+          <div className="w-12 h-4 bg-gray-200 rounded animate-pulse mx-auto"></div>
         </div>
       </div>
     </div>

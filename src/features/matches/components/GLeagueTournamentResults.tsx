@@ -75,6 +75,11 @@ function GLeagueTournamentResultsInner({
       .length,
   };
 
+  const handleSummaryClick = (stage: TournamentStage) => {
+    setSelectedTournament(stage);
+    setSelectedGroup('all');
+  };
+
   return (
     <div className={`p-2 sm:p-6 ${className}`}>
       <div className="mb-6">
@@ -110,7 +115,19 @@ function GLeagueTournamentResultsInner({
 
         <TabsContent value="matches" className="space-y-6 sm:space-y-8">
           <div className="grid grid-cols-4 gap-4">
-            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border">
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="전체 경기 보기"
+              onClick={() => handleSummaryClick('all')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleSummaryClick('all');
+                }
+              }}
+              className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border cursor-pointer transition hover:shadow-md focus:outline-none"
+            >
               <div className="text-[11px] text-center sm:text-sm text-gray-500">
                 전체 경기
               </div>
@@ -118,7 +135,19 @@ function GLeagueTournamentResultsInner({
                 {matches.length}
               </div>
             </div>
-            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border">
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="조별리그 경기 보기"
+              onClick={() => handleSummaryClick('group_stage')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleSummaryClick('group_stage');
+                }
+              }}
+              className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border cursor-pointer transition hover:shadow-md focus:outline-none"
+            >
               <div className="text-[11px] text-center sm:text-sm text-gray-500">
                 조별리그
               </div>
@@ -126,7 +155,19 @@ function GLeagueTournamentResultsInner({
                 {tournamentStats.group_stage}
               </div>
             </div>
-            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border">
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="우승 토너먼트 경기 보기"
+              onClick={() => handleSummaryClick('championship')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleSummaryClick('championship');
+                }
+              }}
+              className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border cursor-pointer transition hover:shadow-md focus:outline-none"
+            >
               <div className="text-[11px] text-center sm:text-sm text-gray-500">
                 우승<span className="hidden sm:inline sm:ml-1">토너먼트</span>
               </div>
@@ -134,7 +175,19 @@ function GLeagueTournamentResultsInner({
                 {tournamentStats.championship}
               </div>
             </div>
-            <div className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border">
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="멸망 토너먼트 경기 보기"
+              onClick={() => handleSummaryClick('relegation')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleSummaryClick('relegation');
+                }
+              }}
+              className="bg-white p-3 sm:p-4 rounded-lg shadow-sm border cursor-pointer transition hover:shadow-md focus:outline-none"
+            >
               <div className="text-[11px] text-center sm:text-sm text-gray-500">
                 멸망<span className="hidden sm:inline sm:ml-1">토너먼트</span>
               </div>

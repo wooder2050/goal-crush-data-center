@@ -429,3 +429,79 @@ export const getSeasonSummaryBySeasonIdPrisma = async (
 Object.defineProperty(getSeasonSummaryBySeasonIdPrisma, 'queryKey', {
   value: 'seasonSummaryBySeasonId',
 });
+
+// Get team's recent form (last 5 matches)
+export const getTeamRecentFormPrisma = async (
+  teamId: number,
+  beforeDate: string
+): Promise<
+  Array<{
+    match_id: number;
+    match_date: string;
+    home_team_id: number;
+    away_team_id: number;
+    home_score: number | null;
+    away_score: number | null;
+    penalty_home_score: number | null;
+    penalty_away_score: number | null;
+    home_team: {
+      team_id: number;
+      team_name: string;
+    };
+    away_team: {
+      team_id: number;
+      team_name: string;
+    };
+  }>
+> => {
+  const response = await fetch(
+    `/api/teams/${teamId}/recent-form?before=${beforeDate}`
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to fetch team recent form: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+export const getSeasonPlayersPrisma = async (
+  season_id: number,
+  teamId: number
+): Promise<
+  Array<{
+    player_id: number;
+    player_name: string;
+    jersey_number: number | null;
+    position: string;
+  }>
+> => {
+  const response = await fetch(
+    `/api/seasons/${season_id}/teams/${teamId}/players`
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to fetch season players: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+export const getLastMatchLineupsPrisma = async (
+  teamId: number,
+  beforeDate: string
+): Promise<
+  Array<{
+    player_id: number;
+    player_name: string;
+    jersey_number: number | null;
+    position: string;
+    participation_status: string;
+  }>
+> => {
+  const response = await fetch(
+    `/api/teams/${teamId}/last-match-lineups?before=${beforeDate}`
+  );
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch last match lineups: ${response.statusText}`
+    );
+  }
+  return response.json();
+};
