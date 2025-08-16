@@ -20,6 +20,7 @@ type PlayerMatchStatWithRelations = {
     name: string;
     player_id: number;
     jersey_number: number | null;
+    profile_image_url: string | null;
   } | null;
   team: {
     team_id: number;
