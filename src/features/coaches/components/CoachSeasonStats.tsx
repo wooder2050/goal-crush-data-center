@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { useMemo } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,69 +58,101 @@ const CoachSeasonStats: React.FC<CoachSeasonStatsProps> = ({
           <Table className="w-full table-fixed text-xs md:text-sm">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[28%] truncate">시즌</TableHead>
-                <TableHead className="w-[12%] truncate">경기</TableHead>
-                <TableHead className="w-[12%] truncate">승</TableHead>
-                <TableHead className="hidden sm:table-cell w-[12%] truncate">
-                  무
+                <TableHead className="w-[24%] truncate">시즌</TableHead>
+                <TableHead className="w-[16%] sm:w-[28%] truncate">
+                  팀
                 </TableHead>
-                <TableHead className="w-[12%] truncate">패</TableHead>
-                <TableHead className="w-[12%] truncate">승률</TableHead>
-                <TableHead className="w-[12%] truncate">순위</TableHead>
-                <TableHead className="hidden sm:table-cell w-[12%] truncate">
+                <TableHead className="w-[10%] truncate">순위</TableHead>
+                <TableHead className="w-[10%] truncate">경기</TableHead>
+                <TableHead className="w-[10%] truncate">승</TableHead>
+                <TableHead className="w-[10%] truncate">패</TableHead>
+                <TableHead className="w-[10%] truncate">승률</TableHead>
+                <TableHead className="hidden sm:table-cell w-[10%] truncate">
                   득점
                 </TableHead>
-                <TableHead className="hidden sm:table-cell w-[12%] truncate">
+                <TableHead className="hidden sm:table-cell w-[10%] truncate">
                   실점
                 </TableHead>
-                <TableHead className="hidden sm:table-cell w-[12%] truncate">
+                <TableHead className="hidden sm:table-cell w-[10%] truncate">
                   득실차
-                </TableHead>
-                <TableHead className="hidden sm:table-cell w-[28%] truncate">
-                  팀
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {effective.map((season) => (
                 <TableRow key={season.season_id}>
+                  {/* 시즌 */}
                   <TableCell className="truncate">
                     {shortenSeasonName(season.season_name)}
                   </TableCell>
-                  <TableCell className="truncate">
-                    {season.matches_played}
+                  {/* 팀 */}
+                  <TableCell className="truncate w-[16%] sm:w-auto">
+                    <div className="flex flex-wrap items-center gap-1 max-w-[140px] sm:max-w-[240px]">
+                      {(season.teams_detailed ?? []).length > 0 ? (
+                        (season.teams_detailed ?? []).map((t) => (
+                          <span
+                            key={t.team_id}
+                            className="inline-flex items-center gap-1 text-[11px] md:text-xs text-gray-700 truncate"
+                          >
+                            {t.logo ? (
+                              <span className="relative inline-block w-3.5 h-3.5">
+                                <Image
+                                  src={t.logo}
+                                  alt={t.team_name}
+                                  fill
+                                  sizes="14px"
+                                  className="rounded-full object-cover"
+                                />
+                              </span>
+                            ) : (
+                              <span className="w-3.5 h-3.5 rounded-full bg-gray-200 inline-block" />
+                            )}
+                            <span className="hidden sm:inline truncate max-w-[120px]">
+                              {t.team_name}
+                            </span>
+                          </span>
+                        ))
+                      ) : (
+                        <div className="hidden sm:block text-xs md:text-sm truncate max-w-[200px]">
+                          {season.teams.join(', ')}
+                        </div>
+                      )}
+                    </div>
                   </TableCell>
-                  <TableCell className="text-green-600 font-semibold truncate">
-                    {season.wins}
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell text-yellow-600 font-semibold truncate">
-                    {season.draws}
-                  </TableCell>
-                  <TableCell className="text-red-600 font-semibold truncate">
-                    {season.losses}
-                  </TableCell>
-                  <TableCell className="font-semibold truncate">
-                    {season.win_rate}%
-                  </TableCell>
+                  {/* 순위 */}
                   <TableCell className="truncate">
                     {season.position ?? '-'}
                   </TableCell>
+                  {/* 경기 */}
+                  <TableCell className="truncate">
+                    {season.matches_played}
+                  </TableCell>
+                  {/* 승 */}
+                  <TableCell className="text-green-600 font-semibold truncate">
+                    {season.wins}
+                  </TableCell>
+                  {/* 패 */}
+                  <TableCell className="text-red-600 font-semibold truncate">
+                    {season.losses}
+                  </TableCell>
+                  {/* 승률 */}
+                  <TableCell className="font-semibold truncate">
+                    {season.win_rate}%
+                  </TableCell>
+                  {/* 득점 */}
                   <TableCell className="hidden sm:table-cell truncate">
                     {season.goals_for}
                   </TableCell>
+                  {/* 실점 */}
                   <TableCell className="hidden sm:table-cell truncate">
                     {season.goals_against}
                   </TableCell>
+                  {/* 득실차 */}
                   <TableCell
                     className={`hidden sm:table-cell ${season.goal_difference >= 0 ? 'text-green-600' : 'text-red-600'} truncate`}
                   >
                     {season.goal_difference >= 0 ? '+' : ''}
                     {season.goal_difference}
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <div className="text-xs md:text-sm truncate max-w-[160px]">
-                      {season.teams.join(', ')}
-                    </div>
                   </TableCell>
                 </TableRow>
               ))}

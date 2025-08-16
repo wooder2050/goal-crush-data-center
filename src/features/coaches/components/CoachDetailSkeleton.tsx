@@ -34,12 +34,20 @@ const CoachDetailSkeleton: React.FC = () => {
         </div>
       </div>
 
-      {/* 탭 네비게이션 스켈레톤 */}
+      {/* 탭 네비게이션 스켈레톤 (실제 탭과 높이/정렬 유사) */}
       <div className="mb-4 md:mb-6">
         <div className="border-b border-gray-200 overflow-x-auto">
-          <div className="-mb-px flex space-x-4 md:space-x-8 whitespace-nowrap px-1">
-            <div className="h-8 md:h-10 bg-gray-200 rounded animate-pulse w-24" />
-            <div className="h-8 md:h-10 bg-gray-200 rounded animate-pulse w-24" />
+          <div className="-mb-px flex items-end gap-6 md:gap-8 whitespace-nowrap px-1">
+            {/* 활성 탭 형태 */}
+            <div className="flex flex-col items-center">
+              <div className="h-5 md:h-6 bg-gray-200 rounded animate-pulse w-24 md:w-28" />
+              <div className="mt-2 h-[2px] w-full bg-gray-300 rounded" />
+            </div>
+            {/* 비활성 탭 형태 */}
+            <div className="flex flex-col items-center">
+              <div className="h-5 md:h-6 bg-gray-200 rounded animate-pulse w-20 md:w-24" />
+              <div className="mt-2 h-[2px] w-0" />
+            </div>
           </div>
         </div>
       </div>

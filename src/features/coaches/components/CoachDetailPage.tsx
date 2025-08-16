@@ -4,7 +4,6 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
-import type { CoachDetail } from '@/lib/types/database';
 
 import { fetchCoachFull } from '../api-prisma';
 import CoachSeasonStats from './CoachSeasonStats';
@@ -21,6 +20,18 @@ function CoachDetailPageInner({ coachId }: CoachDetailPageProps) {
   const currentTeamVerified = full?.current_team_verified;
   const trophies = overview?.trophies;
   const [activeTab, setActiveTab] = useState<'stats' | 'timeline'>('stats');
+  const totals = (overview?.season_stats ?? []).reduce(
+    (acc: { wins: number; losses: number; matches: number }, s) => {
+      return {
+        wins: acc.wins + (s.wins ?? 0),
+        losses: acc.losses + (s.losses ?? 0),
+        matches: acc.matches + (s.matches_played ?? 0),
+      };
+    },
+    { wins: 0, losses: 0, matches: 0 }
+  );
+  const winRate =
+    totals.matches > 0 ? Math.round((totals.wins / totals.matches) * 100) : 0;
 
   if (!coach) {
     return (
@@ -32,13 +43,8 @@ function CoachDetailPageInner({ coachId }: CoachDetailPageProps) {
     );
   }
 
-  type HistoryItem = CoachDetail['team_coach_history'][number];
-  const currentTeam = coach.team_coach_history.find(
-    (h: HistoryItem) => h.is_current === true
-  );
-  const totalTeams = new Set(
-    coach.team_coach_history.map((h: HistoryItem) => h.team_id)
-  ).size;
+  const totalTeams = new Set(coach.team_coach_history.map((h) => h.team_id))
+    .size;
 
   const totalMatches = overview?.total_matches ?? coach.match_coaches.length;
 
@@ -94,15 +100,15 @@ function CoachDetailPageInner({ coachId }: CoachDetailPageProps) {
                 </div>
               </div>
             )}
-            {/* 현재 팀 */}
-            {currentTeam && (
-              <div className="mb-3 md:mb-4">
+            {/* 현재 맡고 있는 팀 */}
+            <div className="mb-3 md:mb-4">
+              {currentTeamVerified ? (
                 <div className="flex items-center space-x-2 md:space-x-3">
-                  {currentTeam.team.logo && (
+                  {currentTeamVerified.logo && (
                     <div className="w-6 h-6 md:w-8 md:h-8 relative rounded-full overflow-hidden">
                       <Image
-                        src={currentTeam.team.logo}
-                        alt={`${currentTeam.team.team_name} 로고`}
+                        src={currentTeamVerified.logo}
+                        alt={`${currentTeamVerified.team_name} 로고`}
                         fill
                         className="object-cover"
                         sizes="32px"
@@ -110,16 +116,15 @@ function CoachDetailPageInner({ coachId }: CoachDetailPageProps) {
                     </div>
                   )}
                   <div>
-                    <span className="text-base md:text-lg font-semibold text-blue-600">
-                      {currentTeam.team.team_name}
-                    </span>
-                    <span className="text-xs md:text-sm text-gray-500 ml-2">
-                      ({currentTeam.season.season_name})
+                    <span className="text-base md:text-lg font-semibold">
+                      {currentTeamVerified.team_name}
                     </span>
                   </div>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="text-sm text-gray-500">맡은 팀 없음</div>
+              )}
+            </div>
 
             {/* 통계 요약 */}
             <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
@@ -132,13 +137,27 @@ function CoachDetailPageInner({ coachId }: CoachDetailPageProps) {
                 <span className="ml-1 font-semibold">{totalMatches}경기</span>
               </div>
             </div>
+            <div className="mt-1 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+              <div>
+                <span className="text-gray-500">승리:</span>
+                <span className="ml-1 font-semibold">{totals.wins}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">패배:</span>
+                <span className="ml-1 font-semibold">{totals.losses}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">승률:</span>
+                <span className="ml-1 font-semibold">{winRate}%</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* 탭 네비게이션 */}
       <div className="mb-4 md:mb-6">
-        <div className="border-b border-gray-200 overflow-x-auto">
+        <div className="border-b border-gray-200 overflow-x-auto overflow-y-hidden">
           <nav className="-mb-px flex space-x-4 md:space-x-8 whitespace-nowrap px-1">
             <button
               onClick={() => setActiveTab('stats')}
