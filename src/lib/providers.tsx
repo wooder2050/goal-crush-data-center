@@ -17,6 +17,8 @@ export function Providers({ children }: ProvidersProps) {
           queries: {
             staleTime: DEFAULT_STALE_TIME, // 5 minutes
             refetchOnWindowFocus: false,
+            refetchOnReconnect: false,
+            refetchOnMount: false,
             retry: 1,
           },
         },

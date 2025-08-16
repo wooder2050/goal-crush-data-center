@@ -18,6 +18,7 @@ import {
   Section,
 } from '@/components/ui';
 import UpcomingMatches from '@/features/matches/components/UpcomingMatches';
+import UpcomingMatchesSkeleton from '@/features/matches/components/UpcomingMatchesSkeleton';
 import {
   getAllSeasonsPrisma,
   type SeasonWithStats,
@@ -61,7 +62,9 @@ function SeasonsPageInner() {
           </Body>
         </div>
         <div className="mb-6 sm:mb-8">
-          <UpcomingMatches />
+          <GoalWrapper fallback={<UpcomingMatchesSkeleton items={6} />}>
+            <UpcomingMatches />
+          </GoalWrapper>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {seasons.map((season: SeasonWithStats) => (

@@ -13,6 +13,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 
+import { GoalWrapper } from '@/common/GoalWrapper';
 import {
   Badge,
   Button,
@@ -25,6 +26,7 @@ import {
   Section,
 } from '@/components/ui';
 import UpcomingMatches from '@/features/matches/components/UpcomingMatches';
+import UpcomingMatchesSkeleton from '@/features/matches/components/UpcomingMatchesSkeleton';
 
 export default function HomePage() {
   return (
@@ -66,7 +68,9 @@ export default function HomePage() {
 
         {/* 다가오는 경기 */}
         <div className="mb-8 sm:mb-10">
-          <UpcomingMatches />
+          <GoalWrapper fallback={<UpcomingMatchesSkeleton items={6} />}>
+            <UpcomingMatches />
+          </GoalWrapper>
         </div>
 
         {/* 핵심 특징 */}
