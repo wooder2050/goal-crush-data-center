@@ -278,7 +278,7 @@ export default function PlayerDetailContent({
                   <span className="text-gray-600">소속팀</span>
                   <span className="flex items-center gap-2 min-w-0 w-full sm:w-auto">
                     {displayTeamLogo ? (
-                      <span className="relative  h-5 w-5 overflow-hidden rounded-full flex-shrink-0">
+                      <span className="relative h-5 w-5 overflow-hidden rounded-full flex-shrink-0">
                         <Image
                           src={displayTeamLogo}
                           alt="팀 로고"

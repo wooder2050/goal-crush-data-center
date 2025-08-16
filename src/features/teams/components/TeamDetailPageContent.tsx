@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { GoalWrapper } from '@/common/GoalWrapper';
 import { useResolvedPathParams } from '@/common/path-params/client';
 import { Section } from '@/components/ui';
+import UpcomingMatches from '@/features/matches/components/UpcomingMatches';
 import {
   getTeamByIdPrisma,
   getTeamPlayersPrisma,
@@ -30,6 +31,7 @@ function TeamDetailSuspenseBody({ teamId }: { teamId: number }) {
       <div className="space-y-6">
         <TeamHeader team={team} />
         {stats && <TeamStatsCard stats={stats} />}
+        <UpcomingMatches teamId={teamId} limit={3} />
         <TeamSquadTable players={players} teamId={teamId} />
         <TeamSeasonStandings teamId={teamId} />
       </div>

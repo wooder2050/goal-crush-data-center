@@ -71,6 +71,81 @@ export const getMatchByIdPrisma = async (
   return response.json();
 };
 
+// Head-to-Head summary by match id (materialized view based)
+export const getHeadToHeadByMatchIdPrisma = async (
+  matchId: number
+): Promise<{
+  match_id: number;
+  teamA: { team_id: number; team_name: string; logo: string | null } | null;
+  teamB: { team_id: number; team_name: string; logo: string | null } | null;
+  summary: {
+    total: number;
+    teamA: {
+      wins: number;
+      draws: number;
+      losses: number;
+      goals_for: number;
+      goals_against: number;
+    };
+    teamB: {
+      wins: number;
+      draws: number;
+      losses: number;
+      goals_for: number;
+      goals_against: number;
+    };
+  };
+}> => {
+  const response = await fetch(`/api/matches/${matchId}/head-to-head`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch head-to-head: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+// Full head-to-head match list (latest first)
+export const getHeadToHeadListByMatchIdPrisma = async (
+  matchId: number,
+  scope: 'prev' | 'next' = 'prev'
+): Promise<{
+  total: number;
+  items: Array<{
+    match_id: number;
+    match_date: string;
+    season: {
+      season_id: number;
+      season_name: string;
+      category: string | null;
+    } | null;
+    tournament_stage: string | null;
+    group_stage: string | null;
+    home: {
+      team_id: number;
+      team_name: string;
+      primary_color: string | null;
+      secondary_color: string | null;
+    } | null;
+    away: {
+      team_id: number;
+      team_name: string;
+      primary_color: string | null;
+      secondary_color: string | null;
+    } | null;
+    score: { home: number | null; away: number | null };
+    penalty: { home: number | null; away: number | null } | null;
+  }>;
+}> => {
+  const response = await fetch(
+    `/api/matches/${matchId}/head-to-head/list?scope=${scope}`
+  );
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch head-to-head list: ${response.statusText}`
+    );
+  }
+  return response.json();
+};
+
 // Get matches by season ID
 export const getMatchesBySeasonIdPrisma = async (
   seasonId: number
@@ -119,6 +194,40 @@ export const getMatchAssistsPrisma = async (
   return response.json();
 };
 
+export const getKeyPlayersByMatchIdPrisma = async (
+  matchId: number
+): Promise<{
+  match_id: number;
+  home: Array<{
+    player_id: number;
+    team_id: number;
+    player_name: string;
+    jersey_number: number | null;
+    position: string | null;
+    goals: number;
+    assists: number;
+    minutes: number;
+    profile_image_url: string | null;
+  }>;
+  away: Array<{
+    player_id: number;
+    team_id: number;
+    player_name: string;
+    jersey_number: number | null;
+    position: string | null;
+    goals: number;
+    assists: number;
+    minutes: number;
+    profile_image_url: string | null;
+  }>;
+}> => {
+  const response = await fetch(`/api/matches/${matchId}/key-players`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch key players: ${response.statusText}`);
+  }
+  return response.json();
+};
+
 // Create assist
 export const createAssistPrisma = async (
   matchId: number,
@@ -155,6 +264,18 @@ export const getMatchLineupsPrisma = async (
   return response.json();
 };
 
+export const getPredictedMatchLineupsPrisma = async (
+  matchId: number
+): Promise<Record<string, LineupPlayer[]>> => {
+  const response = await fetch(`/api/matches/${matchId}/predicted-lineups`);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch predicted match lineups: ${response.statusText}`
+    );
+  }
+  return response.json();
+};
+
 // Get penalty shootout details
 export const getPenaltyShootoutDetailsPrisma = async (
   matchId: number
@@ -163,6 +284,89 @@ export const getPenaltyShootoutDetailsPrisma = async (
   if (!response.ok) {
     throw new Error(
       `Failed to fetch penalty shootout details: ${response.statusText}`
+    );
+  }
+  return response.json();
+};
+
+// Upcoming matches (optionally filtered by team/season)
+type UpcomingMatchesResponse = {
+  total: number;
+  items: Array<{
+    match_id: number;
+    match_date: string;
+    description: string | null;
+    season: { season_id: number; season_name: string } | null;
+    home: { team_id: number; team_name: string; logo: string | null } | null;
+    away: { team_id: number; team_name: string; logo: string | null } | null;
+  }>;
+};
+
+export const getUpcomingMatchesPrisma = async (filters?: {
+  teamId?: number;
+  seasonId?: number;
+  limit?: number;
+  offset?: number;
+}): Promise<UpcomingMatchesResponse> => {
+  const q = new URLSearchParams();
+  if (filters?.teamId) q.set('teamId', String(filters.teamId));
+  if (filters?.seasonId) q.set('seasonId', String(filters.seasonId));
+  if (filters?.limit) q.set('limit', String(filters.limit));
+  if (filters?.offset) q.set('offset', String(filters.offset));
+  const qs = q.toString();
+  const response = await fetch(`/api/matches/upcoming${qs ? `?${qs}` : ''}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch upcoming matches: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+// Coaches head-to-head list (latest first), respect scope prev/next
+export const getCoachHeadToHeadListByMatchIdPrisma = async (
+  matchId: number,
+  scope: 'prev' | 'next' = 'prev'
+): Promise<{
+  total: number;
+  items: Array<{
+    match_id: number;
+    match_date: string;
+    season: {
+      season_id: number;
+      season_name: string;
+      category: string | null;
+    } | null;
+    home: {
+      team_id: number | null;
+      team_name: string | null;
+      primary_color: string | null;
+      secondary_color: string | null;
+      coach_id: number | null;
+      coach_name: string | null;
+    };
+    away: {
+      team_id: number | null;
+      team_name: string | null;
+      primary_color: string | null;
+      secondary_color: string | null;
+      coach_id: number | null;
+      coach_name: string | null;
+    };
+    score: { home: number | null; away: number | null };
+    penalty: { home: number | null; away: number | null } | null;
+  }>;
+  current: {
+    home_coach_id: number | null;
+    away_coach_id: number | null;
+    home_coach_name: string | null;
+    away_coach_name: string | null;
+  };
+}> => {
+  const response = await fetch(
+    `/api/matches/${matchId}/head-to-head/coaches/list?scope=${scope}`
+  );
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch coaches head-to-head list: ${response.statusText}`
     );
   }
   return response.json();

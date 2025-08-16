@@ -71,6 +71,7 @@ export async function GET(
             player_id: true,
             name: true,
             jersey_number: true,
+            profile_image_url: true,
           },
         },
         team: {
@@ -122,6 +123,7 @@ export async function GET(
         position: string;
         player_name: string;
         jersey_number: number | null;
+        profile_image_url: string | null;
         team_name: string;
         participation_status: string;
         card_type: string;
@@ -186,6 +188,7 @@ export async function GET(
         position: stat.position || 'Unknown',
         player_name: stat.player?.name || 'Unknown',
         jersey_number: stat.player?.jersey_number ?? null,
+        profile_image_url: stat.player?.profile_image_url ?? null,
         team_name: stat.team?.team_name || 'Unknown',
         participation_status: participationStatus,
         card_type: stat.card_type || 'none',

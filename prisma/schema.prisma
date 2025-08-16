@@ -487,3 +487,18 @@ enum SeasonCategory {
 
   @@map("season_category")
 }
+
+// Head-to-Head 집계 테이블 매핑
+model H2hPairStats {
+  team_small_id Int
+  team_large_id Int
+  total_matches Int
+  small_wins    Int
+  draws         Int
+  large_wins    Int
+  small_goals   Int
+  large_goals   Int
+
+  @@id([team_small_id, team_large_id])
+  @@map("h2h_pair_stats")
+}

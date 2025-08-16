@@ -9,7 +9,11 @@ import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import type { Assist } from '@/lib/types';
 import { MatchWithTeams } from '@/lib/types/database';
 
-import { getMatchAssistsPrisma, getMatchLineupsPrisma } from '../../api-prisma';
+import {
+  getMatchAssistsPrisma,
+  getMatchLineupsPrisma,
+  getPredictedMatchLineupsPrisma,
+} from '../../api-prisma';
 import { getPositionColor, getPositionText } from '../../lib/matchUtils';
 import LineupsEmpty from './LineupsEmpty';
 import LineupsSkeleton from './LineupsSkeleton';
@@ -38,9 +42,22 @@ function TeamLineupsSectionInner({
   className = '',
 }: TeamLineupsSectionProps) {
   // Fetch lineup data via Suspense Query
-  const { data: lineups = {} } = useGoalSuspenseQuery(getMatchLineupsPrisma, [
-    match.match_id,
-  ]);
+  // 실제 라인업이 없을 경우 예측 라인업으로 대체
+  const { data: actualLineups = {} } = useGoalSuspenseQuery(
+    getMatchLineupsPrisma,
+    [match.match_id]
+  );
+  const actualEmpty =
+    Object.keys(actualLineups).length === 0 ||
+    Object.values(actualLineups).every(
+      (arr: unknown) => !Array.isArray(arr) || arr.length === 0
+    );
+  const { data: predictedLineups = {} } = useGoalSuspenseQuery(
+    getPredictedMatchLineupsPrisma,
+    [match.match_id]
+  );
+  const lineups = actualEmpty ? predictedLineups : actualLineups;
+  const isPredicted = actualEmpty;
 
   // Fetch assist data via Suspense Query
   const { data: assists = [] as Assist[] } = useGoalSuspenseQuery(
@@ -98,7 +115,17 @@ function TeamLineupsSectionInner({
   return (
     <div className={`mt-4 pt-3 border-t border-gray-200 ${className}`}>
       <div className="mb-3 sm:mb-4 flex items-center justify-between">
-        <div className="text-sm font-medium text-gray-700">👥 출전 선수</div>
+        <div className="text-sm font-medium text-gray-700 flex items-center gap-2">
+          <span>👥 출전 선수</span>
+          {isPredicted && (
+            <Badge
+              variant="emphasisOutline"
+              className="text-[10px] px-2 py-0.5"
+            >
+              예상
+            </Badge>
+          )}
+        </div>
       </div>
 
       <div className="space-y-4 sm:space-y-5">
@@ -126,7 +153,7 @@ function TeamLineupsSectionInner({
                   {typeof match.home_coach.coach_id === 'number' ? (
                     <Link
                       href={`/coaches/${match.home_coach.coach_id}`}
-                      className="text-blue-600 hover:underline"
+                      className="hover:underline"
                     >
                       {match.home_coach.name}
                     </Link>
@@ -385,7 +412,7 @@ function TeamLineupsSectionInner({
                   {typeof match.away_coach.coach_id === 'number' ? (
                     <Link
                       href={`/coaches/${match.away_coach.coach_id}`}
-                      className="text-blue-600 hover:underline"
+                      className="hover:underline"
                     >
                       {match.away_coach.name}
                     </Link>

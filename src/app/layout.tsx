@@ -6,6 +6,8 @@ import Script from 'next/script';
 import { Header, NavItem } from '@/components/ui/header';
 import { Providers } from '@/lib/providers';
 
+import ScrollToTopOnRouteChange from './ScrollToTopOnRouteChange';
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://goal-crush-data-center.vercel.app'),
   title: {
@@ -105,7 +107,10 @@ export default function RootLayout({
           <NavItem href="/coaches">감독</NavItem>
         </Header>
         <div className="pt-24 md:pt-28">
-          <Providers>{children}</Providers>
+          <Providers>
+            <ScrollToTopOnRouteChange />
+            {children}
+          </Providers>
         </div>
       </body>
     </html>

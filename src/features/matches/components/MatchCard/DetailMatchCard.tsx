@@ -8,8 +8,14 @@ import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 
 import { getMatchByIdPrisma } from '../../api-prisma';
 import { hasPenaltyShootout } from '../../lib/matchUtils';
+import CoachHeadToHeadList from './CoachHeadToHeadList';
+import CoachHeadToHeadSection from './CoachHeadToHeadSection';
 import DetailMatchCardSkeleton from './DetailMatchCardSkeleton';
+import FeaturedPlayersSection from './FeaturedPlayersSection';
 import GoalSection from './GoalSection';
+import HeadToHeadList from './HeadToHeadList';
+import HeadToHeadSection from './HeadToHeadSection';
+import KeyPlayersSection from './KeyPlayersSection';
 import MatchFooter from './MatchFooter';
 import MatchHeader from './MatchHeader';
 import MatchMediaLinks from './MatchMediaLinks';
@@ -50,14 +56,34 @@ function DetailMatchCardInner({
             className={`${hasPenaltyShootout(match) ? 'lg:col-span-2' : ''} space-y-3 sm:space-y-4`}
           >
             <MatchScoreHeader match={match} />
-            <GoalSection match={match} />
-            {hasPenaltyShootout(match) && <TeamLineupsSection match={match} />}
+            {match.home_score == null && match.away_score == null ? (
+              <KeyPlayersSection matchId={match.match_id} />
+            ) : (
+              <GoalSection match={match} />
+            )}
+            {hasPenaltyShootout(match) ? (
+              <>
+                <TeamLineupsSection match={match} />
+                <div className="mt-2 sm:mt-3">
+                  <FeaturedPlayersSection match={match} />
+                </div>
+              </>
+            ) : null}
+            <HeadToHeadSection matchId={match.match_id} />
+            <HeadToHeadList matchId={match.match_id} />
+            <CoachHeadToHeadSection matchId={match.match_id} />
+            <CoachHeadToHeadList matchId={match.match_id} />
           </div>
           <div className="lg:col-span-1">
             {hasPenaltyShootout(match) ? (
               <PenaltyShootoutSection match={match} />
             ) : (
-              <TeamLineupsSection match={match} />
+              <>
+                <TeamLineupsSection match={match} />
+                <div className="mt-2 sm:mt-3">
+                  <FeaturedPlayersSection match={match} />
+                </div>
+              </>
             )}
           </div>
         </div>

@@ -69,24 +69,29 @@ export default function GoalSection({ match }: GoalSectionProps) {
     [match.match_id]
   );
 
-  const assistsByGoal = assists.reduce<Record<number, AssistWithPlayer[]>>(
-    (acc, a) => {
-      const assist: AssistWithPlayer = {
-        assist_id: a.assist_id,
-        match_id: a.match_id,
-        player_id: a.player_id,
-        goal_id: a.goal_id,
-        assist_time: a.assist_time ?? null,
-        assist_type: a.assist_type ?? null,
-        description: a.description ?? null,
-        player: { player_id: a.player_id, name: '', jersey_number: null },
-      };
-      if (!acc[assist.goal_id]) acc[assist.goal_id] = [];
-      acc[assist.goal_id].push(assist);
-      return acc;
-    },
-    {}
-  );
+  const assistsDetailed = assists as unknown as AssistWithPlayer[];
+  const assistsByGoal = assistsDetailed.reduce<
+    Record<number, AssistWithPlayer[]>
+  >((acc, a) => {
+    const playerName = a.player?.name ?? '';
+    const assist: AssistWithPlayer = {
+      assist_id: a.assist_id,
+      match_id: a.match_id,
+      player_id: a.player_id,
+      goal_id: a.goal_id,
+      assist_time: a.assist_time ?? null,
+      assist_type: a.assist_type ?? null,
+      description: a.description ?? null,
+      player: {
+        player_id: a.player?.player_id ?? a.player_id,
+        name: playerName,
+        jersey_number: a.player?.jersey_number ?? null,
+      },
+    };
+    if (!acc[assist.goal_id]) acc[assist.goal_id] = [];
+    acc[assist.goal_id].push(assist);
+    return acc;
+  }, {});
 
   // Error state는 상위 GoalWrapper에서 처리됨
 
@@ -140,7 +145,7 @@ export default function GoalSection({ match }: GoalSectionProps) {
                 </span>
                 {assistsByGoal[goal.goal_id] &&
                   assistsByGoal[goal.goal_id].length > 0 && (
-                    <span className="ml-1 text-blue-600 text-xs">
+                    <span className="ml-1 text-[11px] sm:text-xs">
                       (
                       {assistsByGoal[goal.goal_id]
                         .map((assist) => assist.player?.name)
@@ -182,7 +187,7 @@ export default function GoalSection({ match }: GoalSectionProps) {
                 </span>
                 {assistsByGoal[goal.goal_id] &&
                   assistsByGoal[goal.goal_id].length > 0 && (
-                    <span className="ml-1 text-blue-600 text-xs">
+                    <span className="ml-1 text-[11px] sm:text-xs">
                       (
                       {assistsByGoal[goal.goal_id]
                         .map((assist) => assist.player?.name)
