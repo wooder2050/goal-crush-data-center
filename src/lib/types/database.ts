@@ -511,6 +511,11 @@ export interface CoachSeasonStats {
   goal_difference: number;
   teams: string[];
   position?: number | null;
+  teams_detailed?: Array<{
+    team_id: number;
+    team_name: string;
+    logo: string | null;
+  }>;
 }
 
 export interface CoachOverview {
@@ -681,5 +686,27 @@ export interface Database {
         | 'CHAMPION_MATCH';
     };
     CompositeTypes: { [_ in never]: never };
+  };
+}
+
+// Internal schema (read-only via service role)
+export interface InternalSchema {
+  internal: {
+    Tables: {
+      coach_season_stats_mv: {
+        Row: {
+          coach_id: number;
+          season_id: number;
+          season_name: string | null;
+          matches_played: number | null;
+          wins: number | null;
+          losses: number | null;
+          goals_for: number | null;
+          goals_against: number | null;
+          position: number | null;
+          teams_detailed: unknown;
+        };
+      };
+    };
   };
 }

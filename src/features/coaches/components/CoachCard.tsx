@@ -120,7 +120,7 @@ const CoachCard: React.FC<CoachCardProps> = ({ coach }) => {
                         />
                       </div>
                     )}
-                    <span className="text-sm font-medium text-blue-600">
+                    <span className="text-sm font-medium">
                       {verifiedCurrentTeam.team_name}
                     </span>
                   </div>
