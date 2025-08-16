@@ -24,6 +24,7 @@ import {
   H1,
   Section,
 } from '@/components/ui';
+import UpcomingMatches from '@/features/matches/components/UpcomingMatches';
 
 export default function HomePage() {
   return (
@@ -61,6 +62,11 @@ export default function HomePage() {
               priority
             />
           </div>
+        </div>
+
+        {/* 다가오는 경기 */}
+        <div className="mb-8 sm:mb-10">
+          <UpcomingMatches />
         </div>
 
         {/* 핵심 특징 */}

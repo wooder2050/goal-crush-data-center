@@ -17,6 +17,7 @@ import {
   H1,
   Section,
 } from '@/components/ui';
+import UpcomingMatches from '@/features/matches/components/UpcomingMatches';
 import {
   getAllSeasonsPrisma,
   type SeasonWithStats,
@@ -58,6 +59,9 @@ function SeasonsPageInner() {
           <Body className="text-base sm:text-lg mb-4 sm:mb-6">
             골때리는 그녀들 시즌별 경기 결과
           </Body>
+        </div>
+        <div className="mb-6 sm:mb-8">
+          <UpcomingMatches />
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {seasons.map((season: SeasonWithStats) => (
