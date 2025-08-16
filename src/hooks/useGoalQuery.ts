@@ -37,7 +37,7 @@ export function useGoalQuery<
     'anonymous';
 
   return useQuery<TData, Error, TData, QueryKey>({
-    queryKey: [safeName, ...params],
+    queryKey: [safeName, JSON.stringify(params)],
     queryFn: () => apiFn(...params),
     ...options,
   });
@@ -65,7 +65,7 @@ export function useGoalSuspenseQuery<
     'anonymous';
 
   return useSuspenseQuery<TData, Error, TData, QueryKey>({
-    queryKey: [safeName, ...params],
+    queryKey: [safeName, JSON.stringify(params)],
     queryFn: () => apiFn(...params),
     ...options,
   });

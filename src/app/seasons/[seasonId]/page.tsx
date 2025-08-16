@@ -12,6 +12,7 @@ import PlayoffResults from '@/features/matches/components/PlayoffResults';
 import SbsCupResults from '@/features/matches/components/SbsCupResults';
 import SuperResults from '@/features/matches/components/SuperResults';
 import UpcomingMatches from '@/features/matches/components/UpcomingMatches';
+import UpcomingMatchesSkeleton from '@/features/matches/components/UpcomingMatchesSkeleton';
 import { getAllSeasonsPrisma } from '@/features/seasons/api-prisma';
 import SeasonPageSkeleton from '@/features/seasons/components/SeasonPageSkeleton';
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
@@ -56,7 +57,9 @@ function SeasonDynamicPageInner() {
   return (
     <Section padding="sm" className="pt-2 sm:pt-3">
       <div className="space-y-6">
-        <UpcomingMatches seasonId={matchedSeason.season_id} limit={10} />
+        <GoalWrapper fallback={<UpcomingMatchesSkeleton items={10} />}>
+          <UpcomingMatches seasonId={matchedSeason.season_id} limit={10} />
+        </GoalWrapper>
         <Component
           seasonId={matchedSeason.season_id}
           title={matchedSeason.season_name}

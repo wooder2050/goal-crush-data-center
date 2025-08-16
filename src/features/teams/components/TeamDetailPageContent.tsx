@@ -6,6 +6,7 @@ import { GoalWrapper } from '@/common/GoalWrapper';
 import { useResolvedPathParams } from '@/common/path-params/client';
 import { Section } from '@/components/ui';
 import UpcomingMatches from '@/features/matches/components/UpcomingMatches';
+import UpcomingMatchesSkeleton from '@/features/matches/components/UpcomingMatchesSkeleton';
 import {
   getTeamByIdPrisma,
   getTeamPlayersPrisma,
@@ -31,7 +32,9 @@ function TeamDetailSuspenseBody({ teamId }: { teamId: number }) {
       <div className="space-y-6">
         <TeamHeader team={team} />
         {stats && <TeamStatsCard stats={stats} />}
-        <UpcomingMatches teamId={teamId} limit={3} />
+        <GoalWrapper fallback={<UpcomingMatchesSkeleton items={3} />}>
+          <UpcomingMatches teamId={teamId} limit={3} />
+        </GoalWrapper>
         <TeamSquadTable players={players} teamId={teamId} />
         <TeamSeasonStandings teamId={teamId} />
       </div>
