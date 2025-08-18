@@ -96,6 +96,20 @@ export const getTopAppearancesPrisma = async (
   return response.json();
 };
 
+// Get top assists
+export const getTopAssistsPrisma = async (
+  seasonId: number,
+  limit: number = 10
+): Promise<PlayerSeasonStats[]> => {
+  const response = await fetch(
+    `/api/stats/player-season?season_id=${seasonId}&limit=${limit}&sort=assists`
+  );
+  if (!response.ok) {
+    throw new Error(`Failed to fetch top assists: ${response.statusText}`);
+  }
+  return response.json();
+};
+
 // ========== Team Season Statistics ==========
 
 // Get team season statistics by season

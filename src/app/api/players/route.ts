@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
     const teamParam = searchParams.get('team_id');
     const orderParam = (searchParams.get('order') ?? 'apps') as
       | 'apps'
-      | 'goals';
+      | 'goals'
+      | 'assists';
     const positionParam = searchParams.get('position');
 
     const page = pageParam ? Math.max(1, parseInt(pageParam, 10)) : null;
@@ -288,6 +289,10 @@ export async function GET(request: NextRequest) {
           if (sb.goals !== sa.goals) return sb.goals - sa.goals;
           if (sb.assists !== sa.assists) return sb.assists - sa.assists;
           if (sb.apps !== sa.apps) return sb.apps - sa.apps;
+        } else if (orderParam === 'assists') {
+          if (sb.assists !== sa.assists) return sb.assists - sa.assists;
+          if (sb.goals !== sa.goals) return sb.goals - sa.goals;
+          if (sb.apps !== sa.apps) return sb.apps - sa.apps;
         } else {
           if (sb.apps !== sa.apps) return sb.apps - sa.apps;
           if (sb.goals !== sa.goals) return sb.goals - sa.goals;
@@ -395,6 +400,104 @@ export async function GET(request: NextRequest) {
         const sb = orderMap.get(b) ?? { apps: 0, goals: 0, assists: 0 };
         if (sb.goals !== sa.goals) return sb.goals - sa.goals;
         if (sb.assists !== sa.assists) return sb.assists - sa.assists;
+        if (sb.apps !== sa.apps) return sb.apps - sa.apps;
+        const an = nameMap.get(a) ?? '';
+        const bn = nameMap.get(b) ?? '';
+        return an.localeCompare(bn);
+      });
+
+      const sliceStart = isPaged ? (page! - 1) * limit! : 0;
+      const sliceEnd = isPaged ? sliceStart + limit! : sortedIds.length;
+      const pagedIds = sortedIds.slice(sliceStart, sliceEnd);
+
+      const players = await prisma.player.findMany({
+        where: { player_id: { in: pagedIds } },
+        select: {
+          player_id: true,
+          name: true,
+          jersey_number: true,
+          profile_image_url: true,
+          player_team_history: {
+            select: {
+              team: { select: { team_id: true, team_name: true } },
+              end_date: true,
+              created_at: true,
+              season_id: true,
+            },
+            orderBy: [{ end_date: 'desc' }, { created_at: 'desc' }],
+            take: 1,
+          },
+          playerPosition: {
+            select: {
+              position: true,
+              season_id: true,
+              start_date: true,
+              end_date: true,
+            },
+            orderBy: [{ end_date: 'desc' }, { start_date: 'desc' }],
+            take: 1,
+          },
+          created_at: true,
+          updated_at: true,
+        },
+      });
+
+      const orderIndex = new Map<number, number>();
+      pagedIds.forEach((id, idx) => orderIndex.set(id, idx));
+      players.sort(
+        (a, b) => orderIndex.get(a.player_id)! - orderIndex.get(b.player_id)!
+      );
+
+      const mapped = await mapPlayers(players);
+
+      if (isPaged) {
+        const hasMore = page! * limit! < (totalCount ?? sortedIds.length);
+        const nextPage = hasMore ? page! + 1 : null;
+        return NextResponse.json({
+          items: mapped,
+          nextPage,
+          totalCount: totalCount ?? sortedIds.length,
+        });
+      }
+      return NextResponse.json(mapped);
+    }
+    if (orderParam === 'assists') {
+      // assists ordering requires aggregation; build sorted id list before pagination
+      const candidateIdsRaw = await prisma.player.findMany({
+        where: { ...(whereName ?? {}), ...(wherePosition ?? {}) },
+        select: { player_id: true },
+      });
+      const candidateIds = candidateIdsRaw.map((x) => x.player_id);
+
+      const groupedAll = await prisma.playerMatchStats.groupBy({
+        by: ['player_id'],
+        where: { player_id: { in: candidateIds } },
+        _count: { match_id: true },
+        _sum: { goals: true, assists: true },
+      });
+      const orderMap = new Map<
+        number,
+        { apps: number; goals: number; assists: number }
+      >();
+      for (const g of groupedAll) {
+        orderMap.set(g.player_id ?? 0, {
+          apps: g._count?.match_id ?? 0,
+          goals: g._sum?.goals ?? 0,
+          assists: g._sum?.assists ?? 0,
+        });
+      }
+      const playersForName = await prisma.player.findMany({
+        where: { player_id: { in: candidateIds } },
+        select: { player_id: true, name: true },
+      });
+      const nameMap = new Map<number, string>();
+      for (const p of playersForName) nameMap.set(p.player_id, p.name);
+
+      const sortedIds = candidateIds.sort((a, b) => {
+        const sa = orderMap.get(a) ?? { apps: 0, goals: 0, assists: 0 };
+        const sb = orderMap.get(b) ?? { apps: 0, goals: 0, assists: 0 };
+        if (sb.assists !== sa.assists) return sb.assists - sa.assists;
+        if (sb.goals !== sa.goals) return sb.goals - sa.goals;
         if (sb.apps !== sa.apps) return sb.apps - sa.apps;
         const an = nameMap.get(a) ?? '';
         const bn = nameMap.get(b) ?? '';

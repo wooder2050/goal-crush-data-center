@@ -246,6 +246,9 @@ export default function PlayersContent({
                     <SelectItem value="goals" className={itemBase}>
                       ⚽️ 골 많은 순
                     </SelectItem>
+                    <SelectItem value="assists" className={itemBase}>
+                      🎯 도움 많은 순
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>

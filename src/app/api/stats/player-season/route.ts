@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const sort = (searchParams.get('sort') || 'goals') as
       | 'goals'
-      | 'appearances';
+      | 'appearances'
+      | 'assists';
 
     const stats = await prisma.playerSeasonStats.findMany({
       where: {
@@ -35,7 +36,9 @@ export async function GET(request: NextRequest) {
       orderBy: seasonId
         ? sort === 'appearances'
           ? { matches_played: 'desc' }
-          : { goals: 'desc' }
+          : sort === 'assists'
+            ? { assists: 'desc' }
+            : { goals: 'desc' }
         : { season_id: 'desc' },
       take: limit ? parseInt(limit) : undefined,
     });
