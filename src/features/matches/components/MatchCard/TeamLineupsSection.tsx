@@ -57,11 +57,9 @@ function TeamLineupsSectionInner({
       (arr: unknown) => !Array.isArray(arr) || arr.length === 0
     );
 
-  // 시즌 정보 추출 (season_name에서 시즌 ID 추출)
   const seasonName = match.season?.season_name;
   const isSeasonFirstMatch = seasonName && seasonName.includes('시즌');
 
-  // 예상 라인업 또는 시즌 선수/최근 경기 선수 가져오기
   const { data: predictedLineups = {} } = useGoalSuspenseQuery(
     getPredictedMatchLineupsPrisma,
     [match.match_id]
@@ -202,9 +200,6 @@ function TeamLineupsSectionInner({
       return aOrder - bOrder;
     });
   };
-
-  console.log('homeLineups : ', homeLineups);
-  console.log('awayLineups : ', awayLineups);
 
   return (
     <div className={`mt-4 pt-3 border-t border-gray-200 ${className}`}>
