@@ -97,7 +97,7 @@ function TeamSeasonStandingsInner({ teamId }: { teamId: number }) {
                 <div className="mt-1">
                   {row.season_id && row.season_name ? (
                     <Link
-                      href={`/seasons/${encodeURIComponent(row.season_name)}`}
+                      href={`/seasons/${row.season_name}`}
                       className="hover:underline text-sm font-semibold truncate inline-block max-w-full"
                     >
                       {shortenSeasonName(row.season_name)}
@@ -173,7 +173,7 @@ function TeamSeasonStandingsInner({ teamId }: { teamId: number }) {
                     <TableCell>
                       {row.season_id && row.season_name ? (
                         <Link
-                          href={`/seasons/${encodeURIComponent(row.season_name)}`}
+                          href={`/seasons/${row.season_id}`}
                           className="hover:underline font-medium"
                         >
                           {shortenSeasonName(row.season_name)}
