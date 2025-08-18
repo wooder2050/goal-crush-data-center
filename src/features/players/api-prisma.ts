@@ -41,7 +41,7 @@ export const getPlayersPagePrisma = async (
   opts?: {
     teamId?: number;
     name?: string;
-    order?: 'apps' | 'goals';
+    order?: 'apps' | 'goals' | 'assists';
     position?: string;
   }
 ): Promise<PlayersPageResponse> => {
