@@ -56,7 +56,9 @@ export default function KeyPlayersSection({ matchId }: { matchId: number }) {
     <Card className="p-3 sm:p-4">
       <div className="mb-2">
         <div className="text-sm font-semibold text-gray-800">🌟 주요 선수</div>
-        <div className="mt-0.5 text-[11px] text-gray-500">최근 경기 기준</div>
+        <div className="mt-0.5 text-[11px] text-gray-500">
+          최근 10 경기 기준
+        </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>

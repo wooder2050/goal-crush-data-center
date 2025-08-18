@@ -209,7 +209,7 @@ export default function FeaturedPlayersSection({ match }: Props) {
           {isScheduled ? '🌟 핵심 선수 (예상)' : '🌟 베스트 플레이어'}
         </div>
         <div className="text-[11px] text-gray-500">
-          {isScheduled ? '최근 경기 기준' : '이 경기 기준'}
+          {isScheduled ? '최근 10 경기 기준' : '이 경기 기준'}
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
