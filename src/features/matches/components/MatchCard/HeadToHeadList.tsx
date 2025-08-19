@@ -123,9 +123,9 @@ export default function HeadToHeadList({ matchId }: { matchId: number }) {
               />
             ) : null;
           return (
-            <li key={m.match_id} className="py-2 sm:py-2.5 text-xs sm:text-sm">
+            <li key={m.match_id} className="py-1 sm:py-2.5 text-xs sm:text-sm">
               {/* Mobile layout - single line */}
-              <div className="sm:hidden flex items-center gap-1 text-xs">
+              <div className="p-1 sm:hidden flex items-center gap-1 text-xs">
                 <div className="hidden">{dateStr}</div>
                 <span className="hidden">•</span>
                 <div className="min-w-0 flex-1 truncate text-center">

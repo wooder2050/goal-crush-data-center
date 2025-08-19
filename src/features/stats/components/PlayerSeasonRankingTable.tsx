@@ -186,7 +186,7 @@ function PlayerSeasonRankingTableInner({
                               />
                             ) : (
                               <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">
-                                ?
+                                -
                               </div>
                             )}
                           </div>
@@ -226,10 +226,10 @@ function PlayerSeasonRankingTableInner({
                 <TableHead className="whitespace-nowrap">순위</TableHead>
                 <TableHead className="whitespace-nowrap">선수</TableHead>
                 <TableHead className="whitespace-nowrap">팀</TableHead>
-                <TableHead className="hidden sm:table-cell whitespace-nowrap">
-                  경기
+                <TableHead className="whitespace-nowrap">경기</TableHead>
+                <TableHead className="hidden sm:table-cell  whitespace-nowrap">
+                  골
                 </TableHead>
-                <TableHead className="whitespace-nowrap">골</TableHead>
                 <TableHead className="hidden sm:table-cell whitespace-nowrap">
                   도움
                 </TableHead>
@@ -279,10 +279,10 @@ function PlayerSeasonRankingTableInner({
                       <TableCell className="text-gray-600">
                         {row.team_name ?? '알 수 없음'}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell text-center text-blue-600">
+                      <TableCell className="text-center text-blue-600">
                         {row.matches_played ?? 0}
                       </TableCell>
-                      <TableCell className="text-center font-semibold text-gray-600">
+                      <TableCell className="hidden sm:table-cell text-center font-semibold text-gray-600">
                         {row.goals ?? 0}
                       </TableCell>
                       <TableCell className="hidden sm:table-cell text-center text-gray-600">
@@ -301,6 +301,15 @@ function PlayerSeasonRankingTableInner({
             <TableHeader>
               <TableRow>
                 <TableHead className="whitespace-nowrap">순위</TableHead>
+                <TableHead className="whitespace-nowrap">선수</TableHead>
+                <TableHead className="whitespace-nowrap">팀</TableHead>
+                <TableHead className="hidden sm:table-cell  whitespace-nowrap">
+                  경기
+                </TableHead>
+                <TableHead className="hidden sm:table-cell  whitespace-nowrap">
+                  골
+                </TableHead>
+                <TableHead className="whitespace-nowrap">도움</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -350,10 +359,10 @@ function PlayerSeasonRankingTableInner({
                       <TableCell className="hidden sm:table-cell text-center text-gray-600">
                         {row.matches_played ?? 0}
                       </TableCell>
-                      <TableCell className="text-center font-semibold text-gray-600">
+                      <TableCell className="hidden sm:table-cell text-center font-semibold text-gray-600">
                         {row.goals ?? 0}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell text-center text-blue-600">
+                      <TableCell className="text-center text-blue-600">
                         {row.assists ?? 0}
                       </TableCell>
                     </TableRow>

@@ -78,9 +78,9 @@ export default function CoachHeadToHeadList({ matchId }: { matchId: number }) {
               : { color: winner === 'home' ? '#9CA3AF' : '#374151' };
 
           return (
-            <li key={m.match_id} className="py-2 sm:py-2.5 text-xs sm:text-sm">
+            <li key={m.match_id} className="py-1 sm:py-2.5 text-xs sm:text-sm">
               {/* Mobile layout - single line with truncation */}
-              <div className="sm:hidden flex items-center gap-1 text-xs">
+              <div className="p-1 sm:hidden flex items-center gap-1 text-xs">
                 <div className="shrink-0 text-[11px] text-gray-500">
                   {dateStr}
                 </div>
