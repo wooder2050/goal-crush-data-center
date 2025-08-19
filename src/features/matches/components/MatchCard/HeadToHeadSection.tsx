@@ -97,31 +97,33 @@ export default function HeadToHeadSection({ matchId }: { matchId: number }) {
           현재 경기 이전 기준
         </div>
       </div>
-      <div className="grid grid-cols-3 items-center text-center text-xs sm:text-sm">
-        <div className="flex flex-col gap-1">
+      <div className="grid grid-cols-5 items-center text-center text-xs sm:text-sm md:grid-cols-3">
+        <div className="flex flex-col gap-1 col-span-1 md:col-span-1">
           <div className="text-gray-900 font-bold">
             {recomputed.teamA.wins} 승
           </div>
         </div>
-        <div>
+        <div className="col-span-3 md:col-span-1">
           <div className="text-gray-900 font-semibold">
             {simplifyTeamName(teamA?.team_name) || '팀 A'} vs{' '}
             {simplifyTeamName(teamB?.team_name) || '팀 B'}
           </div>
           <div className="text-gray-500">총 {recomputed.total}경기</div>
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1 col-span-1 md:col-span-1">
           <div className="text-gray-900 font-bold">
             {recomputed.teamB.wins} 승
           </div>
         </div>
       </div>
-      <div className="mt-2 grid grid-cols-3 items-center text-[11px] sm:text-xs text-gray-600">
-        <div className="text-right">
+      <div className="mt-2 grid grid-cols-5 items-center text-[11px] sm:text-xs text-gray-600 md:grid-cols-3">
+        <div className="text-right col-span-1 md:col-span-1">
           득 {recomputed.teamA.goals_for} / 실 {recomputed.teamA.goals_against}
         </div>
-        <div className="text-center text-gray-400">vs</div>
-        <div className="text-left">
+        <div className="text-center text-gray-400 col-span-3 md:col-span-1">
+          vs
+        </div>
+        <div className="text-left col-span-1 md:col-span-1">
           득 {recomputed.teamB.goals_for} / 실 {recomputed.teamB.goals_against}
         </div>
       </div>
