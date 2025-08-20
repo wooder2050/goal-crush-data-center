@@ -119,6 +119,12 @@ export interface PlayerSeasonStats {
   updated_at?: string | null;
 }
 
+export interface PlayerSeasonStatsWithNames extends PlayerSeasonStats {
+  player_name: string | null;
+  team_name: string | null;
+  team_logo?: string | null;
+}
+
 export interface TeamSeasonStats {
   stat_id: number;
   team_id: number | null;
