@@ -85,6 +85,14 @@ export default function RootLayout({
             </Script>
           </>
         )}
+
+        {/* Google AdSense */}
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <Script id="gtm" strategy="afterInteractive">
           {`
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
