@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     '골 때리는 그녀들 경기/선수/팀 데이터를 구조화하여 빠르게 탐색할 수 있는 데이터 아카이브',
   applicationName: 'Goal Crush Data Center',
   keywords: ['골때리는 그녀들', '데이터 센터', '시즌', '선수', '팀', '통계'],
+  other: {
+    'google-adsense-account': 'ca-pub-6439388251426570',
+  },
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
