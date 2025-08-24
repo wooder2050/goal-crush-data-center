@@ -10,6 +10,7 @@ export {
   CardHeader,
   CardTitle,
 } from './card';
+export { Pagination } from './pagination';
 export { Progress } from './progress';
 export {
   Table,
@@ -20,6 +21,7 @@ export {
   TableHeader,
   TableRow,
 } from './table';
+export { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
 
 // Layout Components
 export { Container } from './container';

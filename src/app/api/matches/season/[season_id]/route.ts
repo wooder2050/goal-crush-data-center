@@ -24,30 +24,58 @@ interface ExtendedPrismaClient {
 }
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { season_id: string } }
 ) {
   try {
     const seasonId = parseInt(params.season_id);
+    const { searchParams } = new URL(request.url);
+    const page = searchParams.get('page');
+    const limit = searchParams.get('limit');
 
     if (isNaN(seasonId)) {
       return NextResponse.json({ error: 'Invalid season ID' }, { status: 400 });
     }
 
-    const matches = await prisma.match.findMany({
-      where: { season_id: seasonId },
-      include: {
-        home_team: true,
-        away_team: true,
-        season: true,
-      },
-      orderBy: {
-        match_date: 'asc',
-      },
-    });
+    // 페이지네이션 파라미터 처리
+    const pageNum = page ? parseInt(page) : undefined;
+    const limitNum = limit ? parseInt(limit) : undefined;
+    const isPaginated = pageNum && limitNum;
+
+    // 페이지네이션이 요청된 경우 총 개수도 조회
+    const [matches, totalCount] = await Promise.all([
+      prisma.match.findMany({
+        where: { season_id: seasonId },
+        include: {
+          home_team: true,
+          away_team: true,
+          season: true,
+        },
+        orderBy: {
+          match_date: 'asc',
+        },
+        ...(isPaginated && {
+          skip: (pageNum - 1) * limitNum,
+          take: limitNum,
+        }),
+      }),
+      isPaginated
+        ? prisma.match.count({ where: { season_id: seasonId } })
+        : Promise.resolve(0),
+    ]);
 
     if (matches.length === 0) {
-      return NextResponse.json([]);
+      return NextResponse.json(
+        isPaginated
+          ? {
+              items: [],
+              totalCount: 0,
+              currentPage: pageNum,
+              hasNextPage: false,
+              nextPage: null,
+            }
+          : []
+      );
     }
 
     // 모든 팀 ID 수집
@@ -104,7 +132,21 @@ export async function GET(
       };
     });
 
-    return NextResponse.json(updatedMatches);
+    // 페이지네이션 응답 또는 일반 응답
+    if (isPaginated) {
+      const hasNextPage = pageNum * limitNum < totalCount;
+      const nextPage = hasNextPage ? pageNum + 1 : null;
+
+      return NextResponse.json({
+        items: updatedMatches,
+        totalCount,
+        currentPage: pageNum,
+        hasNextPage,
+        nextPage,
+      });
+    } else {
+      return NextResponse.json(updatedMatches);
+    }
   } catch (error) {
     console.error('Failed to fetch matches by season:', error);
     return NextResponse.json(

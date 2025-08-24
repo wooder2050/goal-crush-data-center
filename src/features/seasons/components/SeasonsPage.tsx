@@ -4,8 +4,10 @@ import { isAfter, isBefore, parseISO, startOfDay } from 'date-fns';
 import { ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useCallback, useMemo } from 'react';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
+import { ScrollTrigger } from '@/common/ScrollTrigger';
 import {
   Badge,
   Body,
@@ -20,15 +22,42 @@ import {
 import UpcomingMatches from '@/features/matches/components/UpcomingMatches';
 import UpcomingMatchesSkeleton from '@/features/matches/components/UpcomingMatchesSkeleton';
 import {
-  getAllSeasonsPrisma,
+  getSeasonsPagePrisma,
   type SeasonWithStats,
 } from '@/features/seasons/api-prisma';
 import SeasonsPageSkeleton from '@/features/seasons/components/SeasonsPageSkeleton';
-import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
+import { useGoalInfiniteQuery } from '@/hooks/useGoalQuery';
 import { shortenSeasonName } from '@/lib/utils';
 
 function SeasonsPageInner() {
-  const { data: seasons = [] } = useGoalSuspenseQuery(getAllSeasonsPrisma, []);
+  const PAGE_SIZE = 6;
+
+  const {
+    data: infiniteData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+  } = useGoalInfiniteQuery<typeof getSeasonsPagePrisma, number>(
+    getSeasonsPagePrisma,
+    ({ pageParam }) => [pageParam, PAGE_SIZE],
+    { initialPageParam: 1, getNextPageParam: (last) => last.nextPage }
+  );
+
+  const typedData = infiniteData as typeof infiniteData;
+  const allSeasons = useMemo(
+    () => (typedData?.pages ?? []).flatMap((p) => p.items),
+    [typedData]
+  );
+
+  const isLoading =
+    status === 'pending' && (typedData?.pages?.length ?? 0) === 0;
+  const canFetchNext = hasNextPage && !isFetchingNextPage && !isLoading;
+
+  const handleFetchNext = useCallback(() => {
+    if (!canFetchNext) return;
+    void fetchNextPage();
+  }, [canFetchNext, fetchNextPage]);
 
   const getStatusBadge = (
     startDate?: string | Date | null,
@@ -52,6 +81,10 @@ function SeasonsPageInner() {
     return <Badge variant="default">진행중</Badge>;
   };
 
+  if (isLoading) {
+    return <SeasonsPageSkeleton />;
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Section padding="sm">
@@ -67,7 +100,7 @@ function SeasonsPageInner() {
           </GoalWrapper>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {seasons.map((season: SeasonWithStats) => (
+          {allSeasons.map((season: SeasonWithStats) => (
             <Card
               key={season.season_id}
               className="group h-full cursor-pointer overflow-hidden rounded-xl border transition-all hover:-translate-y-0.5 hover:shadow-md"
@@ -193,7 +226,23 @@ function SeasonsPageInner() {
             </Card>
           ))}
         </div>
-        {seasons.length === 0 && (
+
+        {/* 무한 스크롤 트리거 */}
+        {allSeasons.length > 0 && hasNextPage && (
+          <ScrollTrigger updateOptions={handleFetchNext} />
+        )}
+
+        {/* 로딩 인디케이터 */}
+        {isFetchingNextPage && (
+          <div className="mt-8 flex items-center justify-center">
+            <span
+              className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-amber-500"
+              aria-label="더 많은 시즌 로딩 중"
+            />
+          </div>
+        )}
+
+        {allSeasons.length === 0 && !isLoading && (
           <div className="text-center py-12">
             <Body className="text-base sm:text-lg">
               등록된 시즌이 없습니다.

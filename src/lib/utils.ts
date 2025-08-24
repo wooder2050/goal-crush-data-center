@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 // Remove leading brand phrase from season names, keep trimmed label
 export function shortenSeasonName(label: string): string {
-  return label.replace(/골때리는 그녀들/g, '').trim();
+  return label.replace(/골때리는 그녀들|골 때리는 그녀들/g, '').trim();
 }
 
 // Normalize season name to a coarse league bucket used across the app

@@ -151,6 +151,7 @@ export default function RootLayout({
               <NavItem href="/teams">팀</NavItem>
               <NavItem href="/players">선수</NavItem>
               <NavItem href="/coaches">감독</NavItem>
+              <NavItem href="/supports">응원하기</NavItem>
               <AdminNavItem />
             </Header>
             <div className="pt-24 md:pt-28">
