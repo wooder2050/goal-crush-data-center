@@ -57,6 +57,24 @@ Object.defineProperty(getSeasonsPaginatedPrisma, 'queryKey', {
   value: 'seasonsPaginated',
 });
 
+// 무한 스크롤용 seasons 함수
+export const getSeasonsPagePrisma = async (
+  page: number,
+  limit: number = 6
+): Promise<{
+  items: SeasonWithStats[];
+  totalCount: number;
+  nextPage: number | null;
+  hasNextPage: boolean;
+  currentPage: number;
+}> => {
+  const response = await fetch(`/api/seasons?page=${page}&limit=${limit}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch seasons page: ${response.statusText}`);
+  }
+  return response.json();
+};
+
 // Get season by ID
 export const getSeasonByIdPrisma = async (
   seasonId: number

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
+import { ScrollTrigger } from '@/common/ScrollTrigger';
 import {
   Select,
   SelectContent,
@@ -11,13 +12,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getMatchesBySeasonIdPrisma } from '@/features/matches/api-prisma';
+import { getSeasonMatchesPagePrisma } from '@/features/matches/api-prisma';
 import GLeagueTournamentResultsSkeleton from '@/features/matches/components/GLeagueTournamentResultsSkeleton';
 import SeasonSummary from '@/features/matches/components/SeasonSummary';
 import GroupStandingsTable from '@/features/stats/components/GroupStandingsTable';
 import PlayerSeasonRankingTable from '@/features/stats/components/PlayerSeasonRankingTable';
 import StandingsTable from '@/features/stats/components/StandingsTable';
-import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
+import { useGoalInfiniteQuery } from '@/hooks/useGoalQuery';
 
 import { SeasonMatchCard } from './MatchCard';
 
@@ -44,11 +45,37 @@ function GLeagueTournamentResultsInner({
   >('all');
 
   const seasonId = seasonIdProp ?? 21;
+  const PAGE_SIZE = 6;
 
-  const { data: matches = [] } = useGoalSuspenseQuery(
-    getMatchesBySeasonIdPrisma,
-    [seasonId]
+  const {
+    data: infiniteData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+  } = useGoalInfiniteQuery<typeof getSeasonMatchesPagePrisma, number>(
+    getSeasonMatchesPagePrisma,
+    ({ pageParam }) => [seasonId, pageParam, PAGE_SIZE],
+    { initialPageParam: 1, getNextPageParam: (last) => last.nextPage }
   );
+
+  const typedData = infiniteData as typeof infiniteData;
+  const allMatches = useMemo(
+    () => (typedData?.pages ?? []).flatMap((p) => p.items),
+    [typedData]
+  );
+
+  const isLoading =
+    status === 'pending' && (typedData?.pages?.length ?? 0) === 0;
+  const canFetchNext = hasNextPage && !isFetchingNextPage && !isLoading;
+
+  const handleFetchNext = useCallback(() => {
+    if (!canFetchNext) return;
+    void fetchNextPage();
+  }, [canFetchNext, fetchNextPage]);
+
+  // 이제 allMatches를 사용하여 필터링
+  const matches = allMatches;
 
   // 토너먼트 스테이지별로 경기 필터링
   const filteredByTournament = matches.filter((match) => {
@@ -294,7 +321,31 @@ function GLeagueTournamentResultsInner({
             {/* 조 선택은 상단 내비게이션 우측 Select로 이동 */}
           </div>
 
-          {filteredMatches.length === 0 ? (
+          {isLoading ? (
+            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+              {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="bg-white rounded-lg border p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="h-4 w-20 bg-gray-200 rounded" />
+                      <div className="h-4 w-16 bg-gray-200 rounded" />
+                    </div>
+                    <div className="flex items-center justify-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-gray-200 rounded-full" />
+                        <div className="h-4 w-16 bg-gray-200 rounded" />
+                      </div>
+                      <div className="h-6 w-12 bg-gray-200 rounded" />
+                      <div className="flex items-center space-x-2">
+                        <div className="h-4 w-16 bg-gray-200 rounded" />
+                        <div className="w-8 h-8 bg-gray-200 rounded-full" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredMatches.length === 0 ? (
             <div className="text-center py-8">
               <div className="text-gray-500">
                 {selectedTournament === 'group_stage'
@@ -305,18 +356,35 @@ function GLeagueTournamentResultsInner({
               </div>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-              {filteredMatches
-                .sort(
-                  (a, b) =>
-                    new Date(a.match_date).getTime() -
-                    new Date(b.match_date).getTime()
-                )
-                .map((match) => (
-                  <div key={match.match_id} className="relative">
-                    <SeasonMatchCard matchId={match.match_id} />
-                  </div>
-                ))}
+            <div>
+              <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+                {filteredMatches
+                  .sort(
+                    (a, b) =>
+                      new Date(a.match_date).getTime() -
+                      new Date(b.match_date).getTime()
+                  )
+                  .map((match) => (
+                    <div key={match.match_id} className="relative">
+                      <SeasonMatchCard matchId={match.match_id} />
+                    </div>
+                  ))}
+              </div>
+
+              {/* 무한 스크롤 트리거 */}
+              {filteredMatches.length > 0 && hasNextPage && (
+                <ScrollTrigger updateOptions={handleFetchNext} />
+              )}
+
+              {/* 로딩 인디케이터 */}
+              {isFetchingNextPage && (
+                <div className="mt-6 flex items-center justify-center">
+                  <span
+                    className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"
+                    aria-label="더 많은 경기 로딩 중"
+                  />
+                </div>
+              )}
             </div>
           )}
         </TabsContent>

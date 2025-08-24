@@ -159,6 +159,29 @@ export const getMatchesBySeasonIdPrisma = async (
   return response.json();
 };
 
+// 무한 스크롤용 시즌별 매치 함수
+export const getSeasonMatchesPagePrisma = async (
+  seasonId: number,
+  page: number,
+  limit: number = 6
+): Promise<{
+  items: MatchWithTeams[];
+  totalCount: number;
+  nextPage: number | null;
+  hasNextPage: boolean;
+  currentPage: number;
+}> => {
+  const response = await fetch(
+    `/api/matches/season/${seasonId}?page=${page}&limit=${limit}`
+  );
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch season matches page: ${response.statusText}`
+    );
+  }
+  return response.json();
+};
+
 // ============== Match Details ==============
 
 // Get match goals
@@ -292,7 +315,7 @@ export const getPenaltyShootoutDetailsPrisma = async (
 // Upcoming matches (optionally filtered by team/season)
 type UpcomingMatchesResponse = {
   total: number;
-  items: Array<{
+  matches: Array<{
     match_id: number;
     match_date: string;
     description: string | null;
@@ -317,6 +340,44 @@ export const getUpcomingMatchesPrisma = async (filters?: {
   const response = await fetch(`/api/matches/upcoming${qs ? `?${qs}` : ''}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch upcoming matches: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+// 무한 스크롤용 upcoming matches 함수
+export const getUpcomingMatchesPagePrisma = async (
+  page: number,
+  limit: number = 6,
+  filters?: {
+    teamId?: number;
+    seasonId?: number;
+  }
+): Promise<{
+  matches: Array<{
+    match_id: number;
+    match_date: string;
+    description: string | null;
+    season: { season_id: number; season_name: string } | null;
+    home: { team_id: number; team_name: string; logo: string | null } | null;
+    away: { team_id: number; team_name: string; logo: string | null } | null;
+  }>;
+  totalCount: number;
+  nextPage: number | null;
+  hasNextPage: boolean;
+  currentPage: number;
+}> => {
+  const offset = (page - 1) * limit;
+  const q = new URLSearchParams();
+  q.set('limit', String(limit));
+  q.set('offset', String(offset));
+  if (filters?.teamId) q.set('teamId', String(filters.teamId));
+  if (filters?.seasonId) q.set('seasonId', String(filters.seasonId));
+
+  const response = await fetch(`/api/matches/upcoming?${q.toString()}`);
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch upcoming matches page: ${response.statusText}`
+    );
   }
   return response.json();
 };
