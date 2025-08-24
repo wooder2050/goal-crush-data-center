@@ -6,9 +6,10 @@ import { ko } from 'date-fns/locale';
 import { CalendarDays, Heart } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import { ScrollTrigger } from '@/common/ScrollTrigger';
+import { LoginRequiredModal } from '@/components/LoginRequiredModal';
 import {
   Badge,
   Button,
@@ -40,16 +41,21 @@ export default function UpcomingMatches({
   const router = useRouter();
   const { isSignedIn } = useUser();
   const PAGE_SIZE = limit;
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleSupportClick = useCallback(() => {
     if (!isSignedIn) {
-      // 비로그인 사용자는 로그인 페이지로 리다이렉트
-      router.push('/sign-in?redirect_url=/supports');
+      // 비로그인 사용자는 모달 표시
+      setIsLoginModalOpen(true);
     } else {
       // 로그인된 사용자는 응원하기 페이지로 이동
       router.push('/supports');
     }
   }, [isSignedIn, router]);
+
+  const handleCloseLoginModal = useCallback(() => {
+    setIsLoginModalOpen(false);
+  }, []);
 
   const {
     data: infiniteData,
@@ -293,6 +299,14 @@ export default function UpcomingMatches({
           </div>
         )}
       </CardContent>
+
+      {/* 로그인 필요 모달 */}
+      <LoginRequiredModal
+        isOpen={isLoginModalOpen}
+        onClose={handleCloseLoginModal}
+        feature="응원하기"
+        description="좋아하는 팀을 응원하고 다른 팬들과 소통해보세요!"
+      />
     </Card>
   );
 }

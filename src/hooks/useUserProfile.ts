@@ -1,3 +1,5 @@
+import { useUser } from '@clerk/nextjs';
+
 import { useGoalMutation } from './useGoalMutation';
 import { useGoalQuery } from './useGoalQuery';
 
@@ -31,6 +33,8 @@ export interface NicknameCheckResponse {
  * 현재 사용자의 프로필 정보를 조회하는 훅
  */
 export const useUserProfile = () => {
+  const { isSignedIn } = useUser();
+
   const fetchProfile = async (): Promise<UserProfileResponse> => {
     const response = await fetch('/api/users/profile');
     if (!response.ok) {
@@ -46,6 +50,7 @@ export const useUserProfile = () => {
   return useGoalQuery(fetchProfile, [], {
     staleTime: 1 * 60 * 1000, // 1분간 캐시 유지 (더 짧게)
     retry: 2,
+    enabled: isSignedIn, // 로그인된 사용자만 쿼리 실행
   });
 };
 
