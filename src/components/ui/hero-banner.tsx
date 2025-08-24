@@ -72,7 +72,7 @@ const HeroBanner = React.forwardRef<HTMLDivElement, HeroBannerProps>(
 
               {ctaText && (
                 <Button
-                  variant="primary"
+                  variant="default"
                   size="lg"
                   onClick={onCtaClick}
                   className="bg-white text-black hover:bg-gray-100"

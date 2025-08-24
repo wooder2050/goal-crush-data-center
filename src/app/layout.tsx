@@ -116,6 +116,9 @@ export default function RootLayout({
           <NavItem href="/teams">팀</NavItem>
           <NavItem href="/players">선수</NavItem>
           <NavItem href="/coaches">감독</NavItem>
+          {process.env.NODE_ENV === 'development' && (
+            <NavItem href="/admin/matches">관리자</NavItem>
+          )}
         </Header>
         <div className="pt-24 md:pt-28">
           <Providers>

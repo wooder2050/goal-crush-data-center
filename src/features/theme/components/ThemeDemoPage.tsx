@@ -48,7 +48,7 @@ export default function ThemeDemoPage() {
       {/* Buttons Section */}
       <Section title="버튼 컴포넌트" subtitle="다양한 버튼 스타일">
         <div className="flex flex-wrap gap-4">
-          <Button variant="primary">Primary Button</Button>
+          <Button variant="default">Primary Button</Button>
           <Button variant="secondary">Secondary Button</Button>
           <Button variant="outline">Outline Button</Button>
           <Button variant="ghost">Ghost Button</Button>
