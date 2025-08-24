@@ -1,7 +1,7 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 
 import { useGoalForm } from '@/common/form/useGoalForm';
@@ -65,37 +65,40 @@ export function NicknameChangeForm({
   }, [profileData?.user?.korean_nickname, form, hasCheckedInitial]);
 
   // 닉네임 중복 체크
-  const handleNicknameCheck = async (nickname: string) => {
-    if (!nickname.trim()) {
-      setNicknameCheckMessage('');
-      setIsNicknameAvailable(null);
-      return;
-    }
+  const handleNicknameCheck = useCallback(
+    async (nickname: string) => {
+      if (!nickname.trim()) {
+        setNicknameCheckMessage('');
+        setIsNicknameAvailable(null);
+        return;
+      }
 
-    // 현재 닉네임과 같다면 사용 가능으로 처리
-    if (nickname === profileData?.user?.korean_nickname) {
-      setNicknameCheckMessage('현재 사용 중인 닉네임입니다');
-      setIsNicknameAvailable(true);
-      return;
-    }
+      // 현재 닉네임과 같다면 사용 가능으로 처리
+      if (nickname === profileData?.user?.korean_nickname) {
+        setNicknameCheckMessage('현재 사용 중인 닉네임입니다');
+        setIsNicknameAvailable(true);
+        return;
+      }
 
-    if (nickname.length < 2) {
-      setNicknameCheckMessage('닉네임은 최소 2자 이상이어야 합니다');
-      setIsNicknameAvailable(false);
-      return;
-    }
+      if (nickname.length < 2) {
+        setNicknameCheckMessage('닉네임은 최소 2자 이상이어야 합니다');
+        setIsNicknameAvailable(false);
+        return;
+      }
 
-    try {
-      const result = await checkNickname.mutateAsync({
-        korean_nickname: nickname,
-      });
-      setNicknameCheckMessage(result.message);
-      setIsNicknameAvailable(result.isAvailable);
-    } catch {
-      setNicknameCheckMessage('닉네임 확인 중 오류가 발생했습니다');
-      setIsNicknameAvailable(false);
-    }
-  };
+      try {
+        const result = await checkNickname.mutateAsync({
+          korean_nickname: nickname,
+        });
+        setNicknameCheckMessage(result.message);
+        setIsNicknameAvailable(result.isAvailable);
+      } catch {
+        setNicknameCheckMessage('닉네임 확인 중 오류가 발생했습니다');
+        setIsNicknameAvailable(false);
+      }
+    },
+    [checkNickname, profileData?.user?.korean_nickname]
+  );
 
   // 폼 제출
   const onSubmit = async (data: NicknameChangeFormData) => {
@@ -142,7 +145,7 @@ export function NicknameChangeForm({
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [currentNickname, hasCheckedInitial]);
+  }, [currentNickname, hasCheckedInitial, handleNicknameCheck]);
 
   const isFormValid =
     isNicknameAvailable &&
@@ -172,9 +175,9 @@ export function NicknameChangeForm({
             {nicknameCheckMessage}
           </p>
         )}
-        {form.formState.errors.korean_nickname && (
+        {form.formState.errors.korean_nickname?.message && (
           <p className="text-xs text-red-600 mt-1">
-            {form.formState.errors.korean_nickname.message}
+            {String(form.formState.errors.korean_nickname.message)}
           </p>
         )}
         <p className="text-xs text-gray-500 mt-1">
