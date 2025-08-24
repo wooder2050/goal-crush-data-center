@@ -1,22 +1,27 @@
 import './globals.css';
 
-import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from '@clerk/nextjs';
+import { ClerkProvider, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Script from 'next/script';
 
 import { AdminNavItem } from '@/components/AdminNavItem';
+import { Navigation } from '@/components/Navigation';
 import { NicknameSetupModal } from '@/components/NicknameSetupModal';
-import { Header, NavItem } from '@/components/ui/header';
+import { Header } from '@/components/ui/header';
 import { Providers } from '@/lib/providers';
 
 import ScrollToTopOnRouteChange from './ScrollToTopOnRouteChange';
+
+// 네비게이션 메뉴 설정
+const NAV_ITEMS = [
+  { href: '/', label: '홈', requireAuth: false },
+  { href: '/seasons', label: '시즌', requireAuth: false },
+  { href: '/teams', label: '팀', requireAuth: false },
+  { href: '/players', label: '선수', requireAuth: false },
+  { href: '/coaches', label: '감독', requireAuth: false },
+  { href: '/supports', label: '응원하기', requireAuth: true },
+] as const;
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://goal-crush-data-center.vercel.app'),
@@ -79,7 +84,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      clerkJSUrl="https://unpkg.com/@clerk/clerk-js@latest/dist/clerk.browser.js"
+    >
       <html lang="ko">
         <body className="font-sans antialiased">
           {/* Google Analytics (gtag.js) */}
@@ -126,11 +134,11 @@ export default function RootLayout({
               authButtons={
                 <>
                   <SignedOut>
-                    <SignInButton mode="modal">
+                    <Link href="/sign-in">
                       <button className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-black border border-gray-300 rounded-md hover:border-gray-400 transition-colors">
                         로그인
                       </button>
-                    </SignInButton>
+                    </Link>
                   </SignedOut>
                   <SignedIn>
                     <div className="flex items-center gap-3">
@@ -146,12 +154,7 @@ export default function RootLayout({
                 </>
               }
             >
-              <NavItem href="/">홈</NavItem>
-              <NavItem href="/seasons">시즌</NavItem>
-              <NavItem href="/teams">팀</NavItem>
-              <NavItem href="/players">선수</NavItem>
-              <NavItem href="/coaches">감독</NavItem>
-              <NavItem href="/supports">응원하기</NavItem>
+              <Navigation navItems={NAV_ITEMS} />
               <AdminNavItem />
             </Header>
             <div className="pt-24 md:pt-28">

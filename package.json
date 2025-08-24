@@ -14,6 +14,7 @@
     "fix": "pnpm lint --fix"
   },
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^5.1.6",
     "@clerk/nextjs": "^6.31.4",
     "@hookform/resolvers": "^5.2.1",
     "@prisma/client": "^5.22.0",
@@ -35,6 +36,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.2.1",
     "es-toolkit": "^1.28.0",
     "lucide-react": "^0.451.0",
     "next": "14.2.15",
