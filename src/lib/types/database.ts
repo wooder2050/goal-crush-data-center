@@ -12,6 +12,17 @@ export interface User {
   updated_at: string;
 }
 
+export interface MatchSupport {
+  support_id: number;
+  user_id: string;
+  match_id: number;
+  team_id: number;
+  support_type: string;
+  message?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Player {
   player_id: number;
   name: string;

@@ -19,9 +19,8 @@ export async function GET(request: NextRequest) {
     const now = new Date();
 
     const where: Prisma.MatchWhereInput = {
+      status: 'scheduled',
       match_date: { gt: now },
-      home_score: null,
-      away_score: null,
     };
 
     if (teamId) {
@@ -38,6 +37,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // 전체 개수 조회 (페이지네이션용)
+    const totalCount = await prisma.match.count({ where });
+
     const rows = await prisma.match.findMany({
       where,
       include: {
@@ -53,6 +55,7 @@ export async function GET(request: NextRequest) {
     const items = rows.map((m) => ({
       match_id: m.match_id,
       match_date: m.match_date,
+      status: m.status,
       description: m.description ?? null,
       season: m.season
         ? { season_id: m.season.season_id, season_name: m.season.season_name }
@@ -73,7 +76,19 @@ export async function GET(request: NextRequest) {
         : null,
     }));
 
-    return NextResponse.json({ total: items.length, items });
+    // 페이지네이션 정보 계산
+    const currentPage = Math.floor(offset / limit) + 1;
+    const hasNextPage = offset + limit < totalCount;
+    const nextPage = hasNextPage ? currentPage + 1 : null;
+
+    return NextResponse.json({
+      total: totalCount,
+      matches: items,
+      totalCount,
+      nextPage,
+      hasNextPage,
+      currentPage,
+    });
   } catch (error) {
     console.error('Failed to fetch upcoming matches', error);
     return NextResponse.json(

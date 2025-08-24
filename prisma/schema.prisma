@@ -20,6 +20,7 @@ model Team {
   logo                     String?                   @db.VarChar(500)
   group_league_standings   GroupLeagueStanding[]
   match_coaches            MatchCoach[]
+  match_supports           MatchSupport[]
   matches_away             Match[]                   @relation("AwayTeam")
   matches_home             Match[]                   @relation("HomeTeam")
   penalty_shootout_details PenaltyShootoutDetail[]
@@ -39,19 +40,20 @@ model Team {
 }
 
 model User {
-  user_id           String   @id @db.VarChar(255) // Clerk userId
-  korean_nickname   String   @unique @db.VarChar(50)
-  display_name      String?  @db.VarChar(100)
-  profile_image_url String?  @db.Text
-  bio               String?  @db.Text
-  is_active         Boolean  @default(true)
-  is_admin          Boolean  @default(false)
-  created_at        DateTime @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime @default(now()) @db.Timestamptz(6)
+  user_id           String         @id @db.VarChar(255)
+  korean_nickname   String         @unique @db.VarChar(50)
+  display_name      String?        @db.VarChar(100)
+  profile_image_url String?
+  bio               String?
+  is_active         Boolean?       @default(true)
+  created_at        DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime?      @default(now()) @db.Timestamptz(6)
+  is_admin          Boolean?
+  match_supports    MatchSupport[]
 
   @@index([korean_nickname], map: "idx_users_korean_nickname")
   @@index([is_active], map: "idx_users_is_active")
-  @@index([is_admin], map: "idx_users_is_admin")
+  @@index([created_at], map: "idx_users_created_at")
   @@map("users")
 }
 
@@ -161,6 +163,7 @@ model Match {
   assists                  Assist[]
   goals                    Goal[]
   match_coaches            MatchCoach[]
+  match_supports           MatchSupport[]
   away_coach               Coach?                  @relation("AwayCoach", fields: [away_coach_id], references: [coach_id], onUpdate: NoAction)
   away_team                Team?                   @relation("AwayTeam", fields: [away_team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction)
   home_coach               Coach?                  @relation("HomeCoach", fields: [home_coach_id], references: [coach_id], onUpdate: NoAction)
@@ -507,6 +510,27 @@ model H2hPairStats {
   @@id([team_small_id, team_large_id])
   @@index([team_small_id, team_large_id], map: "h2h_pair_stats_small_large")
   @@map("h2h_pair_stats")
+}
+
+model MatchSupport {
+  support_id   Int      @id @default(autoincrement())
+  user_id      String   @db.VarChar(255)
+  match_id     Int
+  team_id      Int
+  support_type String   @default("cheer") @db.VarChar(20)
+  message      String?
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime @default(now()) @db.Timestamptz(6)
+  match        Match    @relation(fields: [match_id], references: [match_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_match_supports_match_id")
+  team         Team     @relation(fields: [team_id], references: [team_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_match_supports_team_id")
+  user         User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_match_supports_user_id")
+
+  @@unique([user_id, match_id], map: "unique_user_match_support")
+  @@index([match_id], map: "idx_match_supports_match_id")
+  @@index([team_id], map: "idx_match_supports_team_id")
+  @@index([user_id], map: "idx_match_supports_user_id")
+  @@index([created_at], map: "idx_match_supports_created_at")
+  @@map("match_supports")
 }
 
 enum SeasonCategory {

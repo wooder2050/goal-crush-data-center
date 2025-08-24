@@ -369,11 +369,16 @@ export async function GET(request: NextRequest) {
     // 페이지네이션 응답 또는 일반 응답
     if (isPaginated) {
       const totalPages = Math.ceil(totalCount / limitNum);
+      const hasNextPage = pageNum < totalPages;
+      const nextPage = hasNextPage ? pageNum + 1 : null;
+
       return NextResponse.json({
         items: seasonsWithMatchCount,
         totalCount,
         totalPages,
         currentPage: pageNum,
+        hasNextPage,
+        nextPage,
       });
     } else {
       return NextResponse.json(seasonsWithMatchCount);
