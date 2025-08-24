@@ -1,5 +1,17 @@
 // Goal Crush Data Center database type definitions (Supabase-aligned)
 
+export interface User {
+  user_id: string;
+  korean_nickname: string;
+  display_name?: string | null;
+  profile_image_url?: string | null;
+  bio?: string | null;
+  is_active: boolean;
+  is_admin: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Player {
   player_id: number;
   name: string;
@@ -314,6 +326,7 @@ export interface MatchCoach {
 }
 
 // Input types (for auto-generated IDs)
+export type UserInput = Omit<User, 'created_at' | 'updated_at'>;
 export type PlayerInput = Omit<
   Player,
   'player_id' | 'created_at' | 'updated_at'
@@ -355,6 +368,9 @@ export type TeamCoachHistoryInput = Omit<TeamCoachHistory, 'id' | 'created_at'>;
 export type MatchCoachInput = Omit<MatchCoach, 'id' | 'created_at'>;
 
 // Update types (all fields optional)
+export type UserUpdate = Partial<
+  Omit<User, 'user_id' | 'created_at' | 'updated_at'>
+>;
 export type PlayerUpdate = Partial<
   Omit<Player, 'player_id' | 'created_at' | 'updated_at'>
 >;
@@ -595,6 +611,7 @@ export interface CoachTrophies {
 
 // Table name types
 export type TableName =
+  | 'users'
   | 'players'
   | 'teams'
   | 'seasons'
@@ -621,6 +638,7 @@ export type TableName =
 export interface Database {
   public: {
     Tables: {
+      users: { Row: User; Insert: UserInput; Update: UserUpdate };
       players: { Row: Player; Insert: PlayerInput; Update: PlayerUpdate };
       teams: { Row: Team; Insert: TeamInput; Update: TeamUpdate };
       seasons: { Row: Season; Insert: SeasonInput; Update: SeasonUpdate };

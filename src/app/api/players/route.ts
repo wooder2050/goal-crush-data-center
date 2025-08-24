@@ -173,24 +173,41 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      const grouped = await prisma.playerMatchStats.groupBy({
-        by: ['player_id'],
+      // Get all player match stats to filter by minutes_played > 0
+      const allPlayerStats = await prisma.playerMatchStats.findMany({
         where: { player_id: { in: players.map((p) => p.player_id) } },
-        _count: { match_id: true },
-        _sum: { goals: true, assists: true },
+        select: {
+          player_id: true,
+          match_id: true,
+          goals: true,
+          assists: true,
+          minutes_played: true,
+        },
       });
+
+      // Group by player_id and count only appearances where minutes_played > 0
       const totalsMap = new Map<
         number,
         { appearances: number; goals: number; assists: number }
       >();
-      for (let i = 0; i < grouped.length; i++) {
-        const g = grouped[i];
-        const pid = g.player_id ?? 0;
-        totalsMap.set(pid, {
-          appearances: g._count?.match_id ?? 0,
-          goals: g._sum?.goals ?? 0,
-          assists: g._sum?.assists ?? 0,
-        });
+
+      for (const stat of allPlayerStats) {
+        const pid = stat.player_id ?? 0;
+        const playedMinutes = (stat.minutes_played ?? 0) as number;
+        const goals = (stat.goals ?? 0) as number;
+        const assists = (stat.assists ?? 0) as number;
+
+        if (!totalsMap.has(pid)) {
+          totalsMap.set(pid, { appearances: 0, goals: 0, assists: 0 });
+        }
+
+        const playerTotal = totalsMap.get(pid)!;
+        // Count appearance only if minutes_played > 0
+        if (playedMinutes > 0) {
+          playerTotal.appearances += 1;
+        }
+        playerTotal.goals += goals;
+        playerTotal.assists += assists;
       }
 
       return players.map((p) => {
@@ -256,22 +273,41 @@ export async function GET(request: NextRequest) {
       }
 
       // Aggregate by team for ordering
-      const groupedTeam = await prisma.playerMatchStats.groupBy({
-        by: ['player_id'],
+      // Get all player match stats for the team to filter by minutes_played > 0
+      const teamPlayerStats = await prisma.playerMatchStats.findMany({
         where: { team_id: teamId, player_id: { in: candidateIds } },
-        _count: { match_id: true },
-        _sum: { goals: true, assists: true },
+        select: {
+          player_id: true,
+          match_id: true,
+          goals: true,
+          assists: true,
+          minutes_played: true,
+        },
       });
+
+      // Group by player_id and count only appearances where minutes_played > 0
       const orderMap = new Map<
         number,
         { apps: number; goals: number; assists: number }
       >();
-      for (const g of groupedTeam) {
-        orderMap.set(g.player_id ?? 0, {
-          apps: g._count?.match_id ?? 0,
-          goals: g._sum?.goals ?? 0,
-          assists: g._sum?.assists ?? 0,
-        });
+
+      for (const stat of teamPlayerStats) {
+        const pid = stat.player_id ?? 0;
+        const playedMinutes = (stat.minutes_played ?? 0) as number;
+        const goals = (stat.goals ?? 0) as number;
+        const assists = (stat.assists ?? 0) as number;
+
+        if (!orderMap.has(pid)) {
+          orderMap.set(pid, { apps: 0, goals: 0, assists: 0 });
+        }
+
+        const playerStats = orderMap.get(pid)!;
+        // Count appearance only if minutes_played > 0
+        if (playedMinutes > 0) {
+          playerStats.apps += 1;
+        }
+        playerStats.goals += goals;
+        playerStats.assists += assists;
       }
 
       // Sort according to orderParam
@@ -371,22 +407,41 @@ export async function GET(request: NextRequest) {
       });
       const candidateIds = candidateIdsRaw.map((x) => x.player_id);
 
-      const groupedAll = await prisma.playerMatchStats.groupBy({
-        by: ['player_id'],
+      // Get all player match stats to filter by minutes_played > 0
+      const allPlayerStats = await prisma.playerMatchStats.findMany({
         where: { player_id: { in: candidateIds } },
-        _count: { match_id: true },
-        _sum: { goals: true, assists: true },
+        select: {
+          player_id: true,
+          match_id: true,
+          goals: true,
+          assists: true,
+          minutes_played: true,
+        },
       });
+
+      // Group by player_id and count only appearances where minutes_played > 0
       const orderMap = new Map<
         number,
         { apps: number; goals: number; assists: number }
       >();
-      for (const g of groupedAll) {
-        orderMap.set(g.player_id ?? 0, {
-          apps: g._count?.match_id ?? 0,
-          goals: g._sum?.goals ?? 0,
-          assists: g._sum?.assists ?? 0,
-        });
+
+      for (const stat of allPlayerStats) {
+        const pid = stat.player_id ?? 0;
+        const playedMinutes = (stat.minutes_played ?? 0) as number;
+        const goals = (stat.goals ?? 0) as number;
+        const assists = (stat.assists ?? 0) as number;
+
+        if (!orderMap.has(pid)) {
+          orderMap.set(pid, { apps: 0, goals: 0, assists: 0 });
+        }
+
+        const playerStats = orderMap.get(pid)!;
+        // Count appearance only if minutes_played > 0
+        if (playedMinutes > 0) {
+          playerStats.apps += 1;
+        }
+        playerStats.goals += goals;
+        playerStats.assists += assists;
       }
       const playersForName = await prisma.player.findMany({
         where: { player_id: { in: candidateIds } },
@@ -469,22 +524,41 @@ export async function GET(request: NextRequest) {
       });
       const candidateIds = candidateIdsRaw.map((x) => x.player_id);
 
-      const groupedAll = await prisma.playerMatchStats.groupBy({
-        by: ['player_id'],
+      // Get all player match stats to filter by minutes_played > 0
+      const allPlayerStats = await prisma.playerMatchStats.findMany({
         where: { player_id: { in: candidateIds } },
-        _count: { match_id: true },
-        _sum: { goals: true, assists: true },
+        select: {
+          player_id: true,
+          match_id: true,
+          goals: true,
+          assists: true,
+          minutes_played: true,
+        },
       });
+
+      // Group by player_id and count only appearances where minutes_played > 0
       const orderMap = new Map<
         number,
         { apps: number; goals: number; assists: number }
       >();
-      for (const g of groupedAll) {
-        orderMap.set(g.player_id ?? 0, {
-          apps: g._count?.match_id ?? 0,
-          goals: g._sum?.goals ?? 0,
-          assists: g._sum?.assists ?? 0,
-        });
+
+      for (const stat of allPlayerStats) {
+        const pid = stat.player_id ?? 0;
+        const playedMinutes = (stat.minutes_played ?? 0) as number;
+        const goals = (stat.goals ?? 0) as number;
+        const assists = (stat.assists ?? 0) as number;
+
+        if (!orderMap.has(pid)) {
+          orderMap.set(pid, { apps: 0, goals: 0, assists: 0 });
+        }
+
+        const playerStats = orderMap.get(pid)!;
+        // Count appearance only if minutes_played > 0
+        if (playedMinutes > 0) {
+          playerStats.apps += 1;
+        }
+        playerStats.goals += goals;
+        playerStats.assists += assists;
       }
       const playersForName = await prisma.player.findMany({
         where: { player_id: { in: candidateIds } },
@@ -613,6 +687,111 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error: 'Failed to fetch players',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// POST /api/players - Create a new player
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const {
+      name,
+      birth_date,
+      nationality,
+      height_cm,
+      profile_image_url,
+      jersey_number,
+    } = body;
+
+    // Validation
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      return NextResponse.json(
+        { error: '선수명을 입력해주세요.' },
+        { status: 400 }
+      );
+    }
+
+    if (name.trim().length > 100) {
+      return NextResponse.json(
+        { error: '선수명은 100자를 초과할 수 없습니다.' },
+        { status: 400 }
+      );
+    }
+
+    // Check for duplicate name
+    const existingPlayer = await prisma.player.findUnique({
+      where: { name: name.trim() },
+    });
+
+    if (existingPlayer) {
+      return NextResponse.json(
+        { error: '이미 존재하는 선수명입니다.' },
+        { status: 400 }
+      );
+    }
+
+    // Optional field validations
+    if (
+      nationality &&
+      typeof nationality === 'string' &&
+      nationality.length > 50
+    ) {
+      return NextResponse.json(
+        { error: '국적은 50자를 초과할 수 없습니다.' },
+        { status: 400 }
+      );
+    }
+
+    if (
+      height_cm &&
+      (typeof height_cm !== 'number' || height_cm < 100 || height_cm > 250)
+    ) {
+      return NextResponse.json(
+        { error: '신장은 100cm~250cm 범위 내에서 입력해주세요.' },
+        { status: 400 }
+      );
+    }
+
+    if (
+      jersey_number &&
+      (typeof jersey_number !== 'number' ||
+        jersey_number < 1 ||
+        jersey_number > 99)
+    ) {
+      return NextResponse.json(
+        { error: '등번호는 1~99 범위 내에서 입력해주세요.' },
+        { status: 400 }
+      );
+    }
+
+    // Create player
+    const newPlayer = await prisma.player.create({
+      data: {
+        name: name.trim(),
+        birth_date: birth_date ? new Date(birth_date) : null,
+        nationality: nationality?.trim() || null,
+        height_cm: height_cm || null,
+        profile_image_url: profile_image_url?.trim() || null,
+        jersey_number: jersey_number || null,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        message: '선수가 성공적으로 생성되었습니다.',
+        player: newPlayer,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Error creating player:', error);
+    return NextResponse.json(
+      {
+        error: '선수 생성 중 오류가 발생했습니다.',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }

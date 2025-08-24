@@ -31,5 +31,4 @@ export { Section } from './section';
 export { Body, Caption, H1, H2, H3, Label, Typography } from './typography';
 
 // Feature Components
-export { HeroBanner } from './hero-banner';
-export { ProductCard } from './product-card';
+// (No feature components currently in use)

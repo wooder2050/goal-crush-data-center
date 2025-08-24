@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 
 interface HeaderProps extends React.HTMLAttributes<HTMLElement> {
   children?: React.ReactNode;
+  authButtons?: React.ReactNode;
 }
 
 const CHANNELS: { label: string; href: string }[] = [
@@ -15,7 +16,7 @@ const CHANNELS: { label: string; href: string }[] = [
 ];
 
 const Header = React.forwardRef<HTMLElement, HeaderProps>(
-  ({ className, children, ...props }, ref) => {
+  ({ className, children, authButtons, ...props }, ref) => {
     return (
       <header
         ref={ref}
@@ -25,19 +26,23 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
         )}
         {...props}
       >
-        {/* Row 1: channels (large, bold) */}
+        {/* Row 1: channels (large, bold) with auth buttons */}
         <div className="px-4 lg:px-6">
           <div className="mx-auto max-w-7xl">
-            <div className="flex w-full items-center gap-6 overflow-x-auto py-3 md:py-4">
-              {CHANNELS.map((c) => (
-                <Link
-                  key={c.label}
-                  href={c.href}
-                  className="whitespace-nowrap text-xl font-bold tracking-tight text-black md:text-2xl"
-                >
-                  {c.label}
-                </Link>
-              ))}
+            <div className="flex w-full items-center justify-between py-3 md:py-4">
+              <div className="flex items-center gap-6 overflow-x-auto">
+                {CHANNELS.map((c) => (
+                  <Link
+                    key={c.label}
+                    href={c.href}
+                    className="whitespace-nowrap text-xl font-bold tracking-tight text-black md:text-2xl"
+                  >
+                    {c.label}
+                  </Link>
+                ))}
+              </div>
+              {/* Auth buttons in top right */}
+              <div className="flex items-center gap-2">{authButtons}</div>
             </div>
           </div>
         </div>

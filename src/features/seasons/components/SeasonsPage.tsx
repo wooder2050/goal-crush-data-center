@@ -183,7 +183,7 @@ function SeasonsPageInner() {
                     </div>
                     <Button
                       className="mt-auto h-10 w-full text-sm"
-                      variant="primary"
+                      variant="default"
                     >
                       시즌 기록 보기
                     </Button>
