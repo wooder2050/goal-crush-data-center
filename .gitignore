@@ -54,3 +54,6 @@ node_modules
 supabase/migrations/*.sql
 
 supabase/
+
+# clerk configuration (can include secrets)
+/.clerk/

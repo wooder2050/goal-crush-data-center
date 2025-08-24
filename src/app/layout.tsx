@@ -1,8 +1,18 @@
 import './globals.css';
 
+import {
+  ClerkProvider,
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from '@clerk/nextjs';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import Script from 'next/script';
 
+import { AdminNavItem } from '@/components/AdminNavItem';
+import { NicknameSetupModal } from '@/components/NicknameSetupModal';
 import { Header, NavItem } from '@/components/ui/header';
 import { Providers } from '@/lib/providers';
 
@@ -69,64 +79,88 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
-      <body className="font-sans antialiased">
-        {/* Google Analytics (gtag.js) */}
-        {process.env.NEXT_PUBLIC_GA_ID && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="ga" strategy="afterInteractive">
-              {`
+    <ClerkProvider>
+      <html lang="ko">
+        <body className="font-sans antialiased">
+          {/* Google Analytics (gtag.js) */}
+          {process.env.NEXT_PUBLIC_GA_ID && (
+            <>
+              <Script
+                src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+                strategy="afterInteractive"
+              />
+              <Script id="ga" strategy="afterInteractive">
+                {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
                 gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', { anonymize_ip: true });
               `}
-            </Script>
-          </>
-        )}
+              </Script>
+            </>
+          )}
 
-        {/* Google AdSense */}
-        <Script
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
-        <Script id="gtm" strategy="afterInteractive">
-          {`
+          {/* Google AdSense */}
+          <Script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+          <Script id="gtm" strategy="afterInteractive">
+            {`
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
             j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
             })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID || ''}');
           `}
-        </Script>
-        <noscript
-          dangerouslySetInnerHTML={{
-            __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID || ''}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
-          }}
-        />
-        <Header>
-          <NavItem href="/">홈</NavItem>
-          <NavItem href="/seasons">시즌</NavItem>
-          <NavItem href="/teams">팀</NavItem>
-          <NavItem href="/players">선수</NavItem>
-          <NavItem href="/coaches">감독</NavItem>
-          {process.env.NODE_ENV === 'development' && (
-            <NavItem href="/admin/matches">관리자</NavItem>
-          )}
-        </Header>
-        <div className="pt-24 md:pt-28">
+          </Script>
+          <noscript
+            dangerouslySetInnerHTML={{
+              __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID || ''}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`,
+            }}
+          />
           <Providers>
-            <ScrollToTopOnRouteChange />
-            {children}
+            <Header
+              authButtons={
+                <>
+                  <SignedOut>
+                    <SignInButton mode="modal">
+                      <button className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-black border border-gray-300 rounded-md hover:border-gray-400 transition-colors">
+                        로그인
+                      </button>
+                    </SignInButton>
+                  </SignedOut>
+                  <SignedIn>
+                    <div className="flex items-center gap-3">
+                      <Link
+                        href="/profile"
+                        className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-black border border-gray-300 rounded-md hover:border-gray-400 transition-colors"
+                      >
+                        프로필
+                      </Link>
+                      <UserButton />
+                    </div>
+                  </SignedIn>
+                </>
+              }
+            >
+              <NavItem href="/">홈</NavItem>
+              <NavItem href="/seasons">시즌</NavItem>
+              <NavItem href="/teams">팀</NavItem>
+              <NavItem href="/players">선수</NavItem>
+              <NavItem href="/coaches">감독</NavItem>
+              <AdminNavItem />
+            </Header>
+            <div className="pt-24 md:pt-28">
+              <ScrollToTopOnRouteChange />
+              <NicknameSetupModal />
+              {children}
+            </div>
           </Providers>
-        </div>
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
