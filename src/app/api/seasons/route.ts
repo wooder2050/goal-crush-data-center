@@ -30,37 +30,230 @@ type SeasonWithMatchCount = {
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
 
-// GET /api/seasons - 모든 시즌 조회
+// POST /api/seasons - 새 시즌 생성
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { season_name, year, start_date, end_date } = body;
+
+    // 필수 필드 검증
+    if (!season_name || !year) {
+      return NextResponse.json(
+        { error: '시즌명과 연도는 필수입니다.' },
+        { status: 400 }
+      );
+    }
+
+    // 시즌명 길이 및 형식 검증
+    if (season_name.length < 3 || season_name.length > 100) {
+      return NextResponse.json(
+        { error: '시즌명은 3자 이상 100자 이하여야 합니다.' },
+        { status: 400 }
+      );
+    }
+
+    // 연도 유효성 검증
+    const yearNum = parseInt(year);
+    if (isNaN(yearNum) || yearNum < 2020 || yearNum > 2030) {
+      return NextResponse.json(
+        { error: '연도는 2020년에서 2030년 사이여야 합니다.' },
+        { status: 400 }
+      );
+    }
+
+    // 시즌명 중복 검증
+    const existingSeason = await prisma.season.findFirst({
+      where: { season_name },
+    });
+
+    if (existingSeason) {
+      return NextResponse.json(
+        { error: '동일한 시즌명이 이미 존재합니다.' },
+        { status: 400 }
+      );
+    }
+
+    // 날짜 유효성 검증
+    if (start_date && end_date) {
+      const start = new Date(start_date);
+      const end = new Date(end_date);
+
+      if (start >= end) {
+        return NextResponse.json(
+          { error: '시작일은 종료일보다 이전이어야 합니다.' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // 새 시즌 생성
+    const newSeason = await prisma.season.create({
+      data: {
+        season_name,
+        year: yearNum,
+        start_date: start_date ? new Date(start_date) : null,
+        end_date: end_date ? new Date(end_date) : null,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        message: '시즌이 성공적으로 생성되었습니다.',
+        season: newSeason,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Error creating season:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to create season',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/seasons - 시즌 삭제
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const seasonId = searchParams.get('id');
+
+    if (!seasonId) {
+      return NextResponse.json(
+        { error: '시즌 ID가 필요합니다.' },
+        { status: 400 }
+      );
+    }
+
+    const seasonIdNum = parseInt(seasonId);
+    if (isNaN(seasonIdNum)) {
+      return NextResponse.json(
+        { error: '유효하지 않은 시즌 ID입니다.' },
+        { status: 400 }
+      );
+    }
+
+    // 시즌 존재 여부 확인
+    const existingSeason = await prisma.season.findUnique({
+      where: { season_id: seasonIdNum },
+    });
+
+    if (!existingSeason) {
+      return NextResponse.json(
+        { error: '존재하지 않는 시즌입니다.' },
+        { status: 404 }
+      );
+    }
+
+    // 시즌에 경기가 있는지 확인
+    const matchCount = await prisma.match.count({
+      where: { season_id: seasonIdNum },
+    });
+
+    if (matchCount > 0) {
+      return NextResponse.json(
+        {
+          error: '경기가 있는 시즌은 삭제할 수 없습니다.',
+          matchCount,
+          seasonName: existingSeason.season_name,
+        },
+        { status: 400 }
+      );
+    }
+
+    // 시즌에 관련된 다른 데이터가 있는지 확인
+    const relatedDataCount = await prisma.standing.count({
+      where: { season_id: seasonIdNum },
+    });
+
+    if (relatedDataCount > 0) {
+      return NextResponse.json(
+        {
+          error: '순위 데이터가 있는 시즌은 삭제할 수 없습니다.',
+          relatedDataCount,
+          seasonName: existingSeason.season_name,
+        },
+        { status: 400 }
+      );
+    }
+
+    // 시즌 삭제
+    await prisma.season.delete({
+      where: { season_id: seasonIdNum },
+    });
+
+    return NextResponse.json({
+      message: '시즌이 삭제되었습니다.',
+      deletedSeason: {
+        id: seasonIdNum,
+        name: existingSeason.season_name,
+      },
+    });
+  } catch (error) {
+    console.error('Error deleting season:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to delete season',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// GET /api/seasons - 모든 시즌 조회 (페이지네이션 지원)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const name = searchParams.get('name');
     const year = searchParams.get('year');
+    const page = searchParams.get('page');
+    const limit = searchParams.get('limit');
 
-    const seasons = await prisma.season.findMany({
-      where: {
-        ...(name && {
-          season_name: {
-            contains: name,
-            mode: 'insensitive' as const,
-          },
+    // 페이지네이션 파라미터 처리
+    const pageNum = page ? parseInt(page) : undefined;
+    const limitNum = limit ? parseInt(limit) : undefined;
+    const isPaginated = pageNum && limitNum;
+
+    const whereClause = {
+      ...(name && {
+        season_name: {
+          contains: name,
+          mode: 'insensitive' as const,
+        },
+      }),
+      ...(year &&
+        !isNaN(parseInt(year)) && {
+          year: parseInt(year),
         }),
-        ...(year &&
-          !isNaN(parseInt(year)) && {
-            year: parseInt(year),
-          }),
-      },
-      include: {
-        _count: {
-          select: {
-            matches: true,
+    };
+
+    // 페이지네이션이 요청된 경우 총 개수도 조회
+    const [seasons, totalCount] = await Promise.all([
+      prisma.season.findMany({
+        where: whereClause,
+        include: {
+          _count: {
+            select: {
+              matches: true,
+            },
           },
         },
-      },
-      orderBy: {
-        season_id: 'desc',
-      },
-    });
+        orderBy: {
+          season_id: 'desc',
+        },
+        ...(isPaginated && {
+          skip: (pageNum - 1) * limitNum,
+          take: limitNum,
+        }),
+      }),
+      isPaginated
+        ? prisma.season.count({ where: whereClause })
+        : Promise.resolve(0),
+    ]);
 
     // match_count 필드를 추가하여 응답 형식 통일
     const seasonIds = seasons.map((s) => s.season_id);
@@ -173,7 +366,18 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    return NextResponse.json(seasonsWithMatchCount);
+    // 페이지네이션 응답 또는 일반 응답
+    if (isPaginated) {
+      const totalPages = Math.ceil(totalCount / limitNum);
+      return NextResponse.json({
+        items: seasonsWithMatchCount,
+        totalCount,
+        totalPages,
+        currentPage: pageNum,
+      });
+    } else {
+      return NextResponse.json(seasonsWithMatchCount);
+    }
   } catch (error) {
     console.error('Error fetching seasons:', error);
     return NextResponse.json(

@@ -17,24 +17,41 @@ export async function GET(request: NextRequest) {
     if (ids.length === 0) return NextResponse.json({}, { status: 200 });
 
     // aggregate from player_match_stats as a fallback for totals
-    const matchStats = await prisma.playerMatchStats.groupBy({
-      by: ['player_id'],
+    // Get all player match stats to filter by minutes_played > 0
+    const allPlayerStats = await prisma.playerMatchStats.findMany({
       where: { player_id: { in: ids } },
-      _count: { match_id: true },
-      _sum: { goals: true, assists: true },
+      select: {
+        player_id: true,
+        match_id: true,
+        goals: true,
+        assists: true,
+        minutes_played: true,
+      },
     });
+
+    // Group by player_id and count only appearances where minutes_played > 0
     const totalsMap = new Map<
       number,
       { appearances: number; goals: number; assists: number }
     >();
-    for (let i = 0; i < matchStats.length; i++) {
-      const row = matchStats[i];
-      const pid = row.player_id ?? 0;
-      totalsMap.set(pid, {
-        appearances: row._count?.match_id ?? 0,
-        goals: row._sum?.goals ?? 0,
-        assists: row._sum?.assists ?? 0,
-      });
+
+    for (const stat of allPlayerStats) {
+      const pid = stat.player_id ?? 0;
+      const playedMinutes = (stat.minutes_played ?? 0) as number;
+      const goals = (stat.goals ?? 0) as number;
+      const assists = (stat.assists ?? 0) as number;
+
+      if (!totalsMap.has(pid)) {
+        totalsMap.set(pid, { appearances: 0, goals: 0, assists: 0 });
+      }
+
+      const playerTotal = totalsMap.get(pid)!;
+      // Count appearance only if minutes_played > 0
+      if (playedMinutes > 0) {
+        playerTotal.appearances += 1;
+      }
+      playerTotal.goals += goals;
+      playerTotal.assists += assists;
     }
 
     // seasons from player_season_stats (fallback with match stats per season if needed)

@@ -33,6 +33,30 @@ Object.defineProperty(getAllSeasonsPrisma, 'queryKey', {
   value: 'allSeasons',
 });
 
+// Get seasons with pagination
+export const getSeasonsPaginatedPrisma = async ({
+  page = 1,
+  limit = 10,
+}: {
+  page?: number;
+  limit?: number;
+} = {}): Promise<{
+  items: SeasonWithStats[];
+  totalCount: number;
+  totalPages: number;
+  currentPage: number;
+}> => {
+  const response = await fetch(`/api/seasons?page=${page}&limit=${limit}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch seasons: ${response.statusText}`);
+  }
+  return response.json();
+};
+
+Object.defineProperty(getSeasonsPaginatedPrisma, 'queryKey', {
+  value: 'seasonsPaginated',
+});
+
 // Get season by ID
 export const getSeasonByIdPrisma = async (
   seasonId: number
@@ -113,3 +137,82 @@ export const getSeasonByNamePrisma = async (
   const seasons = await response.json();
   return seasons.length > 0 ? seasons[0] : null;
 };
+
+// Create new season
+export const createSeasonPrisma = async (seasonData: {
+  season_name: string;
+  year: number;
+  start_date?: string;
+  end_date?: string;
+}): Promise<Season> => {
+  const response = await fetch('/api/seasons', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(seasonData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(
+      errorData.error || `Failed to create season: ${response.statusText}`
+    );
+  }
+
+  return response.json();
+};
+
+Object.defineProperty(createSeasonPrisma, 'queryKey', {
+  value: 'createSeason',
+});
+
+// Update season
+export const updateSeasonPrisma = async (
+  seasonId: number,
+  seasonData: {
+    season_name: string;
+    year: number;
+    start_date?: string;
+    end_date?: string;
+  }
+): Promise<Season> => {
+  const response = await fetch(`/api/seasons/${seasonId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(seasonData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(
+      errorData.error || `Failed to update season: ${response.statusText}`
+    );
+  }
+
+  return response.json();
+};
+
+Object.defineProperty(updateSeasonPrisma, 'queryKey', {
+  value: 'updateSeason',
+});
+
+// Delete season
+export const deleteSeasonPrisma = async (seasonId: number): Promise<void> => {
+  const response = await fetch(`/api/seasons?id=${seasonId}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(
+      errorData.error || `Failed to delete season: ${response.statusText}`
+    );
+  }
+};
+
+Object.defineProperty(deleteSeasonPrisma, 'queryKey', {
+  value: 'deleteSeason',
+});
