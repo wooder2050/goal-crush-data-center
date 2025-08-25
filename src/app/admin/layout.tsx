@@ -1,10 +1,10 @@
 'use client';
 
-import { RedirectToSignIn, SignedIn, SignedOut, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+import { useAuth } from '@/components/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -12,20 +12,20 @@ import { isAdminFromProfile } from '@/lib/admin';
 
 // 관리자 권한 확인 컴포넌트
 function AdminCheck({ children }: { children: React.ReactNode }) {
-  const { user, isLoaded } = useUser();
+  const { user, loading } = useAuth();
   const { data: profileData, isLoading: isProfileLoading } = useUserProfile();
   const router = useRouter();
 
   useEffect(() => {
-    if (isLoaded && user && !isProfileLoading && profileData) {
+    if (!loading && user && !isProfileLoading && profileData) {
       if (!isAdminFromProfile(profileData.user)) {
         router.push('/');
       }
     }
-  }, [isLoaded, user, isProfileLoading, profileData, router]);
+  }, [loading, user, isProfileLoading, profileData, router]);
 
   // 로딩 중
-  if (!isLoaded || isProfileLoading) {
+  if (loading || isProfileLoading) {
     return (
       <Container className="py-8">
         <div className="space-y-8">
@@ -92,59 +92,52 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <SignedOut>
-        <RedirectToSignIn />
-      </SignedOut>
-      <SignedIn>
-        <AdminCheck>
-          <div>
-            <div className="border-b">
-              <Container className="py-2">
-                <div className="flex items-center gap-4 text-sm">
-                  <Link href="/" className="text-gray-600 hover:text-black">
-                    홈
-                  </Link>
-                  <span className="text-gray-400">/</span>
-                  <Link
-                    href="/admin/matches"
-                    className="text-gray-600 hover:text-black"
-                  >
-                    관리자
-                  </Link>
-                </div>
-              </Container>
+    <AdminCheck>
+      <div>
+        <div className="border-b">
+          <Container className="py-2">
+            <div className="flex items-center gap-4 text-sm">
+              <Link href="/" className="text-gray-600 hover:text-black">
+                홈
+              </Link>
+              <span className="text-gray-400">/</span>
+              <Link
+                href="/admin/matches"
+                className="text-gray-600 hover:text-black"
+              >
+                관리자
+              </Link>
             </div>
+          </Container>
+        </div>
 
-            {/* Admin 네비게이션 메뉴 */}
-            <div className="bg-white border-b shadow-sm">
-              <Container className="py-4">
-                <nav className="flex space-x-6">
-                  <Link
-                    href="/admin/matches"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100"
-                  >
-                    경기 관리
-                  </Link>
-                  <Link
-                    href="/admin/seasons"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100"
-                  >
-                    시즌 관리
-                  </Link>
-                  <Link
-                    href="/admin/players"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100"
-                  >
-                    선수 관리
-                  </Link>
-                </nav>
-              </Container>
-            </div>
-            {children}
-          </div>
-        </AdminCheck>
-      </SignedIn>
-    </>
+        {/* Admin 네비게이션 메뉴 */}
+        <div className="bg-white border-b shadow-sm">
+          <Container className="py-4">
+            <nav className="flex space-x-6">
+              <Link
+                href="/admin/matches"
+                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+              >
+                경기 관리
+              </Link>
+              <Link
+                href="/admin/seasons"
+                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+              >
+                시즌 관리
+              </Link>
+              <Link
+                href="/admin/players"
+                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+              >
+                선수 관리
+              </Link>
+            </nav>
+          </Container>
+        </div>
+        {children}
+      </div>
+    </AdminCheck>
   );
 }

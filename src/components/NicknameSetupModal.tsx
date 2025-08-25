@@ -1,11 +1,11 @@
 'use client';
 
-import { useUser } from '@clerk/nextjs';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { z } from 'zod';
 
 import { useGoalForm } from '@/common/form/useGoalForm';
+import { useAuth } from '@/components/AuthProvider';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -38,7 +38,7 @@ const nicknameSchema = z.object({
 });
 
 export function NicknameSetupModal() {
-  const { user, isLoaded } = useUser();
+  const { user, loading } = useAuth();
   const {
     data: profileData,
     isLoading: isProfileLoading,
@@ -64,7 +64,7 @@ export function NicknameSetupModal() {
 
   // 사용자가 로그인했지만 닉네임이 없으면 모달 표시
   useEffect(() => {
-    if (isLoaded && user && !isProfileLoading && profileData) {
+    if (!loading && user && !isProfileLoading && profileData) {
       const shouldShowModal = !profileData.hasNickname;
 
       // 수동으로 닫는 중이 아닐 때만 모달 상태 변경
@@ -86,14 +86,7 @@ export function NicknameSetupModal() {
         currentIsOpen: isOpen,
       });
     }
-  }, [
-    isLoaded,
-    user,
-    isProfileLoading,
-    profileData,
-    isManuallyClosing,
-    isOpen,
-  ]);
+  }, [loading, user, isProfileLoading, profileData, isManuallyClosing, isOpen]);
 
   // 닉네임 중복 체크
   const handleNicknameCheck = async (nickname: string) => {
@@ -158,7 +151,7 @@ export function NicknameSetupModal() {
     }
   };
 
-  if (!isLoaded || !user || isProfileLoading) {
+  if (loading || !user || isProfileLoading) {
     return null;
   }
   // 모달 닫기 제어 (닉네임 설정이 필수이므로 사용자가 임의로 닫을 수 없음)

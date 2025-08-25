@@ -1,12 +1,22 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
+import { createClient } from '@/lib/supabase/server';
 
 // GET /api/supports - 사용자의 응원 목록 조회
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userId = user.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -93,11 +103,17 @@ export async function GET(request: NextRequest) {
 // POST /api/supports - 새로운 응원 추가
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (error || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const userId = user.id;
 
     const body = await request.json();
     const { matchId, teamId, supportType = 'cheer', message } = body;
@@ -209,11 +225,17 @@ export async function POST(request: NextRequest) {
 // DELETE /api/supports - 응원 취소
 export async function DELETE(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (error || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const userId = user.id;
 
     const { searchParams } = new URL(request.url);
     const matchId = searchParams.get('matchId');

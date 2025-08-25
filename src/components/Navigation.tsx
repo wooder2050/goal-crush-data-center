@@ -1,7 +1,6 @@
 'use client';
 
-import { useUser } from '@clerk/nextjs';
-
+import { useAuth } from '@/components/AuthProvider';
 import { NavItem } from '@/components/ui/header';
 
 interface NavigationProps {
@@ -13,13 +12,13 @@ interface NavigationProps {
 }
 
 export function Navigation({ navItems }: NavigationProps) {
-  const { isSignedIn } = useUser();
+  const { user } = useAuth();
 
   return (
     <>
       {navItems.map((item) => {
         // 로그인이 필요한 메뉴인데 로그인하지 않은 경우 숨김
-        if (item.requireAuth && !isSignedIn) {
+        if (item.requireAuth && !user) {
           return null;
         }
 

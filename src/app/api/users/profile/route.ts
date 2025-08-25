@@ -1,8 +1,8 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 import { prisma } from '@/lib/prisma';
+import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,13 +23,19 @@ const nicknameSchema = z.object({
  */
 export async function GET() {
   try {
-    const { userId } = await auth();
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (error || !user) {
       return Response.json({ error: '인증이 필요합니다' }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
+    const userId = user.id;
+
+    const dbUser = await prisma.user.findUnique({
       where: { user_id: userId },
       select: {
         user_id: true,
@@ -44,15 +50,15 @@ export async function GET() {
       },
     });
 
-    if (!user) {
+    if (!dbUser) {
       return Response.json({ user: null, hasNickname: false });
     }
 
     return Response.json({
-      user,
+      user: dbUser,
       hasNickname:
-        !!user?.korean_nickname &&
-        !user.korean_nickname.startsWith('임시사용자'),
+        !!dbUser?.korean_nickname &&
+        !dbUser.korean_nickname.startsWith('임시사용자'),
     });
   } catch (error) {
     console.error('프로필 조회 오류:', error);
@@ -68,11 +74,17 @@ export async function GET() {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (error || !user) {
       return Response.json({ error: '인증이 필요합니다' }, { status: 401 });
     }
+
+    const userId = user.id;
 
     const body = await request.json();
     const validatedData = nicknameSchema.parse(body);
@@ -93,7 +105,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // 사용자 프로필 생성/업데이트
-    const user = await prisma.user.upsert({
+    const updatedUser = await prisma.user.upsert({
       where: { user_id: userId },
       update: {
         korean_nickname: validatedData.korean_nickname,
@@ -117,7 +129,7 @@ export async function PUT(request: NextRequest) {
     });
 
     return Response.json({
-      user,
+      user: updatedUser,
       message: '프로필이 성공적으로 저장되었습니다',
     });
   } catch (error) {
@@ -138,11 +150,17 @@ export async function PUT(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (error || !user) {
       return Response.json({ error: '인증이 필요합니다' }, { status: 401 });
     }
+
+    const userId = user.id;
 
     const { korean_nickname } = await request.json();
 

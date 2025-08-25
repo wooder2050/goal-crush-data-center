@@ -1,7 +1,7 @@
-import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
+import { createClient } from '@/lib/supabase/server';
 
 // DELETE /api/supports/[support_id] - 특정 응원 메시지 삭제
 export async function DELETE(
@@ -9,11 +9,17 @@ export async function DELETE(
   { params }: { params: { support_id: string } }
 ) {
   try {
-    const { userId } = await auth();
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (error || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const userId = user.id;
 
     const supportId = parseInt(params.support_id);
     if (isNaN(supportId)) {

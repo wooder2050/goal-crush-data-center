@@ -1,6 +1,5 @@
 'use client';
 
-import { useUser } from '@clerk/nextjs';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { MessageCircle, Trash2 } from 'lucide-react';
@@ -8,6 +7,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
+import { useAuth } from '@/components/AuthProvider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -160,7 +160,7 @@ function SupportMessagesListContent({
   homeTeam,
   awayTeam,
 }: SupportMessagesListProps) {
-  const { user } = useUser();
+  const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTeamFilter, setSelectedTeamFilter] = useState<number | null>(
     null
