@@ -1,8 +1,35 @@
-import { auth } from '@clerk/nextjs/server';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 import { prisma } from '@/lib/prisma';
+import { Database } from '@/lib/types/database';
+
+// Supabase 서버 클라이언트 생성 (Vercel 배포 안정성을 위한 직접 구현)
+function createClient() {
+  const cookieStore = cookies();
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Server Component에서 호출된 경우 무시
+          }
+        },
+      },
+    }
+  );
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -23,13 +50,19 @@ const nicknameSchema = z.object({
  */
 export async function GET() {
   try {
-    const { userId } = await auth();
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (error || !user) {
       return Response.json({ error: '인증이 필요합니다' }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
+    const userId = user.id;
+
+    const dbUser = await prisma.user.findUnique({
       where: { user_id: userId },
       select: {
         user_id: true,
@@ -44,15 +77,15 @@ export async function GET() {
       },
     });
 
-    if (!user) {
+    if (!dbUser) {
       return Response.json({ user: null, hasNickname: false });
     }
 
     return Response.json({
-      user,
+      user: dbUser,
       hasNickname:
-        !!user?.korean_nickname &&
-        !user.korean_nickname.startsWith('임시사용자'),
+        !!dbUser?.korean_nickname &&
+        !dbUser.korean_nickname.startsWith('임시사용자'),
     });
   } catch (error) {
     console.error('프로필 조회 오류:', error);
@@ -68,11 +101,17 @@ export async function GET() {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (error || !user) {
       return Response.json({ error: '인증이 필요합니다' }, { status: 401 });
     }
+
+    const userId = user.id;
 
     const body = await request.json();
     const validatedData = nicknameSchema.parse(body);
@@ -93,7 +132,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // 사용자 프로필 생성/업데이트
-    const user = await prisma.user.upsert({
+    const updatedUser = await prisma.user.upsert({
       where: { user_id: userId },
       update: {
         korean_nickname: validatedData.korean_nickname,
@@ -117,7 +156,7 @@ export async function PUT(request: NextRequest) {
     });
 
     return Response.json({
-      user,
+      user: updatedUser,
       message: '프로필이 성공적으로 저장되었습니다',
     });
   } catch (error) {
@@ -138,11 +177,17 @@ export async function PUT(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (error || !user) {
       return Response.json({ error: '인증이 필요합니다' }, { status: 401 });
     }
+
+    const userId = user.id;
 
     const { korean_nickname } = await request.json();
 

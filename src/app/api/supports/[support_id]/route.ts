@@ -1,7 +1,34 @@
-import { auth } from '@clerk/nextjs/server';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
+import { Database } from '@/lib/types/database';
+
+// Supabase 서버 클라이언트 생성 (Vercel 배포 안정성을 위한 직접 구현)
+function createClient() {
+  const cookieStore = cookies();
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Server Component에서 호출된 경우 무시
+          }
+        },
+      },
+    }
+  );
+}
 
 // DELETE /api/supports/[support_id] - 특정 응원 메시지 삭제
 export async function DELETE(
@@ -9,11 +36,17 @@ export async function DELETE(
   { params }: { params: { support_id: string } }
 ) {
   try {
-    const { userId } = await auth();
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-    if (!userId) {
+    if (error || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const userId = user.id;
 
     const supportId = parseInt(params.support_id);
     if (isNaN(supportId)) {

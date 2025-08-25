@@ -1,9 +1,9 @@
 'use client';
 
-import { SignedIn, SignedOut, useUser } from '@clerk/nextjs';
 import { useState } from 'react';
 
 import { GoalWrapper } from '@/common/GoalWrapper';
+import { useAuth } from '@/components/AuthProvider';
 import { NicknameChangeForm } from '@/components/NicknameChangeForm';
 import {
   Button,
@@ -22,193 +22,201 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { isAdminFromProfile } from '@/lib/admin';
 
-export default function ProfilePage() {
-  const { user, isLoaded } = useUser();
+function ProfileContent() {
+  const { user, signOut } = useAuth();
   const { data: profileData, isLoading } = useUserProfile();
-  const [isNicknameDialogOpen, setIsNicknameDialogOpen] = useState(false);
+  const [isNicknameModalOpen, setIsNicknameModalOpen] = useState(false);
 
-  if (!isLoaded || isLoading) {
+  if (isLoading) {
     return (
-      <GoalWrapper>
-        <Section>
-          <Container>
-            <div className="animate-pulse space-y-6">
-              <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-              <div className="h-32 bg-gray-200 rounded"></div>
-            </div>
-          </Container>
-        </Section>
-      </GoalWrapper>
+      <Container className="py-8">
+        <div className="space-y-6">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-48 mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-32 mb-8"></div>
+          </div>
+          <Card>
+            <CardHeader>
+              <div className="animate-pulse">
+                <div className="h-6 bg-gray-200 rounded w-32 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-48"></div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="animate-pulse space-y-4">
+                <div className="h-4 bg-gray-200 rounded w-full"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </Container>
     );
   }
 
   return (
-    <GoalWrapper>
+    <Container className="py-8">
       <Section>
-        <Container className="max-w-2xl">
-          <H1 className="mb-8">내 프로필</H1>
+        <H1>프로필</H1>
+        <p className="text-gray-600 mb-8">계정 정보를 확인하고 관리하세요.</p>
 
-          <SignedOut>
-            <Card>
-              <CardHeader>
-                <CardTitle>로그인이 필요합니다</CardTitle>
-                <CardDescription>
-                  프로필을 확인하려면 로그인해주세요.
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </SignedOut>
-
-          <SignedIn>
-            {profileData?.user ? (
-              <div className="space-y-6">
-                {/* 기본 정보 카드 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>기본 정보</CardTitle>
-                    <CardDescription>
-                      계정의 기본 정보를 확인하고 수정할 수 있습니다.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">
-                          이메일
-                        </label>
-                        <p className="text-gray-900 mt-1">
-                          {user?.primaryEmailAddress?.emailAddress}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">
-                          닉네임
-                        </label>
-                        <div className="flex items-center justify-between mt-1">
-                          <p className="text-gray-900">
-                            {profileData.user.korean_nickname}
-                          </p>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setIsNicknameDialogOpen(true)}
-                          >
-                            변경
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">
-                          가입일
-                        </label>
-                        <p className="text-gray-900 mt-1">
-                          {new Date(
-                            profileData.user.created_at
-                          ).toLocaleDateString('ko-KR')}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">
-                          계정 상태
-                        </label>
-                        <div className="flex items-center mt-1">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              profileData.user.is_active
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {profileData.user.is_active ? '활성' : '비활성'}
-                          </span>
-                          {isAdminFromProfile(profileData.user) && (
-                            <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              관리자
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* 계정 설정 카드 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>계정 설정</CardTitle>
-                    <CardDescription>
-                      계정 보안 및 기타 설정을 관리할 수 있습니다.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <h4 className="text-sm font-medium text-blue-900 mb-2">
-                        계정 보안 설정
-                      </h4>
-                      <p className="text-sm text-blue-700 mb-3">
-                        비밀번호 변경, 이메일 변경, 2단계 인증 등의 보안 설정을
-                        관리하려면 우측 상단의 프로필 아이콘을 클릭하세요.
-                      </p>
-                      <div className="flex items-center text-xs text-blue-600">
-                        <svg
-                          className="w-4 h-4 mr-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        UserButton → Manage account 클릭
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+        <div className="space-y-6">
+          {/* 기본 정보 카드 */}
+          <Card>
+            <CardHeader>
+              <CardTitle>기본 정보</CardTitle>
+              <CardDescription>로그인 계정의 기본 정보입니다.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    이메일
+                  </label>
+                  <p className="text-gray-900">{user?.email || '정보 없음'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    가입일
+                  </label>
+                  <p className="text-gray-900">
+                    {user?.created_at
+                      ? new Date(user.created_at).toLocaleDateString('ko-KR')
+                      : '정보 없음'}
+                  </p>
+                </div>
               </div>
-            ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle>프로필을 불러올 수 없습니다</CardTitle>
-                  <CardDescription>
-                    프로필 정보를 불러오는 중 오류가 발생했습니다.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            )}
-          </SignedIn>
+            </CardContent>
+          </Card>
 
-          {/* 닉네임 변경 다이얼로그 */}
-          <Dialog
-            open={isNicknameDialogOpen}
-            onOpenChange={setIsNicknameDialogOpen}
-          >
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>닉네임 변경</DialogTitle>
-                <DialogDescription>
-                  새로운 닉네임을 입력해주세요. 한글, 영문, 숫자만 사용
-                  가능합니다.
-                </DialogDescription>
-              </DialogHeader>
-              <NicknameChangeForm
-                onSuccess={() => setIsNicknameDialogOpen(false)}
-                onCancel={() => setIsNicknameDialogOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
-        </Container>
+          {/* 닉네임 관리 카드 */}
+          <Card>
+            <CardHeader>
+              <CardTitle>닉네임 관리</CardTitle>
+              <CardDescription>
+                사이트에서 사용할 닉네임을 설정하세요.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">
+                    현재 닉네임:{' '}
+                    <span className="text-gray-600">
+                      {profileData?.user?.korean_nickname || '설정되지 않음'}
+                    </span>
+                  </p>
+                </div>
+                <Dialog
+                  open={isNicknameModalOpen}
+                  onOpenChange={setIsNicknameModalOpen}
+                >
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      변경
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>닉네임 변경</DialogTitle>
+                      <DialogDescription>
+                        새로운 닉네임을 입력해주세요.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <NicknameChangeForm
+                      onSuccess={() => setIsNicknameModalOpen(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 계정 관리 카드 */}
+          <Card>
+            <CardHeader>
+              <CardTitle>계정 관리</CardTitle>
+              <CardDescription>
+                계정 보안 및 로그아웃 관련 설정입니다.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div>
+                  <h3 className="font-medium">로그아웃</h3>
+                  <p className="text-sm text-gray-600">
+                    현재 계정에서 로그아웃합니다.
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => signOut()}
+                  className="text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  로그아웃
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                <div>
+                  <h3 className="font-medium">계정 설정</h3>
+                  <p className="text-sm text-gray-600">
+                    비밀번호 변경, 이메일 변경 등의 계정 보안 설정은 Supabase
+                    대시보드에서 관리됩니다.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </Section>
+    </Container>
+  );
+}
+
+function LoginPrompt() {
+  return (
+    <Container className="flex flex-col justify-center items-center min-h-[60vh] text-center">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            로그인이 필요합니다
+          </h1>
+          <p className="text-gray-600">프로필을 보려면 먼저 로그인해주세요.</p>
+        </div>
+        <Button
+          onClick={() => (window.location.href = '/sign-in')}
+          className="bg-[#ff4800] hover:bg-[#e63e00]"
+        >
+          로그인하기
+        </Button>
+      </div>
+    </Container>
+  );
+}
+
+export default function ProfilePage() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <Container className="flex justify-center items-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ff4800]"></div>
+      </Container>
+    );
+  }
+
+  if (!user) {
+    return <LoginPrompt />;
+  }
+
+  return (
+    <GoalWrapper>
+      <ProfileContent />
     </GoalWrapper>
   );
 }
