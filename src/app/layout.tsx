@@ -1,11 +1,11 @@
 import './globals.css';
 
-import { ClerkProvider, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import Script from 'next/script';
 
 import { AdminNavItem } from '@/components/AdminNavItem';
+import { AuthButtons } from '@/components/AuthButtons';
+import { AuthProvider } from '@/components/AuthProvider';
 import { Navigation } from '@/components/Navigation';
 import { NicknameSetupModal } from '@/components/NicknameSetupModal';
 import { Header } from '@/components/ui/header';
@@ -84,10 +84,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      clerkJSUrl="https://unpkg.com/@clerk/clerk-js@latest/dist/clerk.browser.js"
-    >
+    <AuthProvider>
       <html lang="ko">
         <body className="font-sans antialiased">
           {/* Google Analytics (gtag.js) */}
@@ -130,30 +127,7 @@ export default function RootLayout({
             }}
           />
           <Providers>
-            <Header
-              authButtons={
-                <>
-                  <SignedOut>
-                    <Link href="/sign-in">
-                      <button className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-black border border-gray-300 rounded-md hover:border-gray-400 transition-colors">
-                        로그인
-                      </button>
-                    </Link>
-                  </SignedOut>
-                  <SignedIn>
-                    <div className="flex items-center gap-3">
-                      <Link
-                        href="/profile"
-                        className="px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-black border border-gray-300 rounded-md hover:border-gray-400 transition-colors"
-                      >
-                        프로필
-                      </Link>
-                      <UserButton />
-                    </div>
-                  </SignedIn>
-                </>
-              }
-            >
+            <Header authButtons={<AuthButtons />}>
               <Navigation navItems={NAV_ITEMS} />
               <AdminNavItem />
             </Header>
@@ -165,6 +139,6 @@ export default function RootLayout({
           </Providers>
         </body>
       </html>
-    </ClerkProvider>
+    </AuthProvider>
   );
 }

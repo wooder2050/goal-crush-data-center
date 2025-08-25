@@ -1,6 +1,5 @@
 'use client';
 
-import { useUser } from '@clerk/nextjs';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { CalendarDays, Heart } from 'lucide-react';
@@ -9,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { ScrollTrigger } from '@/common/ScrollTrigger';
+import { useAuth } from '@/components/AuthProvider';
 import { LoginRequiredModal } from '@/components/LoginRequiredModal';
 import {
   Badge,
@@ -39,19 +39,19 @@ export default function UpcomingMatches({
   className = '',
 }: Props) {
   const router = useRouter();
-  const { isSignedIn } = useUser();
+  const { user } = useAuth();
   const PAGE_SIZE = limit;
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleSupportClick = useCallback(() => {
-    if (!isSignedIn) {
+    if (!user) {
       // 비로그인 사용자는 모달 표시
       setIsLoginModalOpen(true);
     } else {
       // 로그인된 사용자는 응원하기 페이지로 이동
       router.push('/supports');
     }
-  }, [isSignedIn, router]);
+  }, [user, router]);
 
   const handleCloseLoginModal = useCallback(() => {
     setIsLoginModalOpen(false);
