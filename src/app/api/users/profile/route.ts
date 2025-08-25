@@ -2,7 +2,8 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 import { prisma } from '@/lib/prisma';
-import { createClient } from '@/lib/supabase/server';
+
+import { createClient } from '../../../../lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 

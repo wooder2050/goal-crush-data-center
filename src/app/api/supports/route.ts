@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
-import { createClient } from '@/lib/supabase/server';
+
+import { createClient } from '../../../lib/supabase/server';
 
 // GET /api/supports - 사용자의 응원 목록 조회
 export async function GET(request: NextRequest) {

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
-import { createClient } from '@/lib/supabase/server';
+
+import { createClient } from '../../../../lib/supabase/server';
 
 // DELETE /api/supports/[support_id] - 특정 응원 메시지 삭제
 export async function DELETE(
