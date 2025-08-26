@@ -69,9 +69,6 @@ const getCommunityPosts = async (
   if (params.seasonId) {
     searchParams.append('season_id', params.seasonId.toString());
   }
-  if (params.sortBy) {
-    searchParams.append('sortBy', params.sortBy);
-  }
 
   const response = await fetch(`/api/community/posts?${searchParams}`);
 
@@ -95,6 +92,9 @@ const getCommunityPosts = async (
   return result;
 };
 
+// 고유한 쿼리 키 설정
+getCommunityPosts.queryKey = 'community-posts';
+
 const getLikeStatus = async (
   postId: string,
   userId: string
@@ -110,6 +110,9 @@ const getLikeStatus = async (
   const result = await response.json();
   return result.data;
 };
+
+// 고유한 쿼리 키 설정
+getLikeStatus.queryKey = 'like-status';
 
 function PostItem({ post }: { post: CommunityPost }) {
   const { user } = useAuth();

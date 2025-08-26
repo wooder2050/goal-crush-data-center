@@ -62,14 +62,17 @@ export const getMatchByIdPrisma = async (
   matchId: number
 ): Promise<MatchWithTeams | null> => {
   const response = await fetch(`/api/matches/${matchId}`);
+  if (response.status === 404) {
+    return null; // Match not found
+  }
   if (!response.ok) {
-    if (response.status === 404) {
-      return null; // Match not found
-    }
     throw new Error(`Failed to fetch match: ${response.statusText}`);
   }
   return response.json();
 };
+
+// 고유한 쿼리 키 설정
+getMatchByIdPrisma.queryKey = 'match-by-id';
 
 // Head-to-Head summary by match id (materialized view based)
 export const getHeadToHeadByMatchIdPrisma = async (

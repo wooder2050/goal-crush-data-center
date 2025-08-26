@@ -115,6 +115,9 @@ const getCompletedMatches = async (
   };
 };
 
+// 고유한 쿼리 키 설정
+getCompletedMatches.queryKey = 'completed-matches';
+
 const getUpcomingMatches = async (): Promise<{
   data: Array<{
     match_id: number;
@@ -151,6 +154,9 @@ const getUpcomingMatches = async (): Promise<{
     data: transformedMatches,
   };
 };
+
+// 고유한 쿼리 키 설정
+getUpcomingMatches.queryKey = 'upcoming-matches';
 
 interface CreatePostModalProps {
   isOpen: boolean;

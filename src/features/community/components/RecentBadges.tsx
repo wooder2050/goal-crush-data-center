@@ -31,13 +31,16 @@ const getRecentBadges = async (): Promise<UserBadge[]> => {
   return result.data;
 };
 
+// 고유한 쿼리 키 설정
+getRecentBadges.queryKey = 'recent-badges';
+
 export function RecentBadges() {
   const {
     data: recentBadges,
     isLoading,
     error,
   } = useGoalQuery(getRecentBadges, [], {
-    refetchInterval: 300000, // 300초마다 새로고침
+    refetchInterval: 60000, // 1분마다 새로고침
   });
 
   if (isLoading) {
