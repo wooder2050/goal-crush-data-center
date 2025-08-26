@@ -45,6 +45,9 @@ const getCommunityStats = async (): Promise<CommunityStatsData> => {
   };
 };
 
+// 고유한 쿼리 키 설정
+getCommunityStats.queryKey = 'community-stats';
+
 function CommunityStatsContent() {
   const { data: stats, error } = useGoalSuspenseQuery(getCommunityStats, []);
 

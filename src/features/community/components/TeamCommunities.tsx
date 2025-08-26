@@ -23,6 +23,9 @@ const getTeamCommunities = async (): Promise<TeamCommunity[]> => {
   return result.data;
 };
 
+// 고유한 쿼리 키 설정
+getTeamCommunities.queryKey = 'team-communities';
+
 function TeamCommunitiesContent() {
   const { data: teams } = useGoalSuspenseQuery(getTeamCommunities, []);
 

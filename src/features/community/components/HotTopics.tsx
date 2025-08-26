@@ -22,6 +22,9 @@ const getHotTopics = async (): Promise<HotTopic[]> => {
   return result.data;
 };
 
+// 고유한 쿼리 키 설정
+getHotTopics.queryKey = 'hot-topics';
+
 function HotTopicsContent() {
   const { data: hotTopics } = useGoalSuspenseQuery(getHotTopics, []);
 
