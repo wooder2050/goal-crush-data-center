@@ -70,7 +70,7 @@ export function AuthModal({
         setSuccess('로그인 성공!');
         setTimeout(() => {
           handleClose();
-          if (redirectUrl !== '/') {
+          if (redirectUrl && redirectUrl !== '/') {
             window.location.href = redirectUrl;
           }
         }, 1000);

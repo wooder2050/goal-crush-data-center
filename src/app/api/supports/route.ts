@@ -1,7 +1,34 @@
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
-import { createClient } from '@/lib/supabase/server';
+import { Database } from '@/lib/types/database';
+
+// Supabase 서버 클라이언트 생성 (Vercel 배포 안정성을 위한 직접 구현)
+function createClient() {
+  const cookieStore = cookies();
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Server Component에서 호출된 경우 무시
+          }
+        },
+      },
+    }
+  );
+}
 
 // GET /api/supports - 사용자의 응원 목록 조회
 export async function GET(request: NextRequest) {

@@ -80,9 +80,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithGoogle = async (redirectUrl?: string) => {
+    // 환경에 따른 사이트 URL 설정
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
     const callbackUrl = redirectUrl
-      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectUrl)}`
-      : `${window.location.origin}/auth/callback`;
+      ? `${siteUrl}/auth/callback?next=${encodeURIComponent(redirectUrl)}`
+      : `${siteUrl}/auth/callback`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
