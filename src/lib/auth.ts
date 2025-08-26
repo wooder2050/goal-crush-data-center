@@ -4,9 +4,9 @@ import { cookies } from 'next/headers';
 import { prisma } from './prisma';
 import { Database } from './types/database';
 
-// Supabase 서버 클라이언트 생성 (Vercel 배포 안정성을 위한 직접 구현)
 function createClient() {
   const cookieStore = cookies();
+
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -21,7 +21,9 @@ function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // Server Component에서 호출된 경우 무시
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
           }
         },
       },

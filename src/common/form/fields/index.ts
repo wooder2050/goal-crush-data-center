@@ -32,3 +32,6 @@ export { coachFormSchema, type CoachFormValues } from './coach';
 
 // 선수 관련 필드
 export { playerFormSchema, type PlayerFormValues } from './player';
+
+// 게시글 관련 필드
+export { createPostFormSchema, type CreatePostFormValues } from './post';

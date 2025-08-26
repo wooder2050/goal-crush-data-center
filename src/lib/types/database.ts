@@ -23,6 +23,136 @@ export interface MatchSupport {
   updated_at: string;
 }
 
+// ========================================
+// 커뮤니티 기능 관련 인터페이스들
+// ========================================
+
+export interface CommunityPost {
+  post_id: number;
+  user_id: string;
+  title: string;
+  content?: string | null;
+  category: string;
+  team_id?: number | null;
+  match_id?: number | null;
+  season_id?: number | null;
+  is_pinned?: boolean | null;
+  likes_count?: number | null;
+  comments_count?: number | null;
+  views_count?: number | null;
+  is_deleted?: boolean | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface PostComment {
+  comment_id: number;
+  post_id: number;
+  user_id: string;
+  parent_comment_id?: number | null;
+  content: string;
+  likes_count?: number | null;
+  is_deleted?: boolean | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface PostLike {
+  like_id: number;
+  post_id: number;
+  user_id: string;
+  created_at?: string | null;
+}
+
+export interface CommentLike {
+  like_id: number;
+  comment_id: number;
+  user_id: string;
+  created_at?: string | null;
+}
+
+export interface MvpVote {
+  vote_id: number;
+  season_id: number;
+  user_id: string;
+  player_id: number;
+  vote_type: string;
+  match_id?: number | null;
+  created_at?: string | null;
+}
+
+export interface MatchPrediction {
+  prediction_id: number;
+  match_id: number;
+  user_id: string;
+  home_score: number;
+  away_score: number;
+  predicted_winner?: string | null;
+  predicted_mvp_id?: number | null;
+  confidence_level?: number | null;
+  is_correct?: boolean | null;
+  points_earned?: number | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface UserPoint {
+  point_id: number;
+  user_id: string;
+  points_change: number;
+  point_type: string;
+  reference_id?: number | null;
+  description?: string | null;
+  created_at?: string | null;
+}
+
+export interface UserBadge {
+  badge_id: number;
+  user_id: string;
+  badge_type: string;
+  badge_name: string;
+  badge_description?: string | null;
+  badge_icon?: string | null;
+  earned_at?: string | null;
+}
+
+export interface CommunityEvent {
+  event_id: number;
+  title: string;
+  description?: string | null;
+  event_type: string;
+  start_date: string;
+  end_date: string;
+  reward_points?: number | null;
+  max_participants?: number | null;
+  current_participants?: number | null;
+  is_active?: boolean | null;
+  created_by?: string | null;
+  created_at?: string | null;
+}
+
+export interface EventParticipation {
+  participation_id: number;
+  event_id: number;
+  user_id: string;
+  answer_data?: unknown | null; // jsonb type
+  score?: number | null;
+  is_winner?: boolean | null;
+  participated_at?: string | null;
+}
+
+export interface UserNotification {
+  notification_id: number;
+  user_id: string;
+  notification_type: string;
+  title: string;
+  message?: string | null;
+  reference_type?: string | null;
+  reference_id?: number | null;
+  is_read?: boolean | null;
+  created_at?: string | null;
+}
+
 export interface Player {
   player_id: number;
   name: string;
@@ -378,6 +508,37 @@ export type CoachInput = Omit<Coach, 'coach_id' | 'created_at'>;
 export type TeamCoachHistoryInput = Omit<TeamCoachHistory, 'id' | 'created_at'>;
 export type MatchCoachInput = Omit<MatchCoach, 'id' | 'created_at'>;
 
+// 커뮤니티 기능 Input 타입들
+export type CommunityPostInput = Omit<
+  CommunityPost,
+  'post_id' | 'created_at' | 'updated_at'
+>;
+export type PostCommentInput = Omit<
+  PostComment,
+  'comment_id' | 'created_at' | 'updated_at'
+>;
+export type PostLikeInput = Omit<PostLike, 'like_id' | 'created_at'>;
+export type CommentLikeInput = Omit<CommentLike, 'like_id' | 'created_at'>;
+export type MvpVoteInput = Omit<MvpVote, 'vote_id' | 'created_at'>;
+export type MatchPredictionInput = Omit<
+  MatchPrediction,
+  'prediction_id' | 'created_at' | 'updated_at'
+>;
+export type UserPointInput = Omit<UserPoint, 'point_id' | 'created_at'>;
+export type UserBadgeInput = Omit<UserBadge, 'badge_id' | 'earned_at'>;
+export type CommunityEventInput = Omit<
+  CommunityEvent,
+  'event_id' | 'created_at'
+>;
+export type EventParticipationInput = Omit<
+  EventParticipation,
+  'participation_id' | 'participated_at'
+>;
+export type UserNotificationInput = Omit<
+  UserNotification,
+  'notification_id' | 'created_at'
+>;
+
 // Update types (all fields optional)
 export type UserUpdate = Partial<
   Omit<User, 'user_id' | 'created_at' | 'updated_at'>
@@ -407,6 +568,26 @@ export type AssistUpdate = Partial<
 export type CoachUpdate = Partial<Omit<Coach, 'coach_id' | 'created_at'>>;
 export type TeamCoachHistoryUpdate = Partial<Omit<TeamCoachHistory, 'id'>>;
 export type MatchCoachUpdate = Partial<Omit<MatchCoach, 'id'>>;
+
+// 커뮤니티 기능 Update 타입들
+export type CommunityPostUpdate = Partial<
+  Omit<CommunityPost, 'post_id' | 'user_id'>
+>;
+export type PostCommentUpdate = Partial<
+  Omit<PostComment, 'comment_id' | 'post_id' | 'user_id'>
+>;
+export type MvpVoteUpdate = Partial<Omit<MvpVote, 'vote_id' | 'user_id'>>;
+export type MatchPredictionUpdate = Partial<
+  Omit<MatchPrediction, 'prediction_id' | 'match_id' | 'user_id'>
+>;
+export type UserBadgeUpdate = Partial<Omit<UserBadge, 'badge_id' | 'user_id'>>;
+export type CommunityEventUpdate = Partial<Omit<CommunityEvent, 'event_id'>>;
+export type EventParticipationUpdate = Partial<
+  Omit<EventParticipation, 'participation_id' | 'event_id' | 'user_id'>
+>;
+export type UserNotificationUpdate = Partial<
+  Omit<UserNotification, 'notification_id' | 'user_id'>
+>;
 
 // Joined data types
 export interface PlayerWithTeam extends Player {
@@ -620,6 +801,58 @@ export interface CoachTrophies {
   }>;
 }
 
+// 커뮤니티 관련 조인 타입들
+export interface CommunityPostWithDetails extends CommunityPost {
+  user: User;
+  team?: Team | null;
+  match?: Match | null;
+  season?: Season | null;
+  comments?: PostComment[];
+  likes?: PostLike[];
+}
+
+export interface PostCommentWithDetails extends PostComment {
+  user: User;
+  post: CommunityPost;
+  likes?: CommentLike[];
+  replies?: PostCommentWithDetails[];
+}
+
+export interface MvpVoteWithDetails extends MvpVote {
+  user: User;
+  player: Player;
+  season: Season;
+  match?: Match | null;
+}
+
+export interface MatchPredictionWithDetails extends MatchPrediction {
+  user: User;
+  match: MatchWithTeams;
+  predicted_mvp?: Player | null;
+}
+
+export interface UserPointWithDetails extends UserPoint {
+  user: User;
+}
+
+export interface UserBadgeWithDetails extends UserBadge {
+  user: User;
+}
+
+export interface CommunityEventWithDetails extends CommunityEvent {
+  created_by_user?: User | null;
+  participations?: EventParticipation[];
+}
+
+export interface EventParticipationWithDetails extends EventParticipation {
+  user: User;
+  event: CommunityEvent;
+}
+
+export interface UserNotificationWithDetails extends UserNotification {
+  user: User;
+}
+
 // Table name types
 export type TableName =
   | 'users'
@@ -643,7 +876,19 @@ export type TableName =
   | 'player_current_position'
   | 'coaches'
   | 'team_coach_history'
-  | 'match_coaches';
+  | 'match_coaches'
+  | 'match_supports'
+  | 'community_posts'
+  | 'post_comments'
+  | 'post_likes'
+  | 'comment_likes'
+  | 'mvp_votes'
+  | 'match_predictions'
+  | 'user_points'
+  | 'user_badges'
+  | 'community_events'
+  | 'event_participations'
+  | 'user_notifications';
 
 // Database schema types
 export interface Database {
@@ -706,6 +951,66 @@ export interface Database {
         Row: MatchCoach;
         Insert: MatchCoachInput;
         Update: MatchCoachUpdate;
+      };
+      match_supports: {
+        Row: MatchSupport;
+        Insert: Omit<MatchSupport, 'support_id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<MatchSupport, 'support_id'>>;
+      };
+      community_posts: {
+        Row: CommunityPost;
+        Insert: CommunityPostInput;
+        Update: CommunityPostUpdate;
+      };
+      post_comments: {
+        Row: PostComment;
+        Insert: PostCommentInput;
+        Update: PostCommentUpdate;
+      };
+      post_likes: {
+        Row: PostLike;
+        Insert: PostLikeInput;
+        Update: never; // 좋아요는 업데이트 없음
+      };
+      comment_likes: {
+        Row: CommentLike;
+        Insert: CommentLikeInput;
+        Update: never; // 좋아요는 업데이트 없음
+      };
+      mvp_votes: {
+        Row: MvpVote;
+        Insert: MvpVoteInput;
+        Update: MvpVoteUpdate;
+      };
+      match_predictions: {
+        Row: MatchPrediction;
+        Insert: MatchPredictionInput;
+        Update: MatchPredictionUpdate;
+      };
+      user_points: {
+        Row: UserPoint;
+        Insert: UserPointInput;
+        Update: never; // 포인트는 업데이트 없음
+      };
+      user_badges: {
+        Row: UserBadge;
+        Insert: UserBadgeInput;
+        Update: UserBadgeUpdate;
+      };
+      community_events: {
+        Row: CommunityEvent;
+        Insert: CommunityEventInput;
+        Update: CommunityEventUpdate;
+      };
+      event_participations: {
+        Row: EventParticipation;
+        Insert: EventParticipationInput;
+        Update: EventParticipationUpdate;
+      };
+      user_notifications: {
+        Row: UserNotification;
+        Insert: UserNotificationInput;
+        Update: UserNotificationUpdate;
       };
     };
     Views: { [_ in never]: never };
