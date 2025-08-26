@@ -76,15 +76,6 @@ export function NicknameSetupModal() {
       if (profileData.hasNickname && isManuallyClosing) {
         setIsManuallyClosing(false);
       }
-
-      // 디버깅을 위한 로그
-      console.log('Profile check:', {
-        hasNickname: profileData.hasNickname,
-        user: profileData.user?.korean_nickname,
-        shouldShowModal,
-        isManuallyClosing,
-        currentIsOpen: isOpen,
-      });
     }
   }, [loading, user, isProfileLoading, profileData, isManuallyClosing, isOpen]);
 
