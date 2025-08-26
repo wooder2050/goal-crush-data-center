@@ -29,6 +29,9 @@ const getActivityLeaders = async (): Promise<ActivityLeadersData> => {
   return result.data;
 };
 
+// 고유한 쿼리 키 설정
+getActivityLeaders.queryKey = 'activity-leaders';
+
 export function ActivityLeaders() {
   const {
     data: leaders,
