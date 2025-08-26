@@ -50,11 +50,17 @@ export default function PlayersContent({
   const [teamId, setTeamId] = useState<number | null>(null);
 
   const teamOptions = useMemo(() => {
+    // teams가 배열이 아니거나 undefined/null인 경우 빈 배열 반환
+    if (!Array.isArray(teams)) {
+      console.warn('teams is not an array:', teams);
+      return [];
+    }
+
     const map = new Map<
       number,
       { team_id: number; team_name: string; logo: string | null | undefined }
     >();
-    for (const t of teams as Team[]) {
+    for (const t of teams) {
       const id = t.team_id!;
       if (!map.has(id))
         map.set(id, {
