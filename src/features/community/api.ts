@@ -17,6 +17,9 @@ export const getCurrentMVPVoting = async (): Promise<MVPVotingData | null> => {
   return result.data;
 };
 
+// 고유한 쿼리 키 설정
+getCurrentMVPVoting.queryKey = 'current-mvp-voting';
+
 /**
  * MVP 투표 실행
  */
@@ -41,6 +44,9 @@ export const voteForMVP = async (data: {
   return result;
 };
 
+// 고유한 쿼리 키 설정
+voteForMVP.queryKey = 'vote-for-mvp';
+
 /**
  * MVP 투표 결과 조회
  */
@@ -58,3 +64,6 @@ export const getMVPVotingResults = async (
   const result = await response.json();
   return result.data;
 };
+
+// 고유한 쿼리 키 설정
+getMVPVotingResults.queryKey = 'mvp-voting-results';

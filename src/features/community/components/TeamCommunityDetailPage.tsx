@@ -62,6 +62,9 @@ const getTeamCommunity = async (
   return result;
 };
 
+// 고유한 쿼리 키 설정
+getTeamCommunity.queryKey = 'team-community';
+
 const getTeamCommunityPosts = async (
   teamId: string
 ): Promise<{ data: CommunityPost[] }> => {
@@ -74,6 +77,9 @@ const getTeamCommunityPosts = async (
   const result = await response.json();
   return result;
 };
+
+// 고유한 쿼리 키 설정
+getTeamCommunityPosts.queryKey = 'team-community-posts';
 
 interface TeamCommunityDetailPageProps {
   teamId: string;

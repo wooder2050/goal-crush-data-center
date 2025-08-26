@@ -24,6 +24,9 @@ const getPostDetail = async (postId: string) => {
   return response.json();
 };
 
+// 고유한 쿼리 키 설정
+getPostDetail.queryKey = 'post-detail';
+
 function PostDetailContent() {
   const params = useParams();
   const router = useRouter();
