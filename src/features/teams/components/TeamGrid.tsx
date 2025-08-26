@@ -104,6 +104,12 @@ interface TeamGridProps {
 
 export default function TeamGrid({ teams }: TeamGridProps) {
   const orderedTeams = useMemo(() => {
+    // teams가 배열이 아니거나 undefined/null인 경우 빈 배열 반환
+    if (!Array.isArray(teams)) {
+      console.warn('TeamGrid: teams is not an array:', teams);
+      return [];
+    }
+
     return [...teams].sort((a, b) => {
       const ca = a.championships_count ?? 0;
       const cb = b.championships_count ?? 0;
