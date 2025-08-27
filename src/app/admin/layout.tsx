@@ -133,6 +133,18 @@ export default function AdminLayout({
               >
                 선수 관리
               </Link>
+              <Link
+                href="/admin/teams"
+                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+              >
+                팀 관리
+              </Link>
+              <Link
+                href="/admin/coaches"
+                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+              >
+                감독 관리
+              </Link>
             </nav>
           </Container>
         </div>
