@@ -40,7 +40,8 @@ export const getTeamsPrisma = async (): Promise<TeamWithExtras[]> => {
   if (!response.ok) {
     throw new Error(`Failed to fetch teams: ${response.statusText}`);
   }
-  return response.json();
+  const result = await response.json();
+  return result.data || [];
 };
 
 Object.defineProperty(getTeamsPrisma, 'queryKey', { value: 'teamsAll' });
