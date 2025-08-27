@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    return NextResponse.json(teamsWithReps);
+    return NextResponse.json({ data: teamsWithReps });
   } catch (error) {
     console.error('Error fetching teams:', error);
     return NextResponse.json(
