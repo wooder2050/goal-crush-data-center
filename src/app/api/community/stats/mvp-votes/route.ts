@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/community/stats/mvp-votes - 유저 MVP 투표 결과 조회
 export async function GET(request: NextRequest) {
   try {

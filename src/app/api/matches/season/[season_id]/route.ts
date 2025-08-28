@@ -42,8 +42,8 @@ export async function GET(
     const limitNum = limit ? parseInt(limit) : undefined;
     const isPaginated = pageNum && limitNum;
 
-    // 페이지네이션이 요청된 경우 총 개수도 조회
-    const [matches, totalCount] = await Promise.all([
+    // 페이지네이션이 요청된 경우 총 개수와 토너먼트별 통계도 조회
+    const [matches, totalCount, tournamentStats] = await Promise.all([
       prisma.match.findMany({
         where: { season_id: seasonId },
         include: {
@@ -62,6 +62,13 @@ export async function GET(
       isPaginated
         ? prisma.match.count({ where: { season_id: seasonId } })
         : Promise.resolve(0),
+      isPaginated
+        ? prisma.match.groupBy({
+            by: ['tournament_stage'],
+            where: { season_id: seasonId },
+            _count: true,
+          })
+        : Promise.resolve([]),
     ]);
 
     if (matches.length === 0) {
@@ -73,6 +80,11 @@ export async function GET(
               currentPage: pageNum,
               hasNextPage: false,
               nextPage: null,
+              tournamentStats: {
+                group_stage: 0,
+                championship: 0,
+                relegation: 0,
+              },
             }
           : []
       );
@@ -137,12 +149,27 @@ export async function GET(
       const hasNextPage = pageNum * limitNum < totalCount;
       const nextPage = hasNextPage ? pageNum + 1 : null;
 
+      // 토너먼트별 통계 변환
+      const tournamentStatsObject = {
+        group_stage: 0,
+        championship: 0,
+        relegation: 0,
+      };
+
+      tournamentStats.forEach((stat) => {
+        const stage = stat.tournament_stage as 'group_stage' | 'championship' | 'relegation' | null;
+        if (stage && stage in tournamentStatsObject) {
+          tournamentStatsObject[stage] = stat._count;
+        }
+      });
+
       return NextResponse.json({
         items: updatedMatches,
         totalCount,
         currentPage: pageNum,
         hasNextPage,
         nextPage,
+        tournamentStats: tournamentStatsObject,
       });
     } else {
       return NextResponse.json(updatedMatches);
