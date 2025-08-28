@@ -157,7 +157,9 @@ export default function TeamHeader({ team }: TeamHeaderProps) {
                       ? '(슈퍼리그)'
                       : highlights.best_overall.league === 'challenge'
                         ? '(챌린지리그)'
-                        : '(SBS 컵)'}
+                        : highlights.best_overall.league === 'g-league'
+                          ? '(G리그)'
+                          : '(SBS 컵)'}
                   </span>
                 </div>
                 {highlights.best_overall.league === 'challenge' &&
