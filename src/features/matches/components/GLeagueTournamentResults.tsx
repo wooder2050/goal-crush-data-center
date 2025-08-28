@@ -92,15 +92,28 @@ function GLeagueTournamentResultsInner({
           return match.group_stage === selectedGroup;
         });
 
-  // 토너먼트 스테이지별 경기 수 계산
-  const tournamentStats = {
-    group_stage: matches.filter((m) => m.tournament_stage === 'group_stage')
-      .length,
-    championship: matches.filter((m) => m.tournament_stage === 'championship')
-      .length,
-    relegation: matches.filter((m) => m.tournament_stage === 'relegation')
-      .length,
-  };
+  // API에서 받은 전체 토너먼트 통계 사용 (첫 번째 페이지에서 가져옴)
+  const tournamentStats = useMemo(() => {
+    const firstPage = typedData?.pages?.[0];
+    if (firstPage?.tournamentStats) {
+      return firstPage.tournamentStats;
+    }
+    // 폴백: 로드된 경기들로 계산 (API가 통계를 제공하지 않는 경우)
+    return {
+      group_stage: matches.filter((m) => m.tournament_stage === 'group_stage')
+        .length,
+      championship: matches.filter((m) => m.tournament_stage === 'championship')
+        .length,
+      relegation: matches.filter((m) => m.tournament_stage === 'relegation')
+        .length,
+    };
+  }, [typedData, matches]);
+
+  // 전체 경기 수도 API에서 받은 totalCount 사용
+  const totalMatchesCount = useMemo(() => {
+    const firstPage = typedData?.pages?.[0];
+    return firstPage?.totalCount ?? matches.length;
+  }, [typedData, matches.length]);
 
   const handleSummaryClick = (stage: TournamentStage) => {
     setSelectedTournament(stage);
@@ -159,7 +172,7 @@ function GLeagueTournamentResultsInner({
                 전체 경기
               </div>
               <div className="text-base text-center sm:text-xl md:text-2xl font-bold text-gray-900">
-                {matches.length}
+                {totalMatchesCount}
               </div>
             </div>
             <div

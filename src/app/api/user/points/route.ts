@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserPointHistory,getUserTotalPoints } from '@/lib/points';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/user/points - 사용자 포인트 정보 조회
 export async function GET(request: NextRequest) {
   try {
