@@ -166,7 +166,9 @@ export const getMatchesBySeasonIdPrisma = async (
 export const getSeasonMatchesPagePrisma = async (
   seasonId: number,
   page: number,
-  limit: number = 6
+  limit: number = 6,
+  tournamentStage?: string,
+  groupStage?: string
 ): Promise<{
   items: MatchWithTeams[];
   totalCount: number;
@@ -178,9 +180,22 @@ export const getSeasonMatchesPagePrisma = async (
     championship: number;
     relegation: number;
   };
+  totalMatchesCount: number;
 }> => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+  
+  if (tournamentStage && tournamentStage !== 'all') {
+    params.append('tournament_stage', tournamentStage);
+  }
+  if (groupStage && groupStage !== 'all') {
+    params.append('group_stage', groupStage);
+  }
+
   const response = await fetch(
-    `/api/matches/season/${seasonId}?page=${page}&limit=${limit}`
+    `/api/matches/season/${seasonId}?${params.toString()}`
   );
   if (!response.ok) {
     throw new Error(
