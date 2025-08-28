@@ -32,6 +32,8 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const page = searchParams.get('page');
     const limit = searchParams.get('limit');
+    const tournamentStage = searchParams.get('tournament_stage');
+    const groupStage = searchParams.get('group_stage');
 
     if (isNaN(seasonId)) {
       return NextResponse.json({ error: 'Invalid season ID' }, { status: 400 });
@@ -42,10 +44,23 @@ export async function GET(
     const limitNum = limit ? parseInt(limit) : undefined;
     const isPaginated = pageNum && limitNum;
 
+    // 필터 조건 구성
+    const whereCondition: {
+      season_id: number;
+      tournament_stage?: string;
+      group_stage?: string;
+    } = { season_id: seasonId };
+    if (tournamentStage && tournamentStage !== 'all') {
+      whereCondition.tournament_stage = tournamentStage;
+    }
+    if (groupStage && groupStage !== 'all') {
+      whereCondition.group_stage = groupStage;
+    }
+
     // 페이지네이션이 요청된 경우 총 개수와 토너먼트별 통계도 조회
-    const [matches, totalCount, tournamentStats] = await Promise.all([
+    const [matches, totalCount, tournamentStats, totalMatchesCount] = await Promise.all([
       prisma.match.findMany({
-        where: { season_id: seasonId },
+        where: whereCondition,
         include: {
           home_team: true,
           away_team: true,
@@ -60,15 +75,18 @@ export async function GET(
         }),
       }),
       isPaginated
-        ? prisma.match.count({ where: { season_id: seasonId } })
+        ? prisma.match.count({ where: whereCondition })
         : Promise.resolve(0),
       isPaginated
         ? prisma.match.groupBy({
             by: ['tournament_stage'],
-            where: { season_id: seasonId },
+            where: { season_id: seasonId }, // 전체 통계이므로 필터 조건 제외
             _count: true,
           })
         : Promise.resolve([]),
+      isPaginated
+        ? prisma.match.count({ where: { season_id: seasonId } }) // 전체 경기 수
+        : Promise.resolve(0),
     ]);
 
     if (matches.length === 0) {
@@ -85,6 +103,7 @@ export async function GET(
                 championship: 0,
                 relegation: 0,
               },
+              totalMatchesCount: 0,
             }
           : []
       );
@@ -170,6 +189,7 @@ export async function GET(
         hasNextPage,
         nextPage,
         tournamentStats: tournamentStatsObject,
+        totalMatchesCount,
       });
     } else {
       return NextResponse.json(updatedMatches);

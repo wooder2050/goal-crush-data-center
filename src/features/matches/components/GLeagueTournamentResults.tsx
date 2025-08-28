@@ -55,8 +55,17 @@ function GLeagueTournamentResultsInner({
     status,
   } = useGoalInfiniteQuery<typeof getSeasonMatchesPagePrisma, number>(
     getSeasonMatchesPagePrisma,
-    ({ pageParam }) => [seasonId, pageParam, PAGE_SIZE],
-    { initialPageParam: 1, getNextPageParam: (last) => last.nextPage }
+    ({ pageParam }) => [
+      seasonId,
+      pageParam,
+      PAGE_SIZE,
+      selectedTournament,
+      selectedGroup,
+    ],
+    {
+      initialPageParam: 1,
+      getNextPageParam: (last) => last.nextPage,
+    }
   );
 
   const typedData = infiniteData as typeof infiniteData;
@@ -74,23 +83,8 @@ function GLeagueTournamentResultsInner({
     void fetchNextPage();
   }, [canFetchNext, fetchNextPage]);
 
-  // 이제 allMatches를 사용하여 필터링
-  const matches = allMatches;
-
-  // 토너먼트 스테이지별로 경기 필터링
-  const filteredByTournament = matches.filter((match) => {
-    if (selectedTournament === 'all') return true;
-    return match.tournament_stage === selectedTournament;
-  });
-
-  // 조별로 경기 필터링 (전체 탭에서는 필터링하지 않음)
-  const filteredMatches =
-    selectedTournament === 'all'
-      ? matches
-      : filteredByTournament.filter((match) => {
-          if (selectedGroup === 'all') return true;
-          return match.group_stage === selectedGroup;
-        });
+  // API에서 이미 필터링된 데이터를 받으므로 추가 필터링 불필요
+  const filteredMatches = allMatches;
 
   // API에서 받은 전체 토너먼트 통계 사용 (첫 번째 페이지에서 가져옴)
   const tournamentStats = useMemo(() => {
@@ -98,22 +92,19 @@ function GLeagueTournamentResultsInner({
     if (firstPage?.tournamentStats) {
       return firstPage.tournamentStats;
     }
-    // 폴백: 로드된 경기들로 계산 (API가 통계를 제공하지 않는 경우)
+    // 폴백: 기본값
     return {
-      group_stage: matches.filter((m) => m.tournament_stage === 'group_stage')
-        .length,
-      championship: matches.filter((m) => m.tournament_stage === 'championship')
-        .length,
-      relegation: matches.filter((m) => m.tournament_stage === 'relegation')
-        .length,
+      group_stage: 0,
+      championship: 0,
+      relegation: 0,
     };
-  }, [typedData, matches]);
+  }, [typedData]);
 
-  // 전체 경기 수도 API에서 받은 totalCount 사용
+  // 전체 경기 수도 API에서 받은 totalMatchesCount 사용
   const totalMatchesCount = useMemo(() => {
     const firstPage = typedData?.pages?.[0];
-    return firstPage?.totalCount ?? matches.length;
-  }, [typedData, matches.length]);
+    return firstPage?.totalMatchesCount ?? filteredMatches.length;
+  }, [typedData, filteredMatches.length]);
 
   const handleSummaryClick = (stage: TournamentStage) => {
     setSelectedTournament(stage);
@@ -323,7 +314,7 @@ function GLeagueTournamentResultsInner({
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-base sm:text-xl font-semibold text-gray-800">
               {selectedTournament === 'all' &&
-                `전체 경기 (${filteredMatches.length}경기)`}
+                `전체 경기 (${totalMatchesCount}경기)`}
               {selectedTournament === 'group_stage' &&
                 `조별리그 ${selectedGroup === 'all' ? '전체' : selectedGroup + '조'} (${filteredMatches.length}경기)`}
               {selectedTournament === 'championship' &&
