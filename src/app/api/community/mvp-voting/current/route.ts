@@ -5,6 +5,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Database } from '@/lib/types/database';
 
+export const dynamic = 'force-dynamic';
+
 // Supabase 서버 클라이언트 생성 (Vercel 배포 안정성을 위한 직접 구현)
 function createClient() {
   const cookieStore = cookies();

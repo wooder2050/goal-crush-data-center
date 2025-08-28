@@ -173,6 +173,11 @@ export const getSeasonMatchesPagePrisma = async (
   nextPage: number | null;
   hasNextPage: boolean;
   currentPage: number;
+  tournamentStats: {
+    group_stage: number;
+    championship: number;
+    relegation: number;
+  };
 }> => {
   const response = await fetch(
     `/api/matches/season/${seasonId}?page=${page}&limit=${limit}`

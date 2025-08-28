@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 // Supabase 서버 클라이언트 생성 (Vercel 배포 안정성을 위한 직접 구현)
 // 현재 API에서는 사용하지 않지만 향후 사용자 인증이 필요할 수 있음
 // function createClient() {
