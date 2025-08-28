@@ -59,8 +59,8 @@ function ProfileContent() {
   }
 
   return (
-    <Container className="py-8">
-      <Section>
+    <Container className="py-2 sm:py-8">
+      <Section className="py-2 sm:py-0">
         <H1>프로필</H1>
         <p className="text-gray-600 mb-8">계정 정보를 확인하고 관리하세요.</p>
 

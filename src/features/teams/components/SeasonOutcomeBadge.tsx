@@ -4,7 +4,7 @@ import { match, P } from 'ts-pattern';
 
 import { Badge } from '@/components/ui/badge';
 
-type League = 'super' | 'challenge' | 'playoff' | 'cup' | 'other';
+type League = 'super' | 'challenge' | 'playoff' | 'cup' | 'g-league' | 'other';
 
 interface SeasonOutcomeBadgeProps {
   league: League;
@@ -90,6 +90,13 @@ export default function SeasonOutcomeBadge({
       })
     )
     .with({ league: 'cup', position: 1 }, () => ({
+      label: '우승',
+      emoji: '🏆',
+      variant: 'emphasisOutline' as const,
+      className:
+        'border-2 border-[#ff4800] text-[#ff4800] bg-white font-semibold',
+    }))
+    .with({ league: 'g-league', position: 1 }, () => ({
       label: '우승',
       emoji: '🏆',
       variant: 'emphasisOutline' as const,

@@ -106,6 +106,7 @@ export async function GET(request: NextRequest) {
             return (
               league === 'super' ||
               league === 'cup' ||
+              league === 'g-league' ||
               s.season?.season_id === 2 ||
               s.season?.season_id === 1
             );

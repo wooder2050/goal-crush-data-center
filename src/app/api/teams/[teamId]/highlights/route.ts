@@ -73,6 +73,7 @@ export async function GET(
         return (
           league === 'super' ||
           league === 'cup' ||
+          league === 'g-league' ||
           s.season?.season_id === 2 ||
           s.season?.season_id === 1
         );
@@ -87,6 +88,7 @@ export async function GET(
     let bestSuper: number | null = null;
     let bestChallenge: number | null = null;
     let bestCup: number | null = null;
+    let bestGLeague: number | null = null;
 
     for (let i = 0; i < standings.length; i++) {
       const row = standings[i];
@@ -99,14 +101,17 @@ export async function GET(
         if (bestChallenge === null || pos < bestChallenge) bestChallenge = pos;
       } else if (league === 'cup') {
         if (bestCup === null || pos < bestCup) bestCup = pos;
+      } else if (league === 'g-league') {
+        if (bestGLeague === null || pos < bestGLeague) bestGLeague = pos;
       }
     }
 
-    // Overall best among allowed leagues (super, cup, challenge) with tie preference super > cup > challenge
-    type LeagueCode = 'super' | 'cup' | 'challenge';
+    // Overall best among allowed leagues (super, cup, g-league, challenge) with tie preference super > cup > g-league > challenge
+    type LeagueCode = 'super' | 'cup' | 'g-league' | 'challenge';
     const candidates: Array<{ league: LeagueCode; pos: number | null }> = [
       { league: 'super', pos: bestSuper },
       { league: 'cup', pos: bestCup },
+      { league: 'g-league', pos: bestGLeague },
       { league: 'challenge', pos: bestChallenge },
     ];
     let best_overall: { position: number | null; league: LeagueCode | null } = {
@@ -143,6 +148,7 @@ export async function GET(
         super: bestSuper,
         challenge: bestChallenge,
         cup: bestCup,
+        'g-league': bestGLeague,
       },
       best_overall,
       // Backward compatibility

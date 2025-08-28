@@ -22,7 +22,7 @@ export type TeamSeasonStandingRow = {
   year: number;
   season_id: number | null;
   season_name: string | null;
-  league: 'super' | 'challenge' | 'playoff' | 'cup' | 'other';
+  league: 'super' | 'challenge' | 'playoff' | 'cup' | 'g-league' | 'other';
   participated: boolean;
   position: number | null;
   matches_played: number;
@@ -143,10 +143,11 @@ export const getTeamHighlightsPrisma = async (
     super: number | null;
     challenge: number | null;
     cup: number | null;
+    'g-league': number | null;
   };
   best_overall: {
     position: number | null;
-    league: 'super' | 'cup' | 'challenge' | null;
+    league: 'super' | 'cup' | 'challenge' | 'g-league' | null;
   };
   best_position: number | null;
 }> => {
