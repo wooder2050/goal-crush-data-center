@@ -164,9 +164,14 @@ export default function TeamHeader({ team }: TeamHeaderProps) {
                 </div>
                 {highlights.best_overall.league === 'challenge' &&
                 highlights.best_positions?.super ? (
-                  <div className="mt-1 text-sm text-gray-600">
-                    / 슈퍼리그 최고 {highlights.best_positions.super}위
-                  </div>
+                  <>
+                    <div className="mt-1 text-sm text-gray-600">
+                      / 슈퍼리그 최고 {highlights.best_positions.super}위
+                    </div>
+                    <div>
+                      / G리그 최고 {highlights.best_positions['g-league']}위
+                    </div>
+                  </>
                 ) : null}
               </div>
             ) : (
