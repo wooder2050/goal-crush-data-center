@@ -67,7 +67,7 @@ export default async function Image() {
             opacity: 0.8,
           }}
         >
-          @GoalCrushData
+          www.gtndatacenter.com
         </div>
       </div>
     ),

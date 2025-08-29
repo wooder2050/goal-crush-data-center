@@ -29,21 +29,21 @@ export function WebsiteJsonLd() {
     '@type': 'WebSite',
     name: '골 때리는 그녀들 데이터 센터',
     alternateName: '골때녀 데이터 센터',
-    url: 'https://goal-crush-data-center.vercel.app',
+    url: 'https://www.gtndatacenter.com',
     description:
       '골 때리는 그녀들 경기/선수/팀 데이터를 구조화하여 빠르게 탐색할 수 있는 데이터 아카이브',
     inLanguage: 'ko-KR',
     publisher: {
       '@type': 'Organization',
       name: '골 때리는 그녀들 데이터 센터',
-      url: 'https://goal-crush-data-center.vercel.app',
+      url: 'https://www.gtndatacenter.com',
     },
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
         urlTemplate:
-          'https://goal-crush-data-center.vercel.app/search?q={search_term_string}',
+          'https://www.gtndatacenter.com/search?q={search_term_string}',
       },
       'query-input': 'required name=search_term_string',
     },
@@ -58,8 +58,8 @@ export function OrganizationJsonLd() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: '골 때리는 그녀들 데이터 센터',
-    url: 'https://goal-crush-data-center.vercel.app',
-    logo: 'https://goal-crush-data-center.vercel.app/icon.png',
+    url: 'https://www.gtndatacenter.com',
+    logo: 'https://www.gtndatacenter.com/icon.png',
     description:
       '골 때리는 그녀들 경기/선수/팀 데이터를 구조화하여 빠르게 탐색할 수 있는 데이터 아카이브',
     sameAs: [

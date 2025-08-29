@@ -67,7 +67,7 @@ export default async function Image() {
             opacity: 0.8,
           }}
         >
-          goal-crush-data-center.vercel.app
+          www.gtndatacenter.com
         </div>
       </div>
     ),
