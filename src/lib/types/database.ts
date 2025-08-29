@@ -1022,8 +1022,9 @@ export interface Database {
         | 'CHALLENGE_LEAGUE'
         | 'PLAYOFF'
         | 'SBS_CUP'
-        | 'OTHER'
-        | 'CHAMPION_MATCH';
+        | 'GIFA_CUP'
+        | 'CHAMPION_MATCH'
+        | 'OTHER';
     };
     CompositeTypes: { [_ in never]: never };
   };
