@@ -6,6 +6,7 @@ import Script from 'next/script';
 import { AdminNavItem } from '@/components/AdminNavItem';
 import { AuthButtons } from '@/components/AuthButtons';
 import { AuthProvider } from '@/components/AuthProvider';
+import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/JsonLd';
 import { Navigation } from '@/components/Navigation';
 import { NicknameSetupModal } from '@/components/NicknameSetupModal';
 import { Header } from '@/components/ui/header';
@@ -33,9 +34,31 @@ export const metadata: Metadata = {
   description:
     '골 때리는 그녀들 경기/선수/팀 데이터를 구조화하여 빠르게 탐색할 수 있는 데이터 아카이브',
   applicationName: 'Goal Crush Data Center',
-  keywords: ['골때리는 그녀들', '데이터 센터', '시즌', '선수', '팀', '통계'],
+  keywords: [
+    '골때리는 그녀들',
+    '데이터 센터',
+    '시즌',
+    '선수',
+    '팀',
+    '통계',
+    '여자축구',
+    '축구데이터',
+    '경기결과',
+    '선수기록',
+    '팀순위',
+  ],
+  authors: [{ name: '골 때리는 그녀들 데이터 센터' }],
+  creator: '골 때리는 그녀들 데이터 센터',
+  publisher: '골 때리는 그녀들 데이터 센터',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   other: {
     'google-adsense-account': 'ca-pub-6439388251426570',
+    'msapplication-TileColor': '#000000',
+    'theme-color': '#000000',
   },
   openGraph: {
     type: 'website',
@@ -53,6 +76,11 @@ export const metadata: Metadata = {
         alt: '골 때리는 그녀들 데이터 센터',
       },
     ],
+    countryName: '대한민국',
+    emails: ['contact@goal-crush-data-center.com'],
+    phoneNumbers: ['+82-2-1234-5678'],
+    faxNumbers: ['+82-2-1234-5679'],
+    ttl: 86400,
   },
   twitter: {
     card: 'summary_large_image',
@@ -87,6 +115,10 @@ export default function RootLayout({
   return (
     <AuthProvider>
       <html lang="ko">
+        <head>
+          <WebsiteJsonLd />
+          <OrganizationJsonLd />
+        </head>
         <body className="font-sans antialiased">
           {/* Google Analytics (gtag.js) */}
           {process.env.NEXT_PUBLIC_GA_ID && (
