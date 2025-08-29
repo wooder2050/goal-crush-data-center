@@ -21,7 +21,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { season_name, year, start_date, end_date } = body;
+    const { season_name, year, category, start_date, end_date } = body;
 
     // 필수 필드 검증
     if (!season_name || !year) {
@@ -80,12 +80,22 @@ export async function PUT(
       }
     }
 
+    // 카테고리 유효성 검증
+    const validCategories = ['SUPER_LEAGUE', 'CHALLENGE_LEAGUE', 'G_LEAGUE', 'PLAYOFF', 'SBS_CUP', 'CHAMPION_MATCH', 'GIFA_CUP', 'OTHER'];
+    if (category && !validCategories.includes(category)) {
+      return NextResponse.json(
+        { error: '유효하지 않은 카테고리입니다.' },
+        { status: 400 }
+      );
+    }
+
     // 시즌 수정
     const updatedSeason = await prisma.season.update({
       where: { season_id: seasonId },
       data: {
         season_name,
         year: yearNum,
+        category: category || null,
         start_date: start_date ? new Date(start_date) : null,
         end_date: end_date ? new Date(end_date) : null,
       },

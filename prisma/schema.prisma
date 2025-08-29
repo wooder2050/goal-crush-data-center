@@ -566,6 +566,7 @@ enum SeasonCategory {
   OTHER
   SBS_CUP
   CHAMPION_MATCH
+  GIFA_CUP
 
   @@map("season_category")
 }

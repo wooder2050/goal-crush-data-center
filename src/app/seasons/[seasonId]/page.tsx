@@ -24,6 +24,8 @@ const categoryToComponent = {
   CHALLENGE_LEAGUE: ChallengeResults,
   PLAYOFF: PlayoffResults,
   SBS_CUP: SbsCupResults,
+  GIFA_CUP: SbsCupResults,
+  CHAMPION_MATCH: SbsCupResults,
   OTHER: OtherLeagueResults,
 } as const;
 
