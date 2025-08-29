@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://goal-crush-data-center.vercel.app';
+  const baseUrl = 'https://www.gtndatacenter.com';
 
   return {
     rules: [
