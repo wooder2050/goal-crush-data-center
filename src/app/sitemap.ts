@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://goal-crush-data-center.vercel.app';
+  const baseUrl = 'https://www.gtndatacenter.com';
 
   // 정적 페이지들
   const staticPages: MetadataRoute.Sitemap = [
