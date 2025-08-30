@@ -103,40 +103,63 @@ export async function POST(
       },
     });
 
+    let lineup;
+    
     if (existingLineup) {
-      return NextResponse.json(
-        { error: 'Player already in lineup for this match' },
-        { status: 409 }
-      );
+      // 기존 라인업이 있으면 업데이트
+      lineup = await prisma.playerMatchStats.update({
+        where: {
+          stat_id: existingLineup.stat_id,
+        },
+        data: {
+          team_id,
+          position,
+          minutes_played: minutes_played || existingLineup.minutes_played || 0,
+          updated_at: new Date(),
+        },
+        include: {
+          player: {
+            select: {
+              player_id: true,
+              name: true,
+              jersey_number: true,
+            },
+          },
+          team: {
+            select: {
+              team_id: true,
+              team_name: true,
+            },
+          },
+        },
+      });
+    } else {
+      // 새로운 라인업 생성
+      lineup = await prisma.playerMatchStats.create({
+        data: {
+          match_id: matchId,
+          player_id,
+          team_id,
+          position,
+          minutes_played: minutes_played || 0,
+        },
+        include: {
+          player: {
+            select: {
+              player_id: true,
+              name: true,
+              jersey_number: true,
+            },
+          },
+          team: {
+            select: {
+              team_id: true,
+              team_name: true,
+            },
+          },
+        },
+      });
     }
-
-    // 라인업 생성 (PlayerMatchStats에 기록)
-    const lineup = await prisma.playerMatchStats.create({
-      data: {
-        match_id: matchId,
-        player_id,
-        team_id,
-        position,
-        goals: 0,
-        assists: 0,
-        minutes_played: minutes_played || 0, // 전달받은 출전 시간 또는 기본값 0
-      },
-      include: {
-        player: {
-          select: {
-            player_id: true,
-            name: true,
-            jersey_number: true,
-          },
-        },
-        team: {
-          select: {
-            team_id: true,
-            team_name: true,
-          },
-        },
-      },
-    });
 
     // PlayerMatchStats가 이미 생성되었으므로 추가 작업 불필요
 

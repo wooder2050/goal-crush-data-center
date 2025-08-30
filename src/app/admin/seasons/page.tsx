@@ -1,5 +1,6 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -21,6 +22,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { H1 } from '@/components/ui/typography';
 import { useDeleteSeasonMutation } from '@/features/admin/hooks/useSeasonMutation';
 import { getSeasonsPaginatedPrisma } from '@/features/seasons/api-prisma';
@@ -28,11 +36,27 @@ import { useGoalQuery } from '@/hooks/useGoalQuery';
 
 export const dynamic = 'force-dynamic';
 
+// 카테고리 라벨 매핑 함수
+function getCategoryLabel(category: string): string {
+  const categoryLabels = {
+    SUPER_LEAGUE: '슈퍼리그',
+    CHALLENGE_LEAGUE: '챌린지리그',
+    G_LEAGUE: 'G리그',
+    PLAYOFF: '플레이오프',
+    SBS_CUP: 'SBS컵',
+    GIFA_CUP: 'GIFA컵',
+    CHAMPION_MATCH: '챔피언 경기',
+    OTHER: '기타',
+  };
+  return categoryLabels[category as keyof typeof categoryLabels] || category;
+}
+
 export default function AdminSeasonsPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingSeason, setEditingSeason] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const queryClient = useQueryClient();
 
   // 페이지네이션된 시즌 데이터 가져오기
   const {
@@ -120,6 +144,7 @@ export default function AdminSeasonsPage() {
             onSuccess={() => {
               setShowCreateForm(false);
               setCurrentPage(1); // 새 시즌 추가 후 첫 페이지로 이동
+              queryClient.invalidateQueries({ queryKey: ['seasons'] }); // 시즌 목록 캐시 무효화
             }}
           />
         )}
@@ -128,7 +153,10 @@ export default function AdminSeasonsPage() {
         {editingSeason && (
           <EditSeasonForm
             seasonId={editingSeason}
-            onSuccess={() => setEditingSeason(null)}
+            onSuccess={() => {
+              setEditingSeason(null);
+              queryClient.invalidateQueries({ queryKey: ['seasons'] }); // 시즌 목록 캐시 무효화
+            }}
             onCancel={() => setEditingSeason(null)}
           />
         )}
@@ -187,6 +215,7 @@ export default function AdminSeasonsPage() {
                     <h3 className="font-medium">{season.season_name}</h3>
                     <p className="text-sm text-muted-foreground">
                       {season.year}년
+                      {season.category && ` • ${getCategoryLabel(season.category)}`}
                       {season.start_date &&
                         ` • ${new Date(season.start_date).toLocaleDateString()}`}
                       {season.end_date &&
@@ -336,6 +365,7 @@ function EditSeasonForm({
       form.reset({
         season_name: season.season_name || '',
         year: season.year?.toString() || '',
+        category: season.category || undefined,
         start_date: season.start_date
           ? new Date(season.start_date).toISOString().split('T')[0]
           : '',
@@ -376,6 +406,7 @@ function EditSeasonForm({
         body: JSON.stringify({
           season_name: values.season_name.trim(),
           year: yearNum,
+          category: values.category || null,
           start_date: values.start_date || null,
           end_date: values.end_date || null,
         }),
@@ -385,8 +416,6 @@ function EditSeasonForm({
         const result = await response.json();
         alert(result.message || '시즌이 성공적으로 수정되었습니다.');
         onSuccess();
-        // 페이지 새로고침으로 목록 업데이트
-        window.location.reload();
       } else {
         const error = await response.json();
         alert(`시즌 수정 실패: ${error.error}`);
@@ -407,7 +436,7 @@ function EditSeasonForm({
       <Card className="p-6">
         <div className="space-y-4">
           <div className="h-6 w-24 bg-gray-200 rounded animate-pulse"></div>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
               <div className="h-10 bg-gray-200 rounded animate-pulse"></div>
@@ -439,7 +468,7 @@ function EditSeasonForm({
       <h2 className="text-xl font-semibold mb-4">시즌 수정</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             <FormField
               control={form.control}
               name="season_name"
@@ -465,6 +494,33 @@ function EditSeasonForm({
                   <FormControl>
                     <Input type="number" min="2020" max="2030" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>카테고리</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="카테고리 선택" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="SUPER_LEAGUE">슈퍼리그</SelectItem>
+                      <SelectItem value="CHALLENGE_LEAGUE">챌린지리그</SelectItem>
+                      <SelectItem value="G_LEAGUE">G리그</SelectItem>
+                      <SelectItem value="PLAYOFF">플레이오프</SelectItem>
+                      <SelectItem value="SBS_CUP">SBS컵</SelectItem>
+                      <SelectItem value="GIFA_CUP">GIFA컵</SelectItem>
+                      <SelectItem value="CHAMPION_MATCH">챔피언 경기</SelectItem>
+                      <SelectItem value="OTHER">기타</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -517,6 +573,7 @@ function CreateSeasonForm({ onSuccess }: { onSuccess: () => void }) {
     defaultValues: {
       season_name: '',
       year: new Date().getFullYear().toString(),
+      category: undefined,
       start_date: '',
       end_date: '',
     } as unknown as SeasonFormValues,
@@ -553,6 +610,7 @@ function CreateSeasonForm({ onSuccess }: { onSuccess: () => void }) {
         body: JSON.stringify({
           season_name: values.season_name.trim(),
           year: yearNum,
+          category: values.category || null,
           start_date: values.start_date || null,
           end_date: values.end_date || null,
         }),
@@ -583,7 +641,7 @@ function CreateSeasonForm({ onSuccess }: { onSuccess: () => void }) {
       <h2 className="text-xl font-semibold mb-4">새 시즌 추가</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             <FormField
               control={form.control}
               name="season_name"
@@ -609,6 +667,33 @@ function CreateSeasonForm({ onSuccess }: { onSuccess: () => void }) {
                   <FormControl>
                     <Input type="number" min="2020" max="2030" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>카테고리</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="카테고리 선택" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="SUPER_LEAGUE">슈퍼리그</SelectItem>
+                      <SelectItem value="CHALLENGE_LEAGUE">챌린지리그</SelectItem>
+                      <SelectItem value="G_LEAGUE">G리그</SelectItem>
+                      <SelectItem value="PLAYOFF">플레이오프</SelectItem>
+                      <SelectItem value="SBS_CUP">SBS컵</SelectItem>
+                      <SelectItem value="GIFA_CUP">GIFA컵</SelectItem>
+                      <SelectItem value="CHAMPION_MATCH">챔피언 경기</SelectItem>
+                      <SelectItem value="OTHER">기타</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

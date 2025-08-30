@@ -38,7 +38,6 @@ import { useMatchGoals } from '@/features/admin/hooks/useMatchGoalsQuery';
 import { useMatchDetail } from '@/features/admin/hooks/useMatchQuery';
 import { useMatchPenalties } from '@/features/admin/hooks/usePenaltyQuery';
 import { useTeamPlayers } from '@/features/admin/hooks/usePlayersQuery';
-import { useSubmitMatchData } from '@/features/admin/hooks/useSubmitMatchData';
 import { useMatchSubstitutions } from '@/features/admin/hooks/useSubstitutionQuery';
 
 export const dynamic = 'force-dynamic';
@@ -46,7 +45,7 @@ export const dynamic = 'force-dynamic';
 export default function RecordMatchDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const matchId = Number(params.match_id as string);
+  const matchId = Number(params.matchId as string);
 
   const {
     data: match,
@@ -110,9 +109,6 @@ export default function RecordMatchDetailPage() {
       }
     | undefined
   >(undefined);
-
-  // 최종 제출 mutation
-  const submitMatchDataMutation = useSubmitMatchData();
 
   // 경기 데이터 로드 상태 추적
   const [dataLoaded, setDataLoaded] = useState(false);
@@ -269,37 +265,93 @@ export default function RecordMatchDetailPage() {
       status: 'completed',
     };
 
-    updateScore(scoreData);
-    const result = validateData();
-    setValidationResult(result);
-    setActiveTab('goals');
+    try {
+      // 즉시 서버에 스코어 저장
+      const response = await fetch(`/api/admin/matches/${matchId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(scoreData),
+      });
+
+      if (!response.ok) {
+        throw new Error('스코어 저장에 실패했습니다.');
+      }
+
+      // 로컬 상태도 업데이트
+      updateScore(scoreData);
+
+      alert('스코어가 성공적으로 저장되었습니다. 이제 골 기록을 진행해주세요.');
+      setActiveTab('goals');
+    } catch (error) {
+      console.error('스코어 저장 실패:', error);
+      alert('스코어 저장 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
   };
 
   const handleFinalSubmit = async () => {
-    const result = validateData();
-    setValidationResult(result);
-
-    if (!result.isValid) {
-      alert('데이터 유효성 검증에 실패했습니다. 오류를 수정해주세요.');
-      return;
-    }
-
     try {
-      await submitMatchDataMutation.mutateAsync({ matchId, matchData });
-      alert('모든 데이터가 성공적으로 저장되었습니다.');
+      // 1. 유효성 검사
+      const result = validateData();
+      setValidationResult(result);
+
+      if (!result.isValid) {
+        alert('데이터 유효성 검증에 실패했습니다. 오류를 수정해주세요.');
+        return;
+      }
+
+      // 2. 순위표 및 통계 업데이트 (standing, team_season_stats, team_seasons, h2h_pair_stats)
+      const statsResponse = await fetch(
+        `/api/admin/matches/${matchId}/update-stats`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (!statsResponse.ok) {
+        throw new Error('통계 업데이트에 실패했습니다.');
+      }
+
+      alert(
+        '모든 데이터가 성공적으로 저장되고 통계가 업데이트되었습니다!\n순위표, 팀 통계, 상대전적이 모두 갱신되었습니다.'
+      );
       resetMatchData();
       router.push('/admin/matches');
     } catch (error) {
-      console.error('데이터 제출 실패:', error);
-      alert('데이터 저장 중 오류가 발생했습니다. 다시 시도해주세요.');
+      console.error('최종 제출 실패:', error);
+      alert('최종 제출 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
   };
 
   const dialogSubmitHandlers = {
     onSubmitGoal: async (data: CreateGoalData) => {
       try {
+        // 즉시 서버에 골 저장
+        const response = await fetch(`/api/admin/matches/${matchId}/goals`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            player_id: data.player_id,
+            goal_time: data.goal_time,
+            goal_type: data.goal_type || 'normal',
+            description: data.description || null,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('골 저장에 실패했습니다.');
+        }
+
+        // 로컬 상태도 업데이트
         addGoal({ ...data, goal_type: data.goal_type || 'normal' });
         setGoalDialogOpen(false);
+        alert('골이 성공적으로 저장되었습니다.');
       } catch (error) {
         console.error('골 추가 실패:', error);
         alert('골 추가 중 오류가 발생했습니다.');
@@ -307,8 +359,27 @@ export default function RecordMatchDetailPage() {
     },
     onSubmitAssist: async (data: CreateAssistData) => {
       try {
+        // 즉시 서버에 어시스트 저장
+        const response = await fetch(`/api/admin/matches/${matchId}/assists`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            player_id: data.player_id,
+            goal_id: data.goal_id,
+            description: data.description || null,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('어시스트 저장에 실패했습니다.');
+        }
+
+        // 로컬 상태도 업데이트
         addAssist({ ...data, goal_id: data.goal_id.toString() });
         setAssistDialogOpen(false);
+        alert('어시스트가 성공적으로 저장되었습니다.');
       } catch (error) {
         console.error('어시스트 추가 실패:', error);
         alert('어시스트 추가 중 오류가 발생했습니다.');
@@ -316,8 +387,31 @@ export default function RecordMatchDetailPage() {
     },
     onSubmitLineup: async (data: CreateLineupData) => {
       try {
+        // 즉시 서버에 라인업 저장 (player_match_stats와 player_season_stats 업데이트)
+        const response = await fetch(`/api/admin/matches/${matchId}/lineups`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            player_id: data.player_id,
+            team_id: data.team_id,
+            position: data.position || null,
+            jersey_number: data.jersey_number,
+            minutes_played: data.minutes_played || 90,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('라인업 저장에 실패했습니다.');
+        }
+
+        // 로컬 상태도 업데이트
         addLineup(data);
         setLineupDialogOpen(false);
+        alert(
+          '라인업이 성공적으로 저장되었습니다. (player_match_stats 및 player_season_stats 업데이트됨)'
+        );
       } catch (error) {
         console.error('라인업 추가 실패:', error);
         alert('라인업 추가 중 오류가 발생했습니다.');
@@ -325,8 +419,32 @@ export default function RecordMatchDetailPage() {
     },
     onSubmitSubstitution: async (data: CreateSubstitutionData) => {
       try {
+        // 즉시 서버에 교체 저장
+        const response = await fetch(
+          `/api/admin/matches/${matchId}/substitutions`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              team_id: data.team_id,
+              player_in_id: data.player_in_id,
+              player_out_id: data.player_out_id,
+              substitution_time: data.substitution_time,
+              substitution_reason: data.description || null,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('교체 저장에 실패했습니다.');
+        }
+
+        // 로컬 상태도 업데이트
         addSubstitution(data);
         setSubstitutionDialogOpen(false);
+        alert('교체가 성공적으로 저장되었습니다.');
       } catch (error) {
         console.error('교체 추가 실패:', error);
         alert('교체 추가 중 오류가 발생했습니다.');
@@ -334,8 +452,32 @@ export default function RecordMatchDetailPage() {
     },
     onSubmitPenalty: async (data: CreatePenaltyData) => {
       try {
+        // 즉시 서버에 승부차기 저장
+        const response = await fetch(
+          `/api/admin/matches/${matchId}/penalties`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              team_id: data.team_id,
+              kicker_id: data.player_id,
+              goalkeeper_id: data.goalkeeper_id,
+              is_successful: data.is_scored,
+              kicker_order: data.order,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('승부차기 저장에 실패했습니다.');
+        }
+
+        // 로컬 상태도 업데이트
         addPenalty(data);
         setPenaltyDialogOpen(false);
+        alert('승부차기가 성공적으로 저장되었습니다.');
       } catch (error) {
         console.error('페널티킥 추가 실패:', error);
         alert('페널티킥 추가 중 오류가 발생했습니다.');
@@ -440,6 +582,14 @@ export default function RecordMatchDetailPage() {
                 onRemoveCoach={() => {
                   // 감독 삭제 후 목록 새로고침
                   window.location.reload();
+                }}
+                homeTeam={{
+                  team_id: match?.home_team_id || 0,
+                  team_name: match?.home_team?.team_name || '',
+                }}
+                awayTeam={{
+                  team_id: match?.away_team_id || 0,
+                  team_name: match?.away_team?.team_name || '',
                 }}
               />
             </TabsContent>

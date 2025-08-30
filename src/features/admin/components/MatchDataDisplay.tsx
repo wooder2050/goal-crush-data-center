@@ -66,7 +66,7 @@ export default function MatchDataDisplay({
             className="flex items-center gap-2"
           >
             <Check className="h-4 w-4" />
-            최종 제출
+            유효성 검사 및 통계 업데이트
           </Button>
         )}
       </div>
