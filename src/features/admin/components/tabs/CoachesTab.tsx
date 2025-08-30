@@ -14,12 +14,16 @@ interface CoachesTabProps {
   matchId: number;
   actualCoaches?: MatchCoach[];
   onRemoveCoach?: (coachId: string) => void;
+  homeTeam: { team_id: number; team_name: string };
+  awayTeam: { team_id: number; team_name: string };
 }
 
 export default function CoachesTab({
   matchId,
   actualCoaches = [],
   onRemoveCoach,
+  homeTeam,
+  awayTeam,
 }: CoachesTabProps) {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const deleteCoachMutation = useDeleteMatchCoachMutation();
@@ -130,6 +134,8 @@ export default function CoachesTab({
           // 페이지 새로고침으로 목록 업데이트
           window.location.reload();
         }}
+        homeTeam={homeTeam}
+        awayTeam={awayTeam}
       />
     </div>
   );

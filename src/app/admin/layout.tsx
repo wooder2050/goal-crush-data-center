@@ -145,6 +145,12 @@ export default function AdminLayout({
               >
                 감독 관리
               </Link>
+              <Link
+                href="/admin/stats"
+                className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100"
+              >
+                통계 관리
+              </Link>
             </nav>
           </Container>
         </div>
