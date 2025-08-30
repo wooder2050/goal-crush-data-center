@@ -122,7 +122,7 @@ export default function ScoreTab({ match, onSubmit }: ScoreTabProps) {
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit">스코어 임시 저장</Button>
+          <Button type="submit">스코어 저장 및 다음 단계</Button>
         </div>
       </form>
     </Form>

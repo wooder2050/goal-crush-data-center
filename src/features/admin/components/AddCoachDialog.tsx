@@ -14,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -23,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { getTeamsPrisma } from '@/features/teams/api-prisma';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 
 import { useCreateMatchCoachMutation } from '../hooks/useCoachMutation';
@@ -33,20 +31,44 @@ interface AddCoachDialogProps {
   onClose: () => void;
   matchId: number;
   onSuccess: () => void;
+  homeTeam: { team_id: number; team_name: string };
+  awayTeam: { team_id: number; team_name: string };
 }
 
 // 실제 데이터를 가져오는 훅
-const useTeams = () => useGoalQuery(getTeamsPrisma, []);
+const useCoaches = () =>
+  useGoalQuery(async () => {
+    const response = await fetch('/api/coaches');
+    if (!response.ok) {
+      throw new Error('감독 목록을 불러올 수 없습니다.');
+    }
+    return response.json();
+  }, []);
 
 export default function AddCoachDialog({
   isOpen,
   onClose,
   matchId,
   onSuccess,
+  homeTeam,
+  awayTeam,
 }: AddCoachDialogProps) {
   const createCoachMutation = useCreateMatchCoachMutation();
-  const { data: teams = [] } = useTeams();
+  const { data: coachesData } = useCoaches();
   const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
+
+  // coaches 배열 추출 (API 응답 구조에 맞춤)
+  const coaches = coachesData?.coaches || [];
+  const [selectedCoachId, setSelectedCoachId] = useState<number | null>(null);
+
+  // props 검증 및 해당 경기의 팀들만 필터링
+  const matchTeams = [];
+  if (homeTeam && homeTeam.team_id && homeTeam.team_name) {
+    matchTeams.push(homeTeam);
+  }
+  if (awayTeam && awayTeam.team_id && awayTeam.team_name) {
+    matchTeams.push(awayTeam);
+  }
 
   // 폼 초기화
   const form = useGoalForm({
@@ -58,12 +80,20 @@ export default function AddCoachDialog({
     },
   });
 
-  // 팀 선택 시 감독 목록 업데이트
+  // 팀 선택 시 감독 초기화
   const handleTeamChange = (teamId: string) => {
     const teamIdNum = parseInt(teamId);
     setSelectedTeamId(teamIdNum);
+    setSelectedCoachId(null);
     form.setValue('team_id', teamIdNum);
-    form.setValue('coach_id', 0); // 팀 변경 시 감독 초기화
+    form.setValue('coach_id', 0);
+  };
+
+  // 감독 선택 시 폼 값 업데이트
+  const handleCoachChange = (coachId: string) => {
+    const coachIdNum = parseInt(coachId);
+    setSelectedCoachId(coachIdNum);
+    form.setValue('coach_id', coachIdNum);
   };
 
   // 폼 제출 처리
@@ -73,6 +103,7 @@ export default function AddCoachDialog({
       alert('감독이 성공적으로 추가되었습니다.');
       form.reset();
       setSelectedTeamId(null);
+      setSelectedCoachId(null);
       onSuccess();
       onClose();
     } catch (error) {
@@ -83,6 +114,27 @@ export default function AddCoachDialog({
       alert(`감독 추가 실패: ${errorMessage}`);
     }
   };
+
+  // props가 제대로 전달되지 않은 경우 에러 처리
+  if (matchTeams.length === 0) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>경기 감독 추가</DialogTitle>
+          </DialogHeader>
+          <div className="p-4 text-center text-red-600">
+            팀 정보를 불러올 수 없습니다. 페이지를 새로고침해주세요.
+          </div>
+          <div className="flex justify-end pt-4">
+            <Button type="button" variant="outline" onClick={onClose}>
+              닫기
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -103,7 +155,7 @@ export default function AddCoachDialog({
                 <SelectValue placeholder="팀을 선택하세요" />
               </SelectTrigger>
               <SelectContent>
-                {teams.map((team) => (
+                {matchTeams.map((team) => (
                   <SelectItem
                     key={team.team_id}
                     value={team.team_id.toString()}
@@ -120,15 +172,34 @@ export default function AddCoachDialog({
             )}
           </div>
 
-          {/* 감독 ID 입력 */}
+          {/* 감독 선택 */}
           <div>
-            <Label htmlFor="coach_id">감독 ID *</Label>
-            <Input
-              id="coach_id"
-              type="number"
-              placeholder="감독 ID를 입력하세요"
-              {...form.register('coach_id', { valueAsNumber: true })}
-            />
+            <Label htmlFor="coach_id">감독 *</Label>
+            <Select
+              onValueChange={handleCoachChange}
+              value={selectedCoachId?.toString() || ''}
+              disabled={!selectedTeamId}
+            >
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={
+                    selectedTeamId
+                      ? '감독을 선택하세요'
+                      : '먼저 팀을 선택하세요'
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {coaches.map((coach: { coach_id: number; name: string }) => (
+                  <SelectItem
+                    key={coach.coach_id}
+                    value={coach.coach_id.toString()}
+                  >
+                    {coach.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {form.formState.errors.coach_id && (
               <p className="text-sm text-red-600 mt-1">
                 {String(form.formState.errors.coach_id?.message || '')}
