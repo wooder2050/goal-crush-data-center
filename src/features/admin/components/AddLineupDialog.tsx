@@ -56,16 +56,22 @@ export default function AddLineupDialog({
       team_id: '',
       position: '',
       jersey_number: '',
+      goals_conceded: '',
+      minutes_played: '90',
     },
   });
 
   const selectedTeamId = form.watch('team_id');
+  const selectedPosition = form.watch('position');
   const availablePlayers =
     selectedTeamId === homeTeam.team_id.toString()
       ? homePlayers
       : selectedTeamId === awayTeam.team_id.toString()
         ? awayPlayers
         : [];
+
+  // 골키퍼인지 확인
+  const isGoalkeeper = selectedPosition === 'GK';
 
   const handleSubmit = async (values: LineupFormValues) => {
     try {
@@ -88,7 +94,8 @@ export default function AddLineupDialog({
         jersey_number: values.jersey_number
           ? parseInt(values.jersey_number)
           : null,
-        minutes_played: 0, // 기본값은 0분 (벤치)
+        minutes_played: values.minutes_played ? parseInt(values.minutes_played) : 90,
+        goals_conceded: values.goals_conceded ? parseInt(values.goals_conceded) : null,
         // UI 표시용 추가 데이터
         player_name: selectedPlayer.name,
         team_name: selectedTeam.team_name,
@@ -258,6 +265,50 @@ export default function AddLineupDialog({
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="minutes_played"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>출전시간 (분)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="120"
+                      placeholder="출전시간 (분)"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {isGoalkeeper && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="goals_conceded"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>실점 (골키퍼만)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder="실점 수"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+              </>
+            )}
 
             <DialogFooter>
               <Button
