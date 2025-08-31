@@ -60,6 +60,18 @@ export async function GET(request: NextRequest) {
       isGoalkeeperAppearance(stat.position, stat.goals_conceded)
     );
 
+    // 경기별 팀 실점 계산 (클린시트 판단용)
+    const matchTeamGoalsMap = new Map<string, number>();
+    
+    // 모든 경기의 팀별 총 실점 계산
+    for (const stat of playerMatchStats) {
+      if (!stat.match_id || !stat.team_id) continue;
+      
+      const matchTeamKey = `${stat.match_id}-${stat.team_id}`;
+      const currentGoals = matchTeamGoalsMap.get(matchTeamKey) || 0;
+      matchTeamGoalsMap.set(matchTeamKey, currentGoals + (stat.goals_conceded || 0));
+    }
+
     // 선수별로 통계 집계
     const playerStatsMap = new Map();
 
@@ -89,8 +101,14 @@ export async function GET(request: NextRequest) {
       playerStats.matches_played += 1;
       playerStats.goals_conceded += stat.goals_conceded || 0;
       
-      if ((stat.goals_conceded || 0) === 0) {
-        playerStats.clean_sheets += 1;
+      // 클린시트 판단: GK 포지션이고 해당 경기에서 팀 전체 실점이 0인 경우
+      if (stat.position === 'GK' && stat.match_id && stat.team_id) {
+        const matchTeamKey = `${stat.match_id}-${stat.team_id}`;
+        const teamGoalsConceded = matchTeamGoalsMap.get(matchTeamKey) || 0;
+        
+        if (teamGoalsConceded === 0) {
+          playerStats.clean_sheets += 1;
+        }
       }
 
       if (stat.team?.team_name) {
