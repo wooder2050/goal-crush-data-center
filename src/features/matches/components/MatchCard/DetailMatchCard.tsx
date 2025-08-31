@@ -24,6 +24,7 @@ import HeadToHeadSectionSkeleton from './HeadToHeadSectionSkeleton';
 import KeyPlayersSection from './KeyPlayersSection';
 import KeyPlayersSectionSkeleton from './KeyPlayersSectionSkeleton';
 import MatchFooter from './MatchFooter';
+import MatchGoalkeeperStatsSection from './MatchGoalkeeperStatsSection';
 import MatchHeader from './MatchHeader';
 import MatchMediaLinks from './MatchMediaLinks';
 import MatchScoreHeader from './MatchScoreHeader';
@@ -102,6 +103,15 @@ function DetailMatchCardInner({
             <GoalWrapper fallback={<CoachHeadToHeadListSkeleton />}>
               <CoachHeadToHeadList matchId={match.match_id} />
             </GoalWrapper>
+            
+            {/* Goalkeeper stats for completed matches */}
+            {match.home_score != null && match.away_score != null && (
+              <div className="mt-4">
+                <GoalWrapper fallback={<div className="animate-pulse h-32 bg-gray-100 rounded"></div>}>
+                  <MatchGoalkeeperStatsSection matchId={match.match_id} />
+                </GoalWrapper>
+              </div>
+            )}
           </div>
           <div className="lg:col-span-1">
             {hasPenaltyShootout(match) ? (

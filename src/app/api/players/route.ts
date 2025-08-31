@@ -182,13 +182,16 @@ export async function GET(request: NextRequest) {
           goals: true,
           assists: true,
           minutes_played: true,
+          position: true,
+          goals_conceded: true,
         },
       });
+
 
       // Group by player_id and count only appearances where minutes_played > 0
       const totalsMap = new Map<
         number,
-        { appearances: number; goals: number; assists: number }
+        { appearances: number; goals: number; assists: number; goals_conceded: number }
       >();
 
       for (const stat of allPlayerStats) {
@@ -196,9 +199,10 @@ export async function GET(request: NextRequest) {
         const playedMinutes = (stat.minutes_played ?? 0) as number;
         const goals = (stat.goals ?? 0) as number;
         const assists = (stat.assists ?? 0) as number;
+        const goalsConceded = (stat.goals_conceded ?? 0) as number;
 
         if (!totalsMap.has(pid)) {
-          totalsMap.set(pid, { appearances: 0, goals: 0, assists: 0 });
+          totalsMap.set(pid, { appearances: 0, goals: 0, assists: 0, goals_conceded: 0 });
         }
 
         const playerTotal = totalsMap.get(pid)!;
@@ -208,6 +212,11 @@ export async function GET(request: NextRequest) {
         }
         playerTotal.goals += goals;
         playerTotal.assists += assists;
+        
+        // Add goals conceded only for goalkeeper appearances
+        if (stat.position === 'GK' || (stat.position !== 'GK' && (stat.goals_conceded || 0) > 0)) {
+          playerTotal.goals_conceded += goalsConceded;
+        }
       }
 
       return players.map((p) => {
@@ -243,6 +252,7 @@ export async function GET(request: NextRequest) {
             appearances: 0,
             goals: 0,
             assists: 0,
+            goals_conceded: 0,
           },
         };
       });
@@ -282,8 +292,11 @@ export async function GET(request: NextRequest) {
           goals: true,
           assists: true,
           minutes_played: true,
+          position: true,
+          goals_conceded: true,
         },
       });
+
 
       // Group by player_id and count only appearances where minutes_played > 0
       const orderMap = new Map<
@@ -416,8 +429,11 @@ export async function GET(request: NextRequest) {
           goals: true,
           assists: true,
           minutes_played: true,
+          position: true,
+          goals_conceded: true,
         },
       });
+
 
       // Group by player_id and count only appearances where minutes_played > 0
       const orderMap = new Map<
@@ -533,8 +549,11 @@ export async function GET(request: NextRequest) {
           goals: true,
           assists: true,
           minutes_played: true,
+          position: true,
+          goals_conceded: true,
         },
       });
+
 
       // Group by player_id and count only appearances where minutes_played > 0
       const orderMap = new Map<

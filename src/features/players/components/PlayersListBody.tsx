@@ -101,9 +101,14 @@ export default function PlayersListBody({
                       {p.name}
                     </CardTitle>
                     {totals && (
-                      <div className="mt-1 text-xs text-gray-600">
-                        🗓️ 출전 {totals.appearances ?? 0} · ⚽️ 골{' '}
-                        {totals.goals ?? 0} · 🤝 도움 {totals.assists ?? 0}
+                      <div className="mt-1 text-xs text-gray-600 space-y-0.5">
+                        <div>🗓️ 출전 {totals.appearances ?? 0}</div>
+                        <div>
+                          ⚽️ 골 {totals.goals ?? 0} · 🤝 도움 {totals.assists ?? 0}
+                          {(totals.goals_conceded ?? 0) > 0 && (
+                            <> · 🥅 실점 {totals.goals_conceded}</>
+                          )}
+                        </div>
                       </div>
                     )}
                     {seasonLabels.length > 0 && (
