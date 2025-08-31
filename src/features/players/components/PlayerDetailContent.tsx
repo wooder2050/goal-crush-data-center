@@ -11,6 +11,8 @@ import {
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
 import { shortenSeasonName } from '@/lib/utils';
 
+import GoalkeeperStatsSection from './GoalkeeperStatsSection';
+
 type PositionFreq = { position: string; matches: number };
 
 type TeamHistoryItem = {
@@ -50,7 +52,7 @@ export default function PlayerDetailContent({
   const profile = player?.profile_image_url ?? null;
   const name = player?.name ?? '-';
   const jersey = player?.jersey_number;
-  const totals = summary?.totals ?? { goals: 0, assists: 0, appearances: 0 };
+  const totals = summary?.totals ?? { goals: 0, assists: 0, appearances: 0, goals_conceded: 0 };
   const totalPenaltyGoals = (summary?.seasons ?? []).reduce(
     (acc, s) => acc + (s.penalty_goals ?? 0),
     0
@@ -222,6 +224,14 @@ export default function PlayerDetailContent({
                   {totals.assists}
                 </span>
               </div>
+              {(totals.goals_conceded ?? 0) > 0 && (
+                <div className="flex items-center justify-between px-4 py-3 text-sm">
+                  <span className="text-gray-600">🥅 실점</span>
+                  <span className="font-semibold text-gray-900">
+                    {totals.goals_conceded}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Participated seasons */}
@@ -544,6 +554,9 @@ export default function PlayerDetailContent({
                 </>
               )}
             </div>
+
+            {/* Goalkeeper stats */}
+            <GoalkeeperStatsSection playerId={playerId} />
 
             {/* Goal records */}
             <div>

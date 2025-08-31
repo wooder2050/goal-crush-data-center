@@ -8,6 +8,8 @@ export const lineupFormSchema = z.object({
   team_id: z.string().min(1, '팀을 선택해주세요'),
   position: z.string().min(1, '포지션을 선택해주세요'),
   jersey_number: z.string().optional(),
+  goals_conceded: z.string().optional(),
+  minutes_played: z.string().optional(),
 });
 
 /**

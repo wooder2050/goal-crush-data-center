@@ -60,6 +60,7 @@ export interface CreateLineupData {
   position: string;
   jersey_number?: number | null;
   minutes_played?: number; // 출전 시간 (분)
+  goals_conceded?: number | null; // 골키퍼 실점
   // UI 표시용 추가 필드 (API 호출 시 제외됨)
   player_name?: string;
   team_name?: string;

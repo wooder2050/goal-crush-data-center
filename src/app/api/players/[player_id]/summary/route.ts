@@ -60,6 +60,7 @@ export async function GET(
         match: { select: { season_id: true } },
         position: true,
         minutes_played: true,
+        goals_conceded: true,
       },
     });
 
@@ -67,6 +68,7 @@ export async function GET(
       goals: number;
       assists: number;
       appearances: number;
+      goals_conceded: number;
       teamCounts: Map<number, number>;
     };
 
@@ -80,12 +82,24 @@ export async function GET(
           goals: 0,
           assists: 0,
           appearances: 0,
+          goals_conceded: 0,
           teamCounts: new Map<number, number>(),
         });
       }
       const agg = pmsAggBySeason.get(seasonId)!;
       agg.goals += (r.goals ?? 0) as number;
       agg.assists += (r.assists ?? 0) as number;
+      
+      // Helper function to check if appearance is goalkeeper
+      const isGoalkeeperAppearance = (position: string | null, goals_conceded: number | null): boolean => {
+        return position === 'GK' || (position !== 'GK' && (goals_conceded || 0) > 0);
+      };
+      
+      // Add goals conceded only for goalkeeper appearances
+      if (isGoalkeeperAppearance(r.position, r.goals_conceded)) {
+        agg.goals_conceded += (r.goals_conceded ?? 0) as number;
+      }
+      
       // Count appearance only if minutes_played > 0 (bench only is not an appearance)
       const playedMinutes = (r.minutes_played ?? 0) as number;
       if (playedMinutes > 0) {
@@ -182,6 +196,7 @@ export async function GET(
           goals: (agg?.goals ?? db?.goals ?? 0) as number,
           assists: (agg?.assists ?? db?.assists ?? 0) as number,
           appearances: (agg?.appearances ?? db?.matches_played ?? 0) as number,
+          goals_conceded: (agg?.goals_conceded ?? 0) as number,
           penalty_goals: penaltyGoalsBySeason.get(sid) ?? 0,
           positions: [] as string[], // filled below
         };
@@ -276,25 +291,37 @@ export async function GET(
         acc.goals += s.goals ?? 0;
         acc.assists += s.assists ?? 0;
         acc.appearances += s.appearances ?? 0;
+        acc.goals_conceded += s.goals_conceded ?? 0;
         return acc;
       },
-      { goals: 0, assists: 0, appearances: 0 }
+      { goals: 0, assists: 0, appearances: 0, goals_conceded: 0 }
     );
 
     // Per-team totals from PMS
     const perTeamMap = new Map<
       number,
-      { goals: number; assists: number; appearances: number }
+      { goals: number; assists: number; appearances: number; goals_conceded: number }
     >();
     for (let i = 0; i < pmsRows.length; i++) {
       const r = pmsRows[i];
       const tid = r.team_id as number | null;
       if (!tid) continue;
       if (!perTeamMap.has(tid))
-        perTeamMap.set(tid, { goals: 0, assists: 0, appearances: 0 });
+        perTeamMap.set(tid, { goals: 0, assists: 0, appearances: 0, goals_conceded: 0 });
       const bucket = perTeamMap.get(tid)!;
       bucket.goals += r.goals ?? 0;
       bucket.assists += r.assists ?? 0;
+      
+      // Helper function to check if appearance is goalkeeper
+      const isGoalkeeperAppearance = (position: string | null, goals_conceded: number | null): boolean => {
+        return position === 'GK' || (position !== 'GK' && (goals_conceded || 0) > 0);
+      };
+      
+      // Add goals conceded only for goalkeeper appearances
+      if (isGoalkeeperAppearance(r.position, r.goals_conceded)) {
+        bucket.goals_conceded += r.goals_conceded ?? 0;
+      }
+      
       // Only count appearances when minutes_played > 0
       const playedMinutes = (r.minutes_played ?? 0) as number;
       if (playedMinutes > 0) {
@@ -317,11 +344,12 @@ export async function GET(
       goals: perTeamMap.get(tid)!.goals,
       assists: perTeamMap.get(tid)!.assists,
       appearances: perTeamMap.get(tid)!.appearances,
+      goals_conceded: perTeamMap.get(tid)!.goals_conceded,
     }));
 
     // Totals for selected team (if requested)
     let totals_for_team:
-      | { goals: number; assists: number; appearances: number }
+      | { goals: number; assists: number; appearances: number; goals_conceded: number }
       | undefined = undefined;
     if (filterTeamId) {
       const b = perTeamMap.get(filterTeamId);
@@ -329,6 +357,7 @@ export async function GET(
         goals: b?.goals ?? 0,
         assists: b?.assists ?? 0,
         appearances: b?.appearances ?? 0,
+        goals_conceded: b?.goals_conceded ?? 0,
       };
     }
 

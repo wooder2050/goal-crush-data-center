@@ -399,6 +399,7 @@ export default function RecordMatchDetailPage() {
             position: data.position || null,
             jersey_number: data.jersey_number,
             minutes_played: data.minutes_played || 90,
+            goals_conceded: data.goals_conceded,
           }),
         });
 
