@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 
 import {
@@ -61,6 +62,9 @@ interface GoalkeeperRanking {
   seasons?: string;
   teams?: string;
   team_logos?: string[];
+  team_ids?: number[];
+  first_team_id?: number | null;
+  first_team_name?: string | null;
 }
 
 export default function GoalkeeperRankingsPageContent() {
@@ -342,7 +346,12 @@ export default function GoalkeeperRankingsPageContent() {
                                 )}
                                 <div>
                                   <div className="font-medium text-gray-900">
-                                    {player.player_name}
+                                    <Link 
+                                      href={`/players/${player.player_id}`}
+                                      className="hover:text-blue-600 hover:underline"
+                                    >
+                                      {player.player_name}
+                                    </Link>
                                   </div>
                                   {player.seasons && (
                                     <div className="hidden sm:block text-xs text-gray-500">
@@ -367,7 +376,16 @@ export default function GoalkeeperRankingsPageContent() {
                                     </span>
                                   )}
                                 <div className="hidden sm:block text-sm text-gray-900">
-                                  {player.teams}
+                                  {player.first_team_id ? (
+                                    <Link 
+                                      href={`/teams/${player.first_team_id}`}
+                                      className="hover:text-blue-600 hover:underline"
+                                    >
+                                      {player.first_team_name}
+                                    </Link>
+                                  ) : (
+                                    player.teams
+                                  )}
                                 </div>
                               </div>
                             </td>
@@ -503,7 +521,12 @@ export default function GoalkeeperRankingsPageContent() {
                       {/* 선수 이름 및 팀 정보 */}
                       <div className="flex-1 ml-3 min-w-0">
                         <div className="font-medium text-gray-900 truncate">
-                          {player.player_name}
+                          <Link 
+                            href={`/players/${player.player_id}`}
+                            className="hover:text-blue-600 hover:underline"
+                          >
+                            {player.player_name}
+                          </Link>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
                           {player.team_logos &&
@@ -519,7 +542,16 @@ export default function GoalkeeperRankingsPageContent() {
                               </span>
                             )}
                           <span className="text-sm text-gray-600 truncate">
-                            {player.teams}
+                            {player.first_team_id ? (
+                              <Link 
+                                href={`/teams/${player.first_team_id}`}
+                                className="hover:text-blue-600 hover:underline"
+                              >
+                                {player.first_team_name}
+                              </Link>
+                            ) : (
+                              player.teams
+                            )}
                           </span>
                         </div>
                       </div>
