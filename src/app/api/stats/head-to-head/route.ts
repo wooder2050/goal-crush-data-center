@@ -1,54 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import type { HeadToHeadMatch, HeadToHeadStats } from '@/app/api/types';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-interface HeadToHeadMatch {
-  match_id: number;
-  match_date: string;
-  home_team_name: string;
-  away_team_name: string;
-  home_score: number;
-  away_score: number;
-  season_name: string;
-  location?: string;
-  penalty_home_score?: number;
-  penalty_away_score?: number;
-}
-
-interface HeadToHeadStats {
-  team1_id: number;
-  team2_id: number;
-  team1_name: string;
-  team2_name: string;
-  team1_logo?: string;
-  team2_logo?: string;
-  total_matches: number;
-  team1_wins: number;
-  team2_wins: number;
-  draws: number;
-  team1_goals: number;
-  team2_goals: number;
-  recent_matches: HeadToHeadMatch[];
-  biggest_win_team1: {
-    match_date: string;
-    score: string;
-    season: string;
-    margin: number;
-  } | null;
-  biggest_win_team2: {
-    match_date: string;
-    score: string;
-    season: string;
-    margin: number;
-  } | null;
-}
-
 export async function GET(request: NextRequest) {
   let team1Id: number | undefined;
   let team2Id: number | undefined;
-  
+
   try {
     const url = new URL(request.url);
     const team1Param = url.searchParams.get('team1_id');
@@ -72,18 +32,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log('Head-to-head API called with:', { team1Id, team2Id, limit });
-
     // 두 팀 정보 가져오기
     const [team1, team2] = await Promise.all([
       prisma.team.findUnique({
         where: { team_id: team1Id },
-        select: { team_id: true, team_name: true, logo: true }
+        select: { team_id: true, team_name: true, logo: true },
       }),
       prisma.team.findUnique({
         where: { team_id: team2Id },
-        select: { team_id: true, team_name: true, logo: true }
-      })
+        select: { team_id: true, team_name: true, logo: true },
+      }),
     ]);
 
     if (!team1 || !team2) {
@@ -98,30 +56,25 @@ export async function GET(request: NextRequest) {
       where: {
         OR: [
           { home_team_id: team1Id, away_team_id: team2Id },
-          { home_team_id: team2Id, away_team_id: team1Id }
+          { home_team_id: team2Id, away_team_id: team1Id },
         ],
-        AND: [
-          { home_score: { not: null } },
-          { away_score: { not: null } }
-        ]
+        AND: [{ home_score: { not: null } }, { away_score: { not: null } }],
       },
       include: {
         home_team: {
-          select: { team_name: true }
+          select: { team_name: true },
         },
         away_team: {
-          select: { team_name: true }
+          select: { team_name: true },
         },
         season: {
-          select: { season_name: true }
-        }
+          select: { season_name: true },
+        },
       },
       orderBy: {
-        match_date: 'desc'
-      }
+        match_date: 'desc',
+      },
     });
-
-    console.log(`Found ${matches.length} matches between teams`);
 
     if (matches.length === 0) {
       const emptyStats: HeadToHeadStats = {
@@ -139,7 +92,7 @@ export async function GET(request: NextRequest) {
         team2_goals: 0,
         recent_matches: [],
         biggest_win_team1: null,
-        biggest_win_team2: null
+        biggest_win_team2: null,
       };
 
       return NextResponse.json(emptyStats);
@@ -167,14 +120,14 @@ export async function GET(request: NextRequest) {
     let maxMarginTeam2 = -1;
 
     // 모든 매치에 대해 통계 계산
-    matches.forEach(match => {
+    matches.forEach((match) => {
       const homeScore = match.home_score || 0;
       const awayScore = match.away_score || 0;
-      
+
       // 팀1 관점에서 골 수와 승부 계산
       let team1Score: number;
       let team2Score: number;
-      
+
       if (match.home_team_id === team1Id) {
         team1Score = homeScore;
         team2Score = awayScore;
@@ -195,7 +148,7 @@ export async function GET(request: NextRequest) {
             match_date: match.match_date.toISOString().split('T')[0],
             score: `${team1Score}-${team2Score}`,
             season: match.season?.season_name || 'Unknown',
-            margin
+            margin,
           };
         }
       } else if (team2Score > team1Score) {
@@ -207,7 +160,7 @@ export async function GET(request: NextRequest) {
             match_date: match.match_date.toISOString().split('T')[0],
             score: `${team2Score}-${team1Score}`,
             season: match.season?.season_name || 'Unknown',
-            margin
+            margin,
           };
         }
       } else {
@@ -216,23 +169,25 @@ export async function GET(request: NextRequest) {
     });
 
     // 최근 경기 목록 (limit 적용)
-    const recentMatches: HeadToHeadMatch[] = matches.slice(0, limit).map(match => {
-      const homeScore = match.home_score || 0;
-      const awayScore = match.away_score || 0;
+    const recentMatches: HeadToHeadMatch[] = matches
+      .slice(0, limit)
+      .map((match) => {
+        const homeScore = match.home_score || 0;
+        const awayScore = match.away_score || 0;
 
-      return {
-        match_id: match.match_id,
-        match_date: match.match_date.toISOString().split('T')[0],
-        home_team_name: match.home_team?.team_name || '',
-        away_team_name: match.away_team?.team_name || '',
-        home_score: homeScore,
-        away_score: awayScore,
-        season_name: match.season?.season_name || 'Unknown',
-        location: match.location || undefined,
-        penalty_home_score: match.penalty_home_score || undefined,
-        penalty_away_score: match.penalty_away_score || undefined
-      };
-    });
+        return {
+          match_id: match.match_id,
+          match_date: match.match_date.toISOString().split('T')[0],
+          home_team_name: match.home_team?.team_name || '',
+          away_team_name: match.away_team?.team_name || '',
+          home_score: homeScore,
+          away_score: awayScore,
+          season_name: match.season?.season_name || 'Unknown',
+          location: match.location || undefined,
+          penalty_home_score: match.penalty_home_score || undefined,
+          penalty_away_score: match.penalty_away_score || undefined,
+        };
+      });
 
     const stats: HeadToHeadStats = {
       team1_id: team1Id,
@@ -249,23 +204,22 @@ export async function GET(request: NextRequest) {
       team2_goals: team2Goals,
       recent_matches: recentMatches,
       biggest_win_team1: biggestWinTeam1,
-      biggest_win_team2: biggestWinTeam2
+      biggest_win_team2: biggestWinTeam2,
     };
 
     return NextResponse.json(stats);
-
   } catch (error) {
     console.error('Error fetching head-to-head stats:', error);
     console.error('Error details:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
       team1Id,
-      team2Id
+      team2Id,
     });
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to fetch head-to-head statistics',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );
