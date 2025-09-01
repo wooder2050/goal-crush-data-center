@@ -1,4 +1,4 @@
-import { Shield,Target, Trophy } from 'lucide-react';
+import { Shield, Swords, Target, Trophy, Users } from 'lucide-react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -41,6 +41,22 @@ export default function StatsPage() {
       icon: <Target className="h-8 w-8 text-blue-500" />,
       gradient: 'from-blue-50 to-cyan-50',
       buttonColor: 'bg-blue-500 hover:bg-blue-600'
+    },
+    {
+      title: '팀 맞대결',
+      description: '두 팀 간 상대 전적과 통계',
+      href: '/stats/head-to-head',
+      icon: <Swords className="h-8 w-8 text-red-500" />,
+      gradient: 'from-red-50 to-pink-50',
+      buttonColor: 'bg-red-500 hover:bg-red-600'
+    },
+    {
+      title: '선수 vs 팀',
+      description: '개별 선수의 팀별 상대 기록',
+      href: '/stats/player-vs-team',
+      icon: <Users className="h-8 w-8 text-purple-500" />,
+      gradient: 'from-purple-50 to-indigo-50',
+      buttonColor: 'bg-purple-500 hover:bg-purple-600'
     }
   ];
 
@@ -57,7 +73,7 @@ export default function StatsPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {statsCategories.map((category) => (
             <Card key={category.href} className="group hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
               <Link href={category.href} className="block h-full">

@@ -185,6 +185,9 @@ function ScoringRankingsPageContentInner() {
                     <SelectItem value="goals">득점 많은 순</SelectItem>
                     <SelectItem value="assists">도움 많은 순</SelectItem>
                     <SelectItem value="matches_played">출전경기 많은 순</SelectItem>
+                    <SelectItem value="attack_points_per_match">경기당 공격포인트 많은 순</SelectItem>
+                    <SelectItem value="goals_per_match">경기당 골 많은 순</SelectItem>
+                    <SelectItem value="assists_per_match">경기당 도움 많은 순</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
