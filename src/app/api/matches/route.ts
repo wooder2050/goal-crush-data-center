@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 
-import type { TeamSeasonNameResult } from '@/app/api/types';
 import { prisma } from '@/lib/prisma';
+
+interface TeamSeasonNameResult {
+  team_id: number;
+  season_id: number;
+  team_name: string;
+}
 
 // Prisma 클라이언트에 teamSeasonName 메서드가 없는 문제를 해결하기 위한 타입 확장
 interface ExtendedPrismaClient {

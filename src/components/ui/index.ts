@@ -10,7 +10,6 @@ export {
   CardHeader,
   CardTitle,
 } from './card';
-export { Input } from './input';
 export { Pagination } from './pagination';
 export { Progress } from './progress';
 export {

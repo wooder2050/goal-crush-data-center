@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import type { MatchTeamSeasonNameResult } from '@/app/api/types';
 import { prisma } from '@/lib/prisma';
+
+interface TeamSeasonNameResult {
+  team_id: number;
+  team_name: string;
+}
 
 // Prisma 클라이언트에 teamSeasonName 메서드가 없는 문제를 해결하기 위한 타입 확장
 interface ExtendedPrismaClient {
@@ -17,7 +21,7 @@ interface ExtendedPrismaClient {
         team_id: boolean;
         team_name: boolean;
       };
-    }) => Promise<MatchTeamSeasonNameResult[]>;
+    }) => Promise<TeamSeasonNameResult[]>;
   };
 }
 
@@ -65,10 +69,10 @@ export async function GET(
 
     // 팀별로 매핑
     const homeTeamSeasonName = teamSeasonNames.find(
-      (t: MatchTeamSeasonNameResult) => t.team_id === match.home_team_id
+      (t: TeamSeasonNameResult) => t.team_id === match.home_team_id
     );
     const awayTeamSeasonName = teamSeasonNames.find(
-      (t: MatchTeamSeasonNameResult) => t.team_id === match.away_team_id
+      (t: TeamSeasonNameResult) => t.team_id === match.away_team_id
     );
 
     // 시즌별 팀명으로 업데이트

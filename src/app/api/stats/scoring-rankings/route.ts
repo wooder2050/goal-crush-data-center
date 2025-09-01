@@ -138,12 +138,6 @@ export async function GET(request: NextRequest) {
           return b.assists - a.assists;
         case 'matches_played':
           return b.matches_played - a.matches_played;
-        case 'goals_per_match':
-          return parseFloat(b.goals_per_match) - parseFloat(a.goals_per_match);
-        case 'assists_per_match':
-          return parseFloat(b.assists_per_match) - parseFloat(a.assists_per_match);
-        case 'attack_points_per_match':
-          return parseFloat(b.attack_points_per_match) - parseFloat(a.attack_points_per_match);
         case 'attack_points':
         default:
           return b.attack_points - a.attack_points;
