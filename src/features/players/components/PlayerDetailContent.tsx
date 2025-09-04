@@ -4,14 +4,16 @@ import Image from 'next/image';
 
 import { Card, CardContent, Grid } from '@/components/ui';
 import { getPositionColor } from '@/features/matches/lib/matchUtils';
-import {
-  getPlayerByIdPrisma,
-  getPlayerSummaryPrisma,
-} from '@/features/players/api-prisma';
-import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
+import { PlayerAbilitySummary } from '@/features/player-ratings/components/PlayerAbilitySummary';
+import type { getPlayerByIdPrisma, getPlayerSummaryPrisma } from '@/features/players/api-prisma';
 import { shortenSeasonName } from '@/lib/utils';
 
 import GoalkeeperStatsSection from './GoalkeeperStatsSection';
+import { PlayerDataProvider } from './PlayerDataProvider';
+import { PlayerSummaryProvider } from './PlayerSummaryProvider';
+
+type PlayerData = Awaited<ReturnType<typeof getPlayerByIdPrisma>>;
+type PlayerSummaryData = Awaited<ReturnType<typeof getPlayerSummaryPrisma>>;
 
 type PositionFreq = { position: string; matches: number };
 
@@ -26,33 +28,60 @@ type TeamHistoryItem = {
   is_active?: boolean;
 };
 
-function minDate(a: string | null, b: string | null): string | null {
-  if (!a) return b;
-  if (!b) return a;
-  return a < b ? a : b;
-}
-function maxDate(a: string | null, b: string | null): string | null {
-  if (!a) return b;
-  if (!b) return a;
-  return a > b ? a : b;
-}
-
 export default function PlayerDetailContent({
   playerId,
 }: {
   playerId: number;
 }) {
-  const { data: player } = useGoalSuspenseQuery(getPlayerByIdPrisma, [
-    playerId,
-  ]);
-  const { data: summary } = useGoalSuspenseQuery(getPlayerSummaryPrisma, [
-    playerId,
-  ]);
+  const handleRatePlayer = () => {
+    window.location.href = `/players/${playerId}/rate`;
+  };
 
+  const handleViewAllRatings = () => {
+    window.location.href = `/players/${playerId}/ratings`;
+  };
+
+  return (
+    <PlayerDataProvider playerId={playerId}>
+      {(player) => (
+        <PlayerSummaryProvider playerId={playerId}>
+          {(summary) => (
+            <PlayerDetailContentInner
+              player={player}
+              summary={summary}
+              playerId={playerId}
+              handleRatePlayer={handleRatePlayer}
+              handleViewAllRatings={handleViewAllRatings}
+            />
+          )}
+        </PlayerSummaryProvider>
+      )}
+    </PlayerDataProvider>
+  );
+}
+
+function PlayerDetailContentInner({
+  player,
+  summary,
+  playerId,
+  handleRatePlayer,
+  handleViewAllRatings,
+}: {
+  player: NonNullable<PlayerData>;
+  summary: NonNullable<PlayerSummaryData>;
+  playerId: number;
+  handleRatePlayer: () => void;
+  handleViewAllRatings: () => void;
+}) {
   const profile = player?.profile_image_url ?? null;
   const name = player?.name ?? '-';
   const jersey = player?.jersey_number;
-  const totals = summary?.totals ?? { goals: 0, assists: 0, appearances: 0, goals_conceded: 0 };
+  const totals = summary?.totals ?? {
+    goals: 0,
+    assists: 0,
+    appearances: 0,
+    goals_conceded: 0,
+  };
   const totalPenaltyGoals = (summary?.seasons ?? []).reduce(
     (acc, s) => acc + (s.penalty_goals ?? 0),
     0
@@ -91,12 +120,14 @@ export default function PlayerDetailContent({
         r.logo = r.logo ?? t.logo ?? null;
         r.primary_color = r.primary_color ?? t.primary_color ?? null;
         r.secondary_color = r.secondary_color ?? t.secondary_color ?? null;
-        r.start_date = minDate(r.start_date, t.start_date ?? null);
+        r.start_date =
+          [r.start_date, t.start_date].filter(Boolean).sort()[0] || null;
         if (t.is_active) {
           r.is_active = true;
           r.end_date = null;
         } else if (!r.is_active) {
-          r.end_date = maxDate(r.end_date, t.end_date ?? null);
+          r.end_date =
+            [r.end_date, t.end_date].filter(Boolean).sort().pop() || null;
         }
       }
     });
@@ -555,9 +586,6 @@ export default function PlayerDetailContent({
               )}
             </div>
 
-            {/* Goalkeeper stats */}
-            <GoalkeeperStatsSection playerId={playerId} />
-
             {/* Goal records */}
             <div>
               <div className="mb-2 text-sm font-medium text-gray-700">
@@ -759,6 +787,16 @@ export default function PlayerDetailContent({
                   </div>
                 </>
               )}
+            </div>
+            {/* Goalkeeper stats */}
+            <GoalkeeperStatsSection playerId={playerId} />
+            {/* Player Ability Summary */}
+            <div>
+              <PlayerAbilitySummary
+                playerId={playerId}
+                onRatePlayer={handleRatePlayer}
+                onViewAllRatings={handleViewAllRatings}
+              />
             </div>
           </div>
         </CardContent>

@@ -40,6 +40,8 @@ export default function GoalsTab({
         return '페널티킥';
       case 'free_kick':
         return '프리킥';
+      case 'regular':
+        return '일반';
       default:
         return '일반';
     }

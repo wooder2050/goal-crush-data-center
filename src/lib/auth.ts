@@ -102,6 +102,65 @@ export async function requireAdminAuth() {
 }
 
 /**
+ * 현재 로그인한 사용자 정보 가져오기
+ */
+export async function getCurrentUser() {
+  try {
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      return null;
+    }
+
+    // 데이터베이스에서 사용자 정보 확인/생성
+    let dbUser = await prisma.user.findUnique({
+      where: { user_id: user.id },
+      select: {
+        user_id: true,
+        korean_nickname: true,
+        display_name: true,
+        profile_image_url: true,
+        is_admin: true,
+      },
+    });
+
+    // 사용자가 DB에 없으면 생성
+    if (!dbUser) {
+      dbUser = await prisma.user.create({
+        data: {
+          user_id: user.id,
+          korean_nickname: user.user_metadata?.korean_nickname || user.email?.split('@')[0] || 'User',
+          display_name: user.user_metadata?.display_name,
+          profile_image_url: user.user_metadata?.avatar_url,
+        },
+        select: {
+          user_id: true,
+          korean_nickname: true,
+          display_name: true,
+          profile_image_url: true,
+          is_admin: true,
+        },
+      });
+    }
+
+    return {
+      userId: dbUser.user_id,
+      koreanNickname: dbUser.korean_nickname,
+      displayName: dbUser.display_name,
+      profileImageUrl: dbUser.profile_image_url,
+      isAdmin: dbUser.is_admin || false,
+    };
+  } catch (error) {
+    console.error('사용자 정보 가져오기 오류:', error);
+    return null;
+  }
+}
+
+/**
  * API 라우트에서 사용할 관리자 권한 확인 미들웨어
  */
 export function withAdminAuth<T extends unknown[]>(

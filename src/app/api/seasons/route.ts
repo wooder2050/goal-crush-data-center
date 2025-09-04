@@ -87,7 +87,16 @@ export async function POST(request: NextRequest) {
     }
 
     // 카테고리 유효성 검증
-    const validCategories = ['SUPER_LEAGUE', 'CHALLENGE_LEAGUE', 'G_LEAGUE', 'PLAYOFF', 'SBS_CUP', 'CHAMPION_MATCH', 'GIFA_CUP', 'OTHER'];
+    const validCategories = [
+      'SUPER_LEAGUE',
+      'CHALLENGE_LEAGUE',
+      'G_LEAGUE',
+      'PLAYOFF',
+      'SBS_CUP',
+      'CHAMPION_MATCH',
+      'GIFA_CUP',
+      'OTHER',
+    ];
     if (category && !validCategories.includes(category)) {
       return NextResponse.json(
         { error: '유효하지 않은 카테고리입니다.' },
@@ -305,6 +314,7 @@ export async function GET(request: NextRequest) {
           if (
             league === 'super' ||
             league === 'cup' ||
+            league === 'g-league' ||
             pilotSeason ||
             firstSeason
           ) {
@@ -321,7 +331,7 @@ export async function GET(request: NextRequest) {
             teams = w
               ? [{ team_id: w.id, team_name: w.name, logo: w.logo }]
               : [];
-          } else if (league === 'g-league' || secondSeason) {
+          } else if (secondSeason) {
             const arr = winnersBySeason.get(season.season_id) ?? [];
             // 조별리그: 각 조 1위 모두 노출 (standings 기준 여러 팀 가능)
             label = '1위';
@@ -341,7 +351,7 @@ export async function GET(request: NextRequest) {
           ) {
             const arr = winnersBySeason.get(season.season_id) ?? [];
             const w = arr[0] ?? null;
-            label = '우승팀';
+            label = '1위';
             teams = w
               ? [{ team_id: w.id, team_name: w.name, logo: w.logo }]
               : [];
