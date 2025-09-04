@@ -62,7 +62,7 @@ export default function RatingsPage() {
   );
 
   return (
-    <Section padding="sm">
+    <Section padding="sm" className="min-h-screen">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">선수 평가 모음</h1>
         <p className="text-gray-600 mt-2">
