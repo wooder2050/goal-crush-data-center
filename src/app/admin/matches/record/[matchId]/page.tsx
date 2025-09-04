@@ -339,7 +339,7 @@ export default function RecordMatchDetailPage() {
           body: JSON.stringify({
             player_id: data.player_id,
             goal_time: data.goal_time,
-            goal_type: data.goal_type || 'normal',
+            goal_type: data.goal_type || 'regular',
             description: data.description || null,
           }),
         });
@@ -349,7 +349,7 @@ export default function RecordMatchDetailPage() {
         }
 
         // 로컬 상태도 업데이트
-        addGoal({ ...data, goal_type: data.goal_type || 'normal' });
+        addGoal({ ...data, goal_type: data.goal_type || 'regular' });
         setGoalDialogOpen(false);
         alert('골이 성공적으로 저장되었습니다.');
       } catch (error) {

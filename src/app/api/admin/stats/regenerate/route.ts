@@ -208,28 +208,115 @@ export async function POST(request: NextRequest) {
       // 기존 playerSeasonStats 삭제
       await prisma.playerSeasonStats.deleteMany({ where: seasonFilter });
 
-      // 간단한 선수 통계 생성 (기본값으로)
-      const playerStats = await prisma.playerSeasonStats.findMany({
-        where: seasonFilter,
+      // 경기 데이터로부터 선수 통계 계산
+      const playerMatchStats = await prisma.playerMatchStats.findMany({
+        where: {
+          match: seasonFilter.season_id 
+            ? { season_id: seasonFilter.season_id }
+            : {},
+        },
+        include: {
+          match: {
+            select: {
+              season_id: true,
+              status: true,
+            },
+          },
+        },
       });
 
-      // 기존 데이터 삭제 후 기본 데이터 생성
-      for (const stat of playerStats) {
-        await prisma.playerSeasonStats.create({
-          data: {
-            season_id: stat.season_id,
-            player_id: stat.player_id,
-            team_id: stat.team_id,
+      console.log(`총 ${playerMatchStats.length}개의 선수-경기 통계로부터 시즌 통계 계산 중...`);
+
+      // 선수별 시즌 통계 계산
+      const playerSeasonStats = new Map<
+        string, // season_id-player_id-team_id
+        {
+          season_id: number;
+          player_id: number;
+          team_id: number;
+          matches_played: number;
+          goals: number;
+          assists: number;
+          yellow_cards: number;
+          red_cards: number;
+          minutes_played: number;
+          saves: number;
+        }
+      >();
+
+      playerMatchStats.forEach((matchStat) => {
+        // 완료된 경기만 처리
+        if (matchStat.match?.status !== 'completed') {
+          return;
+        }
+
+        // 필수 데이터가 없는 경우 건너뛰기
+        if (!matchStat.player_id || !matchStat.team_id || !matchStat.match?.season_id) {
+          return;
+        }
+
+        const key = `${matchStat.match.season_id}-${matchStat.player_id}-${matchStat.team_id}`;
+
+        if (!playerSeasonStats.has(key)) {
+          playerSeasonStats.set(key, {
+            season_id: matchStat.match.season_id,
+            player_id: matchStat.player_id,
+            team_id: matchStat.team_id,
             matches_played: 0,
             goals: 0,
             assists: 0,
             yellow_cards: 0,
             red_cards: 0,
-          },
-        });
+            minutes_played: 0,
+            saves: 0,
+          });
+        }
+
+        const stats = playerSeasonStats.get(key);
+        if (!stats) return;
+
+        // 경기 출장 카운트 (출장 시간이 0보다 큰 경우)
+        if ((matchStat.minutes_played || 0) > 0) {
+          stats.matches_played++;
+        }
+
+        // 통계 누적
+        stats.goals += matchStat.goals || 0;
+        stats.assists += matchStat.assists || 0;
+        stats.yellow_cards += matchStat.yellow_cards || 0;
+        stats.red_cards += matchStat.red_cards || 0;
+        stats.minutes_played += matchStat.minutes_played || 0;
+        stats.saves += matchStat.saves || 0;
+      });
+
+      console.log(`계산된 선수-시즌 통계: ${playerSeasonStats.size}개`);
+
+      // playerSeasonStats 테이블에 저장
+      let createdCount = 0;
+      for (const [, stats] of Array.from(playerSeasonStats.entries())) {
+        try {
+          await prisma.playerSeasonStats.create({
+            data: {
+              season_id: stats.season_id,
+              player_id: stats.player_id,
+              team_id: stats.team_id,
+              matches_played: stats.matches_played,
+              goals: stats.goals,
+              assists: stats.assists,
+              yellow_cards: stats.yellow_cards,
+              red_cards: stats.red_cards,
+              minutes_played: stats.minutes_played,
+              saves: stats.saves,
+            },
+          });
+          createdCount++;
+        } catch (error) {
+          console.error(`선수 시즌 통계 생성 실패 (season: ${stats.season_id}, player: ${stats.player_id}, team: ${stats.team_id}):`, error);
+        }
       }
 
-      results.player_season_stats = playerStats.length;
+      console.log(`선수 시즌 통계 재생성 완료: ${createdCount}개 레코드 생성`);
+      results.player_season_stats = createdCount;
     }
 
     // 3. 팀 시즌 통계 재생성
@@ -310,23 +397,29 @@ export async function POST(request: NextRequest) {
     if (statsType === 'all' || statsType === 'h2h') {
       console.log('상대전적 통계 재생성 중...');
 
-      // 기존 h2hPairStats 삭제
+      // 특정 시즌 선택 시 경고 메시지와 함께 전체 시즌 기반으로 계산
+      if (seasonId && seasonId !== 'all') {
+        console.log(`⚠️  H2H 통계는 전체 경기 데이터를 기반으로 계산됩니다. (시즌 ${seasonId} 선택되었지만 전체 데이터 사용)`);
+      }
+
+      // 기존 h2hPairStats 삭제 (전체)
       await prisma.h2hPairStats.deleteMany();
 
       // 완료된 경기들로부터 상대전적 계산
+      // 특정 시즌이 선택된 경우 해당 시즌만, 아니면 전체 시즌
+      const matchFilter = seasonId && seasonId !== 'all' 
+        ? { ...seasonFilter, status: 'completed' as const, home_score: { not: null }, away_score: { not: null } }
+        : { status: 'completed' as const, home_score: { not: null }, away_score: { not: null } };
+
       const matches = await prisma.match.findMany({
-        where: {
-          ...seasonFilter,
-          status: 'completed',
-          home_score: { not: null },
-          away_score: { not: null },
-        },
+        where: matchFilter,
       });
+
+      console.log(`${matches.length}개 경기로부터 H2H 통계 계산 중... ${seasonId && seasonId !== 'all' ? `(시즌 ID: ${seasonId})` : '(전체 시즌)'}`);
 
       const h2hStats = new Map<
         string,
         {
-          season_id: number;
           team1_id: number;
           team2_id: number;
           team1_wins: number;
@@ -338,21 +431,17 @@ export async function POST(request: NextRequest) {
       >();
 
       matches.forEach((match) => {
-        // season_id, home_team_id, away_team_id가 null인 경우 건너뛰기
-        if (!match.season_id || !match.home_team_id || !match.away_team_id) {
-          console.log(
-            `Skipping match ${match.match_id} for h2h stats - missing required data: season_id=${match.season_id}, home_team_id=${match.home_team_id}, away_team_id=${match.away_team_id}`
-          );
+        // home_team_id, away_team_id가 null인 경우 건너뛰기
+        if (!match.home_team_id || !match.away_team_id) {
           return;
         }
 
         const team1 = Math.min(match.home_team_id, match.away_team_id);
         const team2 = Math.max(match.home_team_id, match.away_team_id);
-        const key = `${match.season_id}-${team1}-${team2}`;
+        const key = `${team1}-${team2}`;
 
         if (!h2hStats.has(key)) {
           h2hStats.set(key, {
-            season_id: match.season_id,
             team1_id: team1,
             team2_id: team2,
             team1_wins: 0,
@@ -402,6 +491,7 @@ export async function POST(request: NextRequest) {
         });
       }
 
+      console.log(`H2H 통계 재생성 완료: ${h2hStats.size}개 팀 조합`);
       results.h2h_pair_stats = h2hStats.size;
     }
 

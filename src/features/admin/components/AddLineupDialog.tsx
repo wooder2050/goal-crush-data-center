@@ -57,7 +57,7 @@ export default function AddLineupDialog({
       position: '',
       jersey_number: '',
       goals_conceded: '',
-      minutes_played: '90',
+      minutes_played: '24',
     },
   });
 
@@ -94,8 +94,12 @@ export default function AddLineupDialog({
         jersey_number: values.jersey_number
           ? parseInt(values.jersey_number)
           : null,
-        minutes_played: values.minutes_played ? parseInt(values.minutes_played) : 90,
-        goals_conceded: values.goals_conceded ? parseInt(values.goals_conceded) : null,
+        minutes_played: values.minutes_played
+          ? parseInt(values.minutes_played)
+          : 90,
+        goals_conceded: values.goals_conceded
+          ? parseInt(values.goals_conceded)
+          : null,
         // UI 표시용 추가 데이터
         player_name: selectedPlayer.name,
         team_name: selectedTeam.team_name,
@@ -255,8 +259,8 @@ export default function AddLineupDialog({
                   <FormControl>
                     <Input
                       type="number"
-                      min="1"
-                      max="99"
+                      min="0"
+                      max="999"
                       placeholder="등번호"
                       {...field}
                     />
@@ -306,7 +310,6 @@ export default function AddLineupDialog({
                     </FormItem>
                   )}
                 />
-
               </>
             )}
 
