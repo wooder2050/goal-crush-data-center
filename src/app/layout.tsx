@@ -6,6 +6,7 @@ import Script from 'next/script';
 import { AdminNavItem } from '@/components/AdminNavItem';
 import { AuthButtons } from '@/components/AuthButtons';
 import { AuthProvider } from '@/components/AuthProvider';
+import Footer from '@/components/Footer';
 import { OrganizationJsonLd, WebsiteJsonLd } from '@/components/JsonLd';
 import { Navigation } from '@/components/Navigation';
 import { NicknameSetupModal } from '@/components/NicknameSetupModal';
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { href: '/ratings', label: '평가', requireAuth: false },
   { href: '/stats', label: '통계', requireAuth: false },
   { href: '/community', label: '커뮤니티', requireAuth: false },
+  { href: '/about', label: '소개', requireAuth: false },
   { href: '/supports', label: '응원하기', requireAuth: true },
 ] as const;
 
@@ -170,6 +172,7 @@ export default function RootLayout({
               <ScrollToTopOnRouteChange />
               <NicknameSetupModal />
               {children}
+              <Footer />
             </div>
           </Providers>
         </body>

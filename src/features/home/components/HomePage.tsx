@@ -43,8 +43,9 @@ export default function HomePage() {
             <span className="text-[#ff4800]/80">한 곳에서</span>
           </H1>
           <p className="text-lg sm:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            시즌별 경기, 선수·팀 통계를 구조화하여 누구나 쉽게 탐색할 수 있도록
-            제공합니다.
+            &ldquo;골 때리는 그녀들&rdquo;에서 다룬 경기 데이터를 한눈에
+            확인하고, 매주 업데이트되는 경기 하이라이트와 선수 통계를
+            탐색해보세요.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/seasons">
@@ -70,6 +71,90 @@ export default function HomePage() {
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 1200px"
             priority
           />
+        </div>
+      </Section>
+
+      {/* 골 때리는 그녀들 데이터센터 소개 Section */}
+      <Section
+        padding="sm"
+        className="py-20 bg-gradient-to-br from-[#ff4800]/5 via-white to-orange-50"
+      >
+        <div className="max-w-4xl mx-auto text-center">
+          <Badge
+            variant="emphasisOutline"
+            className="w-fit mb-6 text-sm bg-white/50"
+          >
+            🏆 골 때리는 그녀들 공식 데이터센터
+          </Badge>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-6">
+            방송과 함께하는 데이터 여행
+          </h2>
+          <div className="grid md:grid-cols-2 gap-8 text-left">
+            <div className="bg-white/80 rounded-2xl p-8 backdrop-blur-sm border border-orange-200/50 shadow-lg">
+              <div className="flex items-center mb-6">
+                <span className="text-3xl mr-3">📺</span>
+                <h3 className="text-2xl font-bold text-[#ff4800] tracking-tight">
+                  방송 연계
+                </h3>
+              </div>
+              <p className="text-gray-800 leading-relaxed mb-6 text-base font-medium">
+                매주 &ldquo;골 때리는 그녀들&rdquo;에서 다룬 경기의 상세
+                데이터를 실시간으로 업데이트하여 제공합니다.
+              </p>
+              <ul className="space-y-3 text-gray-700">
+                <li className="flex items-start">
+                  <span className="inline-block w-2 h-2 bg-[#ff4800] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="text-sm font-medium leading-relaxed">
+                    매주 업데이트되는 경기 하이라이트
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="inline-block w-2 h-2 bg-[#ff4800] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="text-sm font-medium leading-relaxed">
+                    방송에서 언급된 선수들의 세부 통계
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="inline-block w-2 h-2 bg-[#ff4800] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="text-sm font-medium leading-relaxed">
+                    팀별 시즌 성적 및 순위 변화
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <div className="bg-white/80 rounded-2xl p-8 backdrop-blur-sm border border-orange-200/50 shadow-lg">
+              <div className="flex items-center mb-6">
+                <span className="text-3xl mr-3">📊</span>
+                <h3 className="text-2xl font-bold text-[#ff4800] tracking-tight">
+                  체계적 데이터
+                </h3>
+              </div>
+              <p className="text-gray-800 leading-relaxed mb-6 text-base font-medium">
+                선수별 포지션, 득점, 어시스트부터 팀별 전적까지 모든 데이터를
+                구조화하여 관리합니다.
+              </p>
+              <ul className="space-y-3 text-gray-700">
+                <li className="flex items-start">
+                  <span className="inline-block w-2 h-2 bg-[#ff4800] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="text-sm font-medium leading-relaxed">
+                    시즌별/팀별 상세 통계 제공
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="inline-block w-2 h-2 bg-[#ff4800] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="text-sm font-medium leading-relaxed">
+                    선수 개인 기록 및 커리어 추적
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="inline-block w-2 h-2 bg-[#ff4800] rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                  <span className="text-sm font-medium leading-relaxed">
+                    직관적인 검색 및 비교 기능
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </Section>
 
@@ -130,9 +215,9 @@ export default function HomePage() {
             <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-[#ff4800]/5 flex items-center justify-center group-hover:bg-[#ff4800]/10 transition-colors">
               <BarChart3 className="h-8 w-8 text-[#ff4800]/70" />
             </div>
-            <h3 className="text-xl font-bold mb-3">통계 확대 예정</h3>
+            <h3 className="text-xl font-bold mb-3">다양한 통계</h3>
             <p className="text-gray-600 leading-relaxed">
-              세부 지표/시각화 기능을 지속 확장
+              득점, 골키퍼, 팀 순위 등 다각도 분석
             </p>
           </div>
         </div>
@@ -205,22 +290,20 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          <Card className="group hover:scale-105 transition-all duration-300 h-full bg-white shadow-lg hover:shadow-xl">
+          <Card className="group hover:scale-105 transition-all duration-300 border-l-4 border-[#ff4800]/60 h-full bg-white shadow-lg hover:shadow-xl">
             <CardHeader className="space-y-3">
-              <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
-                <BarChart3 className="h-6 w-6 text-gray-400" />
+              <div className="w-12 h-12 rounded-lg bg-[#ff4800]/5 flex items-center justify-center group-hover:bg-[#ff4800]/10 transition-colors">
+                <BarChart3 className="h-6 w-6 text-[#ff4800]/70" />
               </div>
-              <CardTitle className="text-xl font-bold text-gray-400">
-                통계 분석
-              </CardTitle>
+              <CardTitle className="text-xl font-bold">통계 분석</CardTitle>
               <CardDescription className="text-base">
-                선수/팀 통계 시각화 (개발 예정)
+                득점, 골키퍼, 팀별 통계 및 순위를 확인합니다.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="secondary" className="w-full" disabled>
-                개발 예정
-              </Button>
+              <Link href="/stats">
+                <Button className="w-full">통계 보기</Button>
+              </Link>
             </CardContent>
           </Card>
 
