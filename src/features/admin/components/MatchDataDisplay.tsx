@@ -175,7 +175,9 @@ export default function MatchDataDisplay({
                             ? '페널티킥'
                             : goal.goal_type === 'free_kick'
                               ? '프리킥'
-                              : '일반'}
+                              : goal.goal_type === 'regular'
+                                ? '일반'
+                                : '일반'}
                       </td>
                       <td className="py-2 px-4">{goal.description || '-'}</td>
                       <td className="py-2 px-4 text-right">

@@ -63,6 +63,8 @@ model User {
   user_badges          UserBadge[]
   user_notifications   UserNotification[]
   user_points          UserPoint[]
+  player_ability_ratings PlayerAbilityRating[]
+  rating_reviews       RatingReview[]
 
   @@index([korean_nickname], map: "idx_users_korean_nickname")
   @@index([is_active], map: "idx_users_is_active")
@@ -92,6 +94,8 @@ model Player {
   player_team_history                 PlayerTeamHistory[]
   substitutions_in                    Substitution[]          @relation("PlayerIn")
   substitutions_out                   Substitution[]          @relation("PlayerOut")
+  player_ability_ratings              PlayerAbilityRating[]
+  player_ability_aggregates           PlayerAbilityAggregate[]
 
   @@index([jersey_number], map: "idx_players_jersey_number")
   @@index([name], map: "idx_players_name")
@@ -119,6 +123,8 @@ model Season {
   team_season_names      TeamSeasonName[]
   team_season_stats      TeamSeasonStats[]
   team_seasons           TeamSeason[]
+  player_ability_ratings PlayerAbilityRating[]
+  player_ability_aggregates PlayerAbilityAggregate[]
 
   @@index([year], map: "idx_seasons_year")
   @@index([category])
@@ -787,4 +793,139 @@ enum SeasonCategory {
   GIFA_CUP
 
   @@map("season_category")
+}
+
+model PlayerAbilityRating {
+  rating_id      Int      @id @default(autoincrement())
+  player_id      Int
+  user_id        String   @db.VarChar(255)
+  season_id      Int?
+  
+  // 공격 능력치 (1-99)
+  finishing      Int?     @default(50)
+  shot_power     Int?     @default(50)
+  shot_accuracy  Int?     @default(50)
+  heading        Int?     @default(50)
+  
+  // 패스 & 플레이메이킹
+  short_passing  Int?     @default(50)
+  long_passing   Int?     @default(50)
+  vision         Int?     @default(50)
+  crossing       Int?     @default(50)
+  
+  // 드리블 & 기술
+  dribbling      Int?     @default(50)
+  ball_control   Int?     @default(50)
+  agility        Int?     @default(50)
+  balance        Int?     @default(50)
+  
+  // 수비 능력
+  marking        Int?     @default(50)
+  tackling       Int?     @default(50)
+  interceptions  Int?     @default(50)
+  defensive_heading Int?  @default(50)
+  
+  // 피지컬
+  speed          Int?     @default(50)
+  acceleration   Int?     @default(50)
+  stamina        Int?     @default(50)
+  strength       Int?     @default(50)
+  
+  // 멘탈
+  determination  Int?     @default(50)
+  work_rate      Int?     @default(50)
+  leadership     Int?     @default(50)
+  composure      Int?     @default(50)
+  
+  // 골키퍼 전용
+  reflexes       Int?     @default(50)
+  diving         Int?     @default(50)
+  handling       Int?     @default(50)
+  kicking        Int?     @default(50)
+  
+  overall_rating Int?     @default(50)
+  comment        String?
+  
+  helpful_count  Int      @default(0)
+  total_reviews  Int      @default(0)
+  
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime @default(now()) @db.Timestamptz(6)
+  
+  player         Player   @relation(fields: [player_id], references: [player_id], onDelete: Cascade)
+  user           User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  season         Season?  @relation(fields: [season_id], references: [season_id])
+  reviews        RatingReview[]
+  
+  @@unique([player_id, user_id, season_id])
+  @@index([player_id])
+  @@index([user_id])
+  @@index([season_id])
+  @@index([overall_rating])
+  @@index([created_at])
+  @@map("player_ability_ratings")
+}
+
+model RatingReview {
+  review_id   Int      @id @default(autoincrement())
+  rating_id   Int
+  user_id     String   @db.VarChar(255)
+  review_type String   @db.VarChar(20) // 'helpful', 'not_helpful', 'comment'
+  comment     String?
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  
+  rating      PlayerAbilityRating @relation(fields: [rating_id], references: [rating_id], onDelete: Cascade)
+  user        User                @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  
+  @@unique([rating_id, user_id, review_type])
+  @@index([rating_id])
+  @@index([user_id])
+  @@index([review_type])
+  @@map("rating_reviews")
+}
+
+model PlayerAbilityAggregate {
+  player_id     Int      @id
+  season_id     Int?
+  
+  // 평균 능력치들
+  avg_finishing      Float? @default(50)
+  avg_shot_power     Float? @default(50)
+  avg_shot_accuracy  Float? @default(50)
+  avg_heading        Float? @default(50)
+  avg_short_passing  Float? @default(50)
+  avg_long_passing   Float? @default(50)
+  avg_vision         Float? @default(50)
+  avg_crossing       Float? @default(50)
+  avg_dribbling      Float? @default(50)
+  avg_ball_control   Float? @default(50)
+  avg_agility        Float? @default(50)
+  avg_balance        Float? @default(50)
+  avg_marking        Float? @default(50)
+  avg_tackling       Float? @default(50)
+  avg_interceptions  Float? @default(50)
+  avg_defensive_heading Float? @default(50)
+  avg_speed          Float? @default(50)
+  avg_acceleration   Float? @default(50)
+  avg_stamina        Float? @default(50)
+  avg_strength       Float? @default(50)
+  avg_determination  Float? @default(50)
+  avg_work_rate      Float? @default(50)
+  avg_leadership     Float? @default(50)
+  avg_composure      Float? @default(50)
+  avg_reflexes       Float? @default(50)
+  avg_diving         Float? @default(50)
+  avg_handling       Float? @default(50)
+  avg_kicking        Float? @default(50)
+  avg_overall_rating Float? @default(50)
+  
+  total_ratings      Int      @default(0)
+  last_updated       DateTime @default(now()) @db.Timestamptz(6)
+  
+  player             Player   @relation(fields: [player_id], references: [player_id], onDelete: Cascade)
+  season             Season?  @relation(fields: [season_id], references: [season_id])
+  
+  @@unique([player_id, season_id])
+  @@index([avg_overall_rating])
+  @@map("player_ability_aggregates")
 }

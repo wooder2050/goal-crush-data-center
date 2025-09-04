@@ -188,16 +188,19 @@ export default function FeaturedPlayersSection({ match }: Props) {
   if (!homePick && !awayPick) return null;
 
   const FullImage = ({ name, url }: { name: string; url: string | null }) => {
-    if (!url) return null;
     return (
       <span className="relative block w-full h-56 sm:h-72 rounded-md overflow-hidden bg-transparent">
-        <Image
-          src={url}
-          alt={name}
-          fill
-          sizes="(min-width: 640px) 50vw, 100vw"
-          className="object-contain"
-        />
+        {url ? (
+          <Image
+            src={url}
+            alt={name}
+            fill
+            sizes="(min-width: 640px) 50vw, 100vw"
+            className="object-contain"
+          />
+        ) : (
+          <div className="h-full w-full bg-gray-200" />
+        )}
       </span>
     );
   };

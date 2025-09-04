@@ -89,6 +89,31 @@ export default function AdminStatsPage() {
     return response.json();
   });
 
+  // H2H 통계 복구 mutation
+  const restoreH2hMutation = useGoalMutation(async () => {
+    const response = await fetch(`/api/admin/stats/restore-h2h`, {
+      method: 'POST',
+    });
+
+    if (!response.ok) {
+      throw new Error('H2H 통계 복구에 실패했습니다.');
+    }
+
+    return response.json();
+  });
+
+  // 선수 통계 디버깅 mutation
+  const debugPlayerStatsMutation = useGoalMutation(async (season_id?: string) => {
+    const queryParams = season_id && season_id !== 'all' ? `?season_id=${season_id}` : '';
+    const response = await fetch(`/api/admin/stats/player-stats-debug${queryParams}`);
+
+    if (!response.ok) {
+      throw new Error('선수 통계 디버깅에 실패했습니다.');
+    }
+
+    return response.json();
+  });
+
   // 전체 통계 재생성
   const handleRegenerateAll = async () => {
     if (
@@ -150,6 +175,56 @@ export default function AdminStatsPage() {
     }
   };
 
+  // H2H 통계 복구
+  const handleRestoreH2h = async () => {
+    if (
+      !confirm(
+        'H2H 상대전적 통계를 복구하시겠습니까?\n⚠️ 기존 H2H 데이터가 모두 삭제되고 다시 생성됩니다.'
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const result = await restoreH2hMutation.mutateAsync();
+
+      alert(
+        `H2H 통계 복구가 완료되었습니다!\n\n복구 결과:\n- 처리된 경기: ${result.results.total_matches_processed}개\n- 건너뛴 경기: ${result.results.skipped_matches}개\n- 생성된 H2H 페어: ${result.results.h2h_pairs_created}개`
+      );
+    } catch (error) {
+      console.error('H2H 통계 복구 실패:', error);
+      alert('H2H 통계 복구 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 선수 통계 디버깅
+  const handleDebugPlayerStats = async () => {
+    try {
+      const result = await debugPlayerStatsMutation.mutateAsync(selectedSeason);
+      
+      console.log('선수 통계 디버깅 결과:', result);
+      
+      const debugInfo = result.debug_info;
+      const existing = result.existing_player_season_stats;
+      const calculated = result.calculated_season_stats;
+      
+      alert(
+        `선수 통계 디버깅 결과:\n\n` +
+        `📊 현재 DB 상태:\n` +
+        `- 기존 선수-시즌 통계: ${existing.count}개\n\n` +
+        `🔍 경기 데이터 분석:\n` +
+        `- 전체 경기별 선수 통계: ${debugInfo.total_match_stats}개\n` +
+        `- 완료된 경기 통계: ${debugInfo.completed_match_stats}개\n\n` +
+        `📈 계산된 시즌 통계:\n` +
+        `- 계산 가능한 선수-시즌 조합: ${calculated.count}개\n\n` +
+        `자세한 내용은 콘솔을 확인하세요.`
+      );
+    } catch (error) {
+      console.error('선수 통계 디버깅 실패:', error);
+      alert('선수 통계 디버깅 중 오류가 발생했습니다.');
+    }
+  };
+
   return (
     <Container className="py-8">
       <div className="space-y-8">
@@ -162,14 +237,14 @@ export default function AdminStatsPage() {
 
         {/* 시즌 선택 */}
         <Card className="p-6">
-          <H2 className="mb-4">시즌 선택</H2>
+          <H2 className="mb-4">🎯 시즌 선택</H2>
           <div className="max-w-md">
             <Select value={selectedSeason} onValueChange={setSelectedSeason}>
               <SelectTrigger>
                 <SelectValue placeholder="전체 시즌 (선택사항)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">전체 시즌</SelectItem>
+                <SelectItem value="all">전체 시즌 (누적 데이터)</SelectItem>
                 {isLoadingSeasons ? (
                   <div className="px-2 py-1.5 text-sm text-muted-foreground">
                     로딩 중...
@@ -186,11 +261,22 @@ export default function AdminStatsPage() {
                 )}
               </SelectContent>
             </Select>
-            <p className="text-sm text-muted-foreground mt-2">
-              {selectedSeason === 'all'
-                ? '모든 시즌이 처리됩니다.'
-                : `선택된 시즌 (${selectedSeason})만 처리됩니다.`}
-            </p>
+            <div className="mt-3 p-3 rounded-lg bg-gray-50">
+              {selectedSeason === 'all' ? (
+                <div className="text-sm">
+                  <p className="font-medium text-gray-700 mb-1">📊 전체 시즌 모드</p>
+                  <p className="text-gray-600">모든 시즌의 경기 데이터를 사용하여 통계를 계산합니다.</p>
+                </div>
+              ) : (
+                <div className="text-sm">
+                  <p className="font-medium text-blue-700 mb-1">🎯 특정 시즌 모드</p>
+                  <p className="text-blue-600">
+                    선택된 시즌 ({seasons.find(s => s.season_id.toString() === selectedSeason)?.season_name})의 
+                    경기 데이터만 사용하여 통계를 계산합니다.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </Card>
 
@@ -220,6 +306,7 @@ export default function AdminStatsPage() {
               <h3 className="font-medium">순위표 (standings)</h3>
               <p className="text-sm text-muted-foreground">
                 팀별 승점, 순위 등
+                {selectedSeason === 'all' ? ' (전체 시즌)' : ' (선택된 시즌)'}
               </p>
               <Button
                 variant="outline"
@@ -235,6 +322,7 @@ export default function AdminStatsPage() {
               <h3 className="font-medium">선수 통계 (player_season_stats)</h3>
               <p className="text-sm text-muted-foreground">
                 골, 어시스트, 출장 등
+                {selectedSeason === 'all' ? ' (전체 시즌)' : ' (선택된 시즌)'}
               </p>
               <Button
                 variant="outline"
@@ -250,7 +338,10 @@ export default function AdminStatsPage() {
 
             <div className="space-y-2">
               <h3 className="font-medium">팀 통계 (team_season_stats)</h3>
-              <p className="text-sm text-muted-foreground">팀별 시즌 성적</p>
+              <p className="text-sm text-muted-foreground">
+                팀별 시즌 성적
+                {selectedSeason === 'all' ? ' (전체 시즌)' : ' (선택된 시즌)'}
+              </p>
               <Button
                 variant="outline"
                 size="sm"
@@ -265,7 +356,10 @@ export default function AdminStatsPage() {
 
             <div className="space-y-2">
               <h3 className="font-medium">팀-시즌 (team_seasons)</h3>
-              <p className="text-sm text-muted-foreground">시즌 참가 팀 관계</p>
+              <p className="text-sm text-muted-foreground">
+                시즌 참가 팀 관계
+                {selectedSeason === 'all' ? ' (전체 시즌)' : ' (선택된 시즌)'}
+              </p>
               <Button
                 variant="outline"
                 size="sm"
@@ -280,7 +374,12 @@ export default function AdminStatsPage() {
 
             <div className="space-y-2">
               <h3 className="font-medium">상대전적 (h2h_pair_stats)</h3>
-              <p className="text-sm text-muted-foreground">팀간 맞대결 기록</p>
+              <p className="text-sm text-muted-foreground">
+                팀간 맞대결 기록
+                {selectedSeason === 'all' 
+                  ? ' (전체 시즌 누적 데이터)'
+                  : ` (선택된 시즌 기준)`}
+              </p>
               <Button
                 variant="outline"
                 size="sm"
@@ -289,6 +388,11 @@ export default function AdminStatsPage() {
               >
                 재생성
               </Button>
+              {selectedSeason !== 'all' && (
+                <p className="text-xs text-blue-600">
+                  ℹ️ 선택된 시즌의 경기만 사용하여 계산됩니다
+                </p>
+              )}
             </div>
           </div>
         </Card>
@@ -299,12 +403,40 @@ export default function AdminStatsPage() {
           <p className="text-muted-foreground mb-4">
             통계 데이터와 원본 경기 데이터 간의 일치성을 확인합니다.
           </p>
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              onClick={handleValidateStats}
+              disabled={validateStatsMutation.isPending}
+            >
+              데이터 검증 실행
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleDebugPlayerStats}
+              disabled={debugPlayerStatsMutation.isPending}
+              className="bg-green-50 hover:bg-green-100 border-green-300"
+            >
+              🔍 선수 통계 디버깅
+            </Button>
+          </div>
+        </Card>
+
+        {/* H2H 통계 복구 */}
+        <Card className="p-6 bg-blue-50 border-blue-200">
+          <H2 className="mb-4 text-blue-800">🔧 H2H 통계 복구</H2>
+          <p className="text-blue-700 mb-4">
+            H2H 상대전적 테이블이 손상된 경우 이 버튼으로 복구할 수 있습니다.
+            모든 완료된 경기 데이터를 바탕으로 H2H 통계를 다시 생성합니다.
+          </p>
           <Button
-            variant="outline"
-            onClick={handleValidateStats}
-            disabled={validateStatsMutation.isPending}
+            onClick={handleRestoreH2h}
+            disabled={restoreH2hMutation.isPending}
+            className="bg-blue-600 hover:bg-blue-700"
           >
-            데이터 검증 실행
+            {restoreH2hMutation.isPending
+              ? 'H2H 통계 복구 중...'
+              : '🔧 H2H 통계 복구하기'}
           </Button>
         </Card>
 

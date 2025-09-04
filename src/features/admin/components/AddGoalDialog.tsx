@@ -52,7 +52,7 @@ export default function AddGoalDialog({
     defaultValues: {
       player_id: '',
       goal_time: '',
-      goal_type: 'normal',
+      goal_type: 'regular',
       description: '',
     },
   });
@@ -189,7 +189,7 @@ export default function AddGoalDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="normal">일반</SelectItem>
+                      <SelectItem value="regular">일반</SelectItem>
                       <SelectItem value="penalty">페널티킥</SelectItem>
                       <SelectItem value="free_kick">프리킥</SelectItem>
                       <SelectItem value="own_goal">자책골</SelectItem>
