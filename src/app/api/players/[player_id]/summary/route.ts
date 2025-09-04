@@ -202,25 +202,33 @@ export async function GET(
         };
       });
 
-    // Enrich seasons with team logos for those missing but with team_id
-    const idsNeedingLogo = Array.from(
+    // Enrich seasons with team info (names and logos) for those missing but with team_id
+    const idsNeedingTeamInfo = Array.from(
       new Set(
         seasons
-          .filter((s) => s.team_id && !s.team_logo)
+          .filter((s) => s.team_id && (!s.team_name || !s.team_logo))
           .map((s) => s.team_id as number)
       )
     );
-    if (idsNeedingLogo.length > 0) {
-      const logos = await prisma.team.findMany({
-        where: { team_id: { in: idsNeedingLogo } },
-        select: { team_id: true, logo: true },
+    if (idsNeedingTeamInfo.length > 0) {
+      const teams = await prisma.team.findMany({
+        where: { team_id: { in: idsNeedingTeamInfo } },
+        select: { team_id: true, team_name: true, logo: true },
       });
-      const logoMap = new Map<number, string | null>();
-      logos.forEach((t) => logoMap.set(t.team_id, t.logo ?? null));
+      const teamMap = new Map<number, { team_name: string; logo: string | null }>();
+      teams.forEach((t) => teamMap.set(t.team_id, { team_name: t.team_name, logo: t.logo ?? null }));
       for (let i = 0; i < seasons.length; i++) {
         const tid = seasons[i].team_id as number | null;
-        if (tid && !seasons[i].team_logo) {
-          seasons[i].team_logo = logoMap.get(tid) ?? null;
+        if (tid) {
+          const teamInfo = teamMap.get(tid);
+          if (teamInfo) {
+            if (!seasons[i].team_name) {
+              seasons[i].team_name = teamInfo.team_name;
+            }
+            if (!seasons[i].team_logo) {
+              seasons[i].team_logo = teamInfo.logo;
+            }
+          }
         }
       }
     }
