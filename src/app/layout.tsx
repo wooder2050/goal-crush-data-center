@@ -171,7 +171,9 @@ export default function RootLayout({
             <div className="pt-24 md:pt-28">
               <ScrollToTopOnRouteChange />
               <NicknameSetupModal />
-              {children}
+              <div className="min-h-screen">
+                {children}
+              </div>
               <Footer />
             </div>
           </Providers>
