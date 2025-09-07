@@ -11,7 +11,9 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "fix": "pnpm lint --fix"
+    "fix": "pnpm lint --fix",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@clerk/clerk-sdk-node": "^5.1.6",
@@ -59,6 +61,11 @@
     "zustand": "^5.0.1"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^4.1.1",
+    "@storybook/addon-a11y": "^9.1.5",
+    "@storybook/addon-docs": "^9.1.5",
+    "@storybook/addon-onboarding": "^9.1.5",
+    "@storybook/addon-vitest": "^9.1.5",
     "@types/eslint": "^9.6.1",
     "@typescript-eslint/eslint-plugin": "^8.3.0",
     "@typescript-eslint/parser": "^8.3.0",
@@ -68,9 +75,16 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-storybook": "^9.1.5",
     "eslint-plugin-tailwindcss": "^3.17.4",
     "prettier": "^3.3.3",
-    "prisma": "^5.22.0"
+    "prisma": "^5.22.0",
+    "storybook": "^9.1.5",
+    "@storybook/nextjs-vite": "^9.1.5",
+    "vitest": "^3.2.4",
+    "@vitest/browser": "^3.2.4",
+    "playwright": "^1.55.0",
+    "@vitest/coverage-v8": "^3.2.4"
   },
   "packageManager": "pnpm@10.10.0+sha512.d615db246fe70f25dcfea6d8d73dee782ce23e2245e3c4f6f888249fb568149318637dca73c2c5c8ef2a4ca0d5657fb9567188bfab47f566d1ee6ce987815c39"
 }
