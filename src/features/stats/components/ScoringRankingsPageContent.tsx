@@ -230,6 +230,8 @@ function ScoringRankingsPageContentInner() {
                     <th className="px-3 py-3 text-center font-medium text-gray-700">득점</th>
                     <th className="px-3 py-3 text-center font-medium text-gray-700">도움</th>
                     <th className="px-3 py-3 text-center font-medium text-gray-700">공격포인트</th>
+                    <th className="px-3 py-3 text-center font-medium text-gray-700 hidden lg:table-cell">경기당 득점</th>
+                    <th className="px-3 py-3 text-center font-medium text-gray-700 hidden lg:table-cell">경기당 도움</th>
                     <th className="px-3 py-3 text-center font-medium text-gray-700">경기당 공격P</th>
                   </tr>
                 </thead>
@@ -237,7 +239,7 @@ function ScoringRankingsPageContentInner() {
                   {isLoading ? (
                     <tr>
                       <td
-                        colSpan={8}
+                        colSpan={10}
                         className="px-3 py-8 text-center text-gray-500"
                       >
                         <div className="flex items-center justify-center">
@@ -251,7 +253,7 @@ function ScoringRankingsPageContentInner() {
                   ) : data?.rankings?.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={8}
+                        colSpan={10}
                         className="px-3 py-8 text-center text-gray-500"
                       >
                         조건에 맞는 선수가 없습니다.
@@ -353,6 +355,12 @@ function ScoringRankingsPageContentInner() {
                         </td>
                         <td className="px-3 py-3 text-center">
                           <span className="font-bold text-amber-600">{player.attack_points}</span>
+                        </td>
+                        <td className="px-3 py-3 text-center hidden lg:table-cell">
+                          <span className="text-xs text-gray-600">{player.goals_per_match}</span>
+                        </td>
+                        <td className="px-3 py-3 text-center hidden lg:table-cell">
+                          <span className="text-xs text-gray-600">{player.assists_per_match}</span>
                         </td>
                         <td className="px-3 py-3 text-center">
                           <span className="text-xs text-gray-600">{player.attack_points_per_match}</span>

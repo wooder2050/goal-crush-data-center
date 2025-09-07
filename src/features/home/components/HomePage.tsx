@@ -179,7 +179,7 @@ export default function HomePage() {
             </GoalWrapper>
             
             <div className="text-center mt-8">
-              <Link href="/stats/scoring-rankings">
+              <Link href="/stats/scoring">
                 <Button variant="outline" size="lg" className="text-[#ff4800] border-[#ff4800] hover:bg-[#ff4800] hover:text-white">
                   전체 득점 랭킹 보기
                 </Button>
