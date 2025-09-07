@@ -2,7 +2,7 @@
 
 import { Shield } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,23 +23,23 @@ import {
 // 포지션별 위치들 (골때리는 그녀들 5명 구성 - 한 줄씩 배치)
 const POSITION_COORDINATES: Record<
   Position,
-  Array<{ x: number; y: number }>
+  Array<{ x: number; y: number; mobile_y?: number }>
 > = {
-  GK: [{ x: 50, y: 15 }], // 골키퍼 1명 (최하단)
+  GK: [{ x: 50, y: 15, mobile_y: 12 }], // 골키퍼 1명 (최하단)
   DF: [
-    { x: 50, y: 35 }, // 중앙 수비수 (1명일 때)
-    { x: 30, y: 35 }, // 좌측 수비수 (2명일 때)
-    { x: 70, y: 35 }, // 우측 수비수 (2명일 때)
+    { x: 50, y: 35, mobile_y: 28 }, // 중앙 수비수 (1명일 때)
+    { x: 30, y: 35, mobile_y: 28 }, // 좌측 수비수 (2명일 때)
+    { x: 70, y: 35, mobile_y: 28 }, // 우측 수비수 (2명일 때)
   ], // 수비수 라인
   MF: [
-    { x: 50, y: 55 }, // 중앙 미드필더 (1명일 때)
-    { x: 30, y: 55 }, // 좌측 미드필더 (2명일 때)
-    { x: 70, y: 55 }, // 우측 미드필더 (2명일 때)
+    { x: 50, y: 55, mobile_y: 50 }, // 중앙 미드필더 (1명일 때)
+    { x: 30, y: 55, mobile_y: 50 }, // 좌측 미드필더 (2명일 때)
+    { x: 70, y: 55, mobile_y: 50 }, // 우측 미드필더 (2명일 때)
   ], // 미드필더 라인
   FW: [
-    { x: 50, y: 75 }, // 중앙 공격수 (1명일 때)
-    { x: 30, y: 75 }, // 좌측 공격수 (2명일 때)
-    { x: 70, y: 75 }, // 우측 공격수 (2명일 때)
+    { x: 50, y: 75, mobile_y: 72 }, // 중앙 공격수 (1명일 때)
+    { x: 30, y: 75, mobile_y: 72 }, // 좌측 공격수 (2명일 때)
+    { x: 70, y: 75, mobile_y: 72 }, // 우측 공격수 (2명일 때)
   ], // 공격수 라인
 };
 
@@ -50,6 +50,15 @@ const DEFAULT_POSITIONS: Omit<PlayerPosition, 'player'>[] = [
   { position: 'MF', x: 30, y: 55 }, // 미드필더
   { position: 'FW', x: 30, y: 75 }, // 공격수 1
   { position: 'FW', x: 70, y: 75 }, // 공격수 2
+];
+
+// 모바일 기본 포메이션 (세로 간격 확대)
+const MOBILE_DEFAULT_POSITIONS: Omit<PlayerPosition, 'player'>[] = [
+  { position: 'GK', x: 50, y: 12 }, // 골키퍼
+  { position: 'DF', x: 30, y: 28 }, // 수비수
+  { position: 'MF', x: 30, y: 50 }, // 미드필더
+  { position: 'FW', x: 30, y: 72 }, // 공격수 1
+  { position: 'FW', x: 70, y: 72 }, // 공격수 2
 ];
 
 const POSITION_COLORS = {
@@ -68,6 +77,18 @@ export default function FootballPitch({
 }: FootballPitchProps) {
   const [selectedPlayer, setSelectedPlayer] =
     useState<PlayerWithPosition | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640); // sm 브레이크포인트
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   console.log('players', players);
   // 포지션별로 선수들을 그룹화하고 배치
   const getPlayerPosition = (player: PlayerWithPosition, index: number) => {
@@ -91,7 +112,11 @@ export default function FootballPitch({
         // 기본 포지션이 정의되지 않은 경우 기본값 반환
         return { x: 50, y: 50 };
       }
-      return positionCoords[coordIndex] || positionCoords[0];
+      const coord = positionCoords[coordIndex] || positionCoords[0];
+      return {
+        x: coord.x,
+        y: isMobile && coord.mobile_y ? coord.mobile_y : coord.y,
+      };
     };
 
     if (assignedPosition === 'GK') {
@@ -140,13 +165,14 @@ export default function FootballPitch({
 
   return (
     <div
-      className={`relative w-full max-w-4xl mx-auto px-4 sm:px-0 ${className}`}
+      className={`relative w-full max-w-lg mx-auto px-2 sm:px-0 ${className}`}
     >
       {/* 축구장 배경 */}
       <div
-        className="relative w-full rounded-lg shadow-lg overflow-hidden border-4 border-white"
+        className="relative w-full rounded-lg shadow-lg overflow-hidden border-2 border-white"
         style={{
-          aspectRatio: '3/4', // 세로가 더 긴 축구장 비율
+          aspectRatio: '5/6', // 더욱 컴팩트한 비율로 조정
+          maxHeight: '60vh', // 뷰포트 높이의 60%로 제한
           backgroundColor: '#228B22', // 단순한 잔디 녹색
           backgroundImage: `
             repeating-linear-gradient(
@@ -282,9 +308,9 @@ export default function FootballPitch({
             <div className="relative">
               {/* 포지션 배경 */}
               <div
-                className={`w-12 h-16 sm:w-16 sm:h-20 md:w-20 md:h-24 lg:w-24 lg:h-28 xl:w-28 xl:h-32 2xl:w-32 2xl:h-36 rounded-lg border-4 shadow-2xl overflow-hidden transition-all duration-300 group-hover:scale-110 group-hover:shadow-3xl ${
+                className={`w-8 h-10 sm:w-10 sm:h-12 md:w-12 md:h-14 rounded-lg border-2 shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl ${
                   selectedPlayer?.player_id === player.player_id
-                    ? 'border-yellow-400 ring-4 ring-yellow-400 ring-opacity-50 scale-105'
+                    ? 'border-yellow-400 ring-2 ring-yellow-400 ring-opacity-50 scale-105'
                     : 'border-white'
                 }`}
                 style={{ backgroundColor: POSITION_COLORS[position] }}
@@ -295,31 +321,31 @@ export default function FootballPitch({
                     alt={player.name}
                     fill
                     className="object-contain"
-                    sizes="(max-width: 640px) 48px, (max-width: 768px) 64px, (max-width: 1024px) 80px, (max-width: 1280px) 96px, (max-width: 1536px) 112px, 128px"
+                    sizes="(max-width: 640px) 32px, (max-width: 768px) 40px, 48px"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white">
-                    <Shield className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 xl:w-14 xl:h-14 2xl:w-16 2xl:h-16" />
+                    <Shield className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                   </div>
                 )}
               </div>
 
               {/* 등번호 */}
               {player.jersey_number && (
-                <div className="absolute -bottom-1 sm:-bottom-2 -right-1 sm:-right-2 bg-white text-black text-xs sm:text-sm md:text-base font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 flex items-center justify-center shadow-lg border-2 border-gray-300">
+                <div className="absolute -bottom-0.5 -right-0.5 bg-white text-black text-xs font-bold rounded-full w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 flex items-center justify-center shadow-md border border-gray-300">
                   {player.jersey_number}
                 </div>
               )}
             </div>
 
             {/* 선수 이름 */}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 sm:mt-2 md:mt-3 text-white text-xs sm:text-sm md:text-base lg:text-lg font-bold text-center whitespace-nowrap bg-black bg-opacity-70 px-1 sm:px-2 md:px-3 py-1 rounded-lg shadow-lg backdrop-blur-sm">
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-0.5 text-white text-xs font-bold text-center whitespace-nowrap bg-black bg-opacity-70 px-1 py-0.5 rounded shadow-lg">
               {player.name}
             </div>
 
             {/* 포지션 라벨 */}
             <div
-              className="absolute -top-1 sm:-top-2 md:-top-3 -left-1 sm:-left-2 md:-left-3 text-xs sm:text-sm md:text-base font-bold text-white bg-opacity-90 px-1 sm:px-2 py-1 rounded-lg shadow-lg border border-white border-opacity-30"
+              className="absolute -top-2 -left-3 text-xs sm:text-xs font-bold text-white bg-opacity-90 px-0.5 py-0.5 sm:px-1 sm:py-0.5 rounded shadow-lg border border-white border-opacity-30 scale-75 sm:scale-100"
               style={{ backgroundColor: POSITION_COLORS[position] }}
             >
               {position}
@@ -329,25 +355,27 @@ export default function FootballPitch({
 
         {/* 빈 포지션들 (5명 미만일 때) */}
         {players.length < 5 &&
-          DEFAULT_POSITIONS.slice(players.length, 5).map((pos, index) => (
-            <div
-              key={`empty-${index}`}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2"
-              style={{
-                left: `${pos.x}%`,
-                top: `${pos.y}%`,
-              }}
-            >
-              <div className="w-20 h-24 sm:w-24 sm:h-28 rounded-lg border-4 border-white border-dashed bg-white bg-opacity-20 flex items-center justify-center shadow-lg">
-                <div
-                  className="text-xs sm:text-sm font-bold text-white bg-opacity-90 px-2 py-1 rounded-lg"
-                  style={{ backgroundColor: POSITION_COLORS[pos.position] }}
-                >
-                  {pos.position}
+          (isMobile ? MOBILE_DEFAULT_POSITIONS : DEFAULT_POSITIONS)
+            .slice(players.length, 5)
+            .map((pos, index) => (
+              <div
+                key={`empty-${index}`}
+                className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                style={{
+                  left: `${pos.x}%`,
+                  top: `${pos.y}%`,
+                }}
+              >
+                <div className="w-8 h-10 sm:w-10 sm:h-12 rounded-lg border-2 border-white border-dashed bg-white bg-opacity-20 flex items-center justify-center shadow-lg">
+                  <div
+                    className="text-xs font-bold text-white bg-opacity-90 px-1 py-0.5 rounded"
+                    style={{ backgroundColor: POSITION_COLORS[pos.position] }}
+                  >
+                    {pos.position}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
       </div>
 
       {/* 포지션 선택 UI */}
@@ -357,18 +385,18 @@ export default function FootballPitch({
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="relative w-8 h-10 sm:w-10 sm:h-12 md:w-12 md:h-14 lg:w-14 lg:h-16 xl:w-16 xl:h-18 rounded-lg overflow-hidden bg-gray-100">
+                  <div className="relative w-6 h-8 sm:w-8 sm:h-10 rounded-lg overflow-hidden bg-gray-100">
                     {selectedPlayer.profile_image_url ? (
                       <Image
                         src={selectedPlayer.profile_image_url}
                         alt={selectedPlayer.name}
                         fill
                         className="object-contain"
-                        sizes="(max-width: 640px) 32px, (max-width: 768px) 40px, (max-width: 1024px) 48px, (max-width: 1280px) 56px, 64px"
+                        sizes="(max-width: 640px) 24px, 32px"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <Shield className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
+                        <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
                       </div>
                     )}
                   </div>
