@@ -24,8 +24,8 @@ const NAV_ITEMS = [
   { href: '/coaches', label: '감독', requireAuth: false },
   { href: '/ratings', label: '평가', requireAuth: false },
   { href: '/stats', label: '통계', requireAuth: false },
+  { href: '/fantasy', label: '판타지', requireAuth: false },
   { href: '/community', label: '커뮤니티', requireAuth: false },
-  { href: '/about', label: '소개', requireAuth: false },
   { href: '/supports', label: '응원하기', requireAuth: true },
 ] as const;
 
@@ -171,9 +171,7 @@ export default function RootLayout({
             <div className="pt-24 md:pt-28">
               <ScrollToTopOnRouteChange />
               <NicknameSetupModal />
-              <div className="min-h-screen">
-                {children}
-              </div>
+              <div className="min-h-screen">{children}</div>
               <Footer />
             </div>
           </Providers>

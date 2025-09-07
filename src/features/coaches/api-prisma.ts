@@ -363,6 +363,12 @@ export async function computeCoachTrophies(
       if (it.season_name?.includes('조별')) return false;
       if (it.category === 'PLAYOFF' || it.category === 'CHALLENGE_LEAGUE')
         return false;
+
+      // Exclude GIFA_CUP from championship records
+      if (it.category === 'GIFA_CUP') {
+        return false;
+      }
+
       return true;
     });
 

@@ -57,12 +57,18 @@ export async function GET(
       }
     }
 
-    // 조별리그(이름에 '조별'), 플레이오프, 챌린지리그 제외
+    // 조별리그(이름에 '조별'), 플레이오프, 챌린지리그 제외 및 완료되지 않은 시즌 제외
     const filtered = items.filter((it) => {
       if (!it) return false;
       if (it.season_name?.includes('조별')) return false;
       if (it.category === 'PLAYOFF' || it.category === 'CHALLENGE_LEAGUE')
         return false;
+
+      // Exclude GIFA_CUP from championship records
+      if (it.category === 'GIFA_CUP') {
+        return false;
+      }
+
       return true;
     });
 

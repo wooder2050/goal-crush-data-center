@@ -22,6 +22,7 @@ export type TeamSeasonStandingRow = {
   year: number;
   season_id: number | null;
   season_name: string | null;
+  category?: string | null;
   league: 'super' | 'challenge' | 'playoff' | 'cup' | 'g-league' | 'other';
   participated: boolean;
   position: number | null;

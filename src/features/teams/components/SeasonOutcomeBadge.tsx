@@ -10,6 +10,7 @@ interface SeasonOutcomeBadgeProps {
   league: League;
   position: number | null | undefined;
   seasonName: string | null | undefined;
+  category?: string | null;
 }
 
 function getSeasonIndex(seasonName: string | null | undefined): number | null {
@@ -25,8 +26,14 @@ export default function SeasonOutcomeBadge({
   league,
   position,
   seasonName,
+  category,
 }: SeasonOutcomeBadgeProps) {
   const seasonIndex = getSeasonIndex(seasonName) ?? 0;
+
+  // Don't show championship badges for GIFA_CUP
+  if (category === 'GIFA_CUP') {
+    return null;
+  }
 
   // Champion match: treat as a cup-style winner when position is 1
   const isChampionMatch =

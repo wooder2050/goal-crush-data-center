@@ -28,6 +28,8 @@ import {
 import UpcomingMatches from '@/features/matches/components/UpcomingMatches';
 import UpcomingMatchesSkeleton from '@/features/matches/components/UpcomingMatchesSkeleton';
 
+import { TopScorersList, TopScorersLoading } from './TopScorersList';
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
@@ -158,8 +160,37 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* 다가오는 경기 Section */}
+      {/* 득점왕 랭킹 Section */}
       <Section padding="sm" className="py-20 bg-gray-50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="w-16 h-16 mx-auto rounded-full bg-[#ff4800]/10 flex items-center justify-center mb-4">
+              <Trophy className="h-8 w-8 text-[#ff4800]" />
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">현재 득점왕 TOP 5</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              이번 시즌 가장 많은 골을 넣은 선수들을 확인해보세요
+            </p>
+          </div>
+          
+          <div className="max-w-2xl mx-auto">
+            <GoalWrapper fallback={<TopScorersLoading />}>
+              <TopScorersList />
+            </GoalWrapper>
+            
+            <div className="text-center mt-8">
+              <Link href="/stats/scoring-rankings">
+                <Button variant="outline" size="lg" className="text-[#ff4800] border-[#ff4800] hover:bg-[#ff4800] hover:text-white">
+                  전체 득점 랭킹 보기
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* 다가오는 경기 Section */}
+      <Section padding="sm" className="py-20">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">다가오는 경기</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -219,6 +250,56 @@ export default function HomePage() {
             <p className="text-gray-600 leading-relaxed">
               득점, 골키퍼, 팀 순위 등 다각도 분석
             </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* 소개 Section */}
+      <Section padding="sm" className="py-20">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">우리의 미션</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              여자 축구의 데이터를 체계적으로 보존하고 공유합니다
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-[#ff4800]/10 flex items-center justify-center mb-4">
+                  <PlayCircle className="h-6 w-6 text-[#ff4800]" />
+                </div>
+                <CardTitle className="text-2xl text-[#ff4800]">
+                  방송 연계 데이터
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 leading-relaxed">
+                  &ldquo;골 때리는 그녀들&rdquo; 방송에서 다룬 모든 경기의 상세
+                  데이터를 실시간으로 수집하고 정리하여, 시청자들이 방송 내용을
+                  더 깊이 이해할 수 있도록 돕습니다.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-[#ff4800]/10 flex items-center justify-center mb-4">
+                  <Database className="h-6 w-6 text-[#ff4800]" />
+                </div>
+                <CardTitle className="text-2xl text-[#ff4800]">
+                  체계적 아카이브
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 leading-relaxed">
+                  선수 개인 기록부터 팀 전적, 시즌별 통계까지 모든 데이터를
+                  구조화하여 보관하고, 누구나 쉽게 검색하고 비교할 수 있는
+                  플랫폼을 제공합니다.
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </Section>

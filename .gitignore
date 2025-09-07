@@ -62,3 +62,11 @@ supabase/
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# Claude development rules (local only)
+CLAUDE_RULES.md
+
+# Build logs
+build.log
+build_output.log
+*.log

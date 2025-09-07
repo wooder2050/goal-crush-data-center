@@ -61,7 +61,14 @@ export async function GET(
       where: { team_id: teamId },
       select: {
         position: true,
-        season: { select: { season_id: true, season_name: true, year: true } },
+        season: {
+          select: {
+            season_id: true,
+            season_name: true,
+            year: true,
+            category: true,
+          },
+        },
       },
       orderBy: [{ season_id: 'asc' }],
     });
@@ -77,6 +84,10 @@ export async function GET(
           s.season?.season_id === 2 ||
           s.season?.season_id === 1
         );
+      })
+      .filter((s) => {
+        // Exclude GIFA_CUP from championship records
+        return s.season?.category !== 'GIFA_CUP';
       })
       .map((s) => ({
         season_id: s.season?.season_id ?? 0,
