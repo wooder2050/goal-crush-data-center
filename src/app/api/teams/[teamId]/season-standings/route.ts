@@ -18,7 +18,12 @@ export async function GET(
 
     // All seasons
     const seasons = await prisma.season.findMany({
-      select: { season_id: true, season_name: true, year: true },
+      select: {
+        season_id: true,
+        season_name: true,
+        year: true,
+        category: true,
+      },
       orderBy: [{ season_id: 'asc' }],
     });
 
@@ -60,6 +65,7 @@ export async function GET(
           season_id: s.season_id,
           season_name: s.season_name,
           year: s.year,
+          category: s.category,
           league,
           participated: true,
           position: st.position ?? null,
@@ -76,6 +82,7 @@ export async function GET(
             season_id: s.season_id,
             season_name: s.season_name,
             year: s.year,
+            category: s.category,
             league,
             participated: true,
             position: null,
@@ -90,6 +97,7 @@ export async function GET(
         season_id: s.season_id,
         season_name: s.season_name,
         year: s.year,
+        category: s.category,
         league,
         participated: false,
         position: null,
