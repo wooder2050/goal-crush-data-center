@@ -134,6 +134,7 @@ function TeamSeasonStandingsInner({ teamId }: { teamId: number }) {
                       league={row.league}
                       position={row.position}
                       seasonName={row.season_name}
+                      category={row.category}
                     />
                   </div>
                 )}
@@ -204,6 +205,7 @@ function TeamSeasonStandingsInner({ teamId }: { teamId: number }) {
                           league={row.league}
                           position={row.position}
                           seasonName={row.season_name}
+                          category={row.category}
                         />
                       ) : (
                         <span className="text-gray-400">-</span>
