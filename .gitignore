@@ -70,3 +70,6 @@ CLAUDE_RULES.md
 build.log
 build_output.log
 *.log
+
+*storybook.log
+storybook-static
