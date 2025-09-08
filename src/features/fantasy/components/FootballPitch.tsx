@@ -25,40 +25,40 @@ const POSITION_COORDINATES: Record<
   Position,
   Array<{ x: number; y: number; mobile_y?: number }>
 > = {
-  GK: [{ x: 50, y: 15, mobile_y: 12 }], // 골키퍼 1명 (최하단)
-  DF: [
-    { x: 50, y: 35, mobile_y: 28 }, // 중앙 수비수 (1명일 때)
-    { x: 30, y: 35, mobile_y: 28 }, // 좌측 수비수 (2명일 때)
-    { x: 70, y: 35, mobile_y: 28 }, // 우측 수비수 (2명일 때)
-  ], // 수비수 라인
-  MF: [
-    { x: 50, y: 55, mobile_y: 50 }, // 중앙 미드필더 (1명일 때)
-    { x: 30, y: 55, mobile_y: 50 }, // 좌측 미드필더 (2명일 때)
-    { x: 70, y: 55, mobile_y: 50 }, // 우측 미드필더 (2명일 때)
-  ], // 미드필더 라인
   FW: [
-    { x: 50, y: 75, mobile_y: 72 }, // 중앙 공격수 (1명일 때)
-    { x: 30, y: 75, mobile_y: 72 }, // 좌측 공격수 (2명일 때)
-    { x: 70, y: 75, mobile_y: 72 }, // 우측 공격수 (2명일 때)
+    { x: 50, y: 10, mobile_y: 10 }, // 중앙 공격수 (1명일 때) - 최상단
+    { x: 30, y: 10, mobile_y: 10 }, // 좌측 공격수 (2명일 때)
+    { x: 70, y: 10, mobile_y: 10 }, // 우측 공격수 (2명일 때)
   ], // 공격수 라인
+  MF: [
+    { x: 50, y: 35, mobile_y: 32 }, // 중앙 미드필더 (1명일 때)
+    { x: 30, y: 35, mobile_y: 32 }, // 좌측 미드필더 (2명일 때)
+    { x: 70, y: 35, mobile_y: 32 }, // 우측 미드필더 (2명일 때)
+  ], // 미드필더 라인
+  DF: [
+    { x: 50, y: 60, mobile_y: 60 }, // 중앙 수비수 (1명일 때)
+    { x: 30, y: 60, mobile_y: 60 }, // 좌측 수비수 (2명일 때)
+    { x: 70, y: 60, mobile_y: 60 }, // 우측 수비수 (2명일 때)
+  ], // 수비수 라인
+  GK: [{ x: 50, y: 85, mobile_y: 85 }], // 골키퍼 1명 (최하단)
 };
 
-// 기본 포메이션 (1-1-1-2: GK 1명 + DF 1명 + MF 1명 + FW 2명)
+// 기본 포메이션 (2-1-1-1: FW 2명 + MF 1명 + DF 1명 + GK 1명)
 const DEFAULT_POSITIONS: Omit<PlayerPosition, 'player'>[] = [
-  { position: 'GK', x: 50, y: 15 }, // 골키퍼
-  { position: 'DF', x: 30, y: 35 }, // 수비수
-  { position: 'MF', x: 30, y: 55 }, // 미드필더
-  { position: 'FW', x: 30, y: 75 }, // 공격수 1
-  { position: 'FW', x: 70, y: 75 }, // 공격수 2
+  { position: 'FW', x: 30, y: 10 }, // 공격수 1 - 최상단
+  { position: 'FW', x: 70, y: 15 }, // 공격수 2
+  { position: 'MF', x: 30, y: 35 }, // 미드필더
+  { position: 'DF', x: 30, y: 60 }, // 수비수
+  { position: 'GK', x: 50, y: 85 }, // 골키퍼 - 최하단
 ];
 
 // 모바일 기본 포메이션 (세로 간격 확대)
 const MOBILE_DEFAULT_POSITIONS: Omit<PlayerPosition, 'player'>[] = [
-  { position: 'GK', x: 50, y: 12 }, // 골키퍼
-  { position: 'DF', x: 30, y: 28 }, // 수비수
-  { position: 'MF', x: 30, y: 50 }, // 미드필더
-  { position: 'FW', x: 30, y: 72 }, // 공격수 1
-  { position: 'FW', x: 70, y: 72 }, // 공격수 2
+  { position: 'FW', x: 30, y: 10 }, // 공격수 1 - 최상단
+  { position: 'FW', x: 70, y: 10 }, // 공격수 2
+  { position: 'MF', x: 30, y: 32 }, // 미드필더
+  { position: 'DF', x: 30, y: 60 }, // 수비수
+  { position: 'GK', x: 50, y: 85 }, // 골키퍼 - 최하단
 ];
 
 const POSITION_COLORS = {
@@ -89,7 +89,6 @@ export default function FootballPitch({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  console.log('players', players);
   // 포지션별로 선수들을 그룹화하고 배치
   const getPlayerPosition = (player: PlayerWithPosition, index: number) => {
     const assignedPosition =
@@ -171,7 +170,7 @@ export default function FootballPitch({
       <div
         className="relative w-full rounded-lg shadow-lg overflow-hidden border-2 border-white"
         style={{
-          aspectRatio: '5/6', // 더욱 컴팩트한 비율로 조정
+          aspectRatio: '3/5', // 더 세로가 긴 직사각형 비율로 조정
           maxHeight: '60vh', // 뷰포트 높이의 60%로 제한
           backgroundColor: '#228B22', // 단순한 잔디 녹색
           backgroundImage: `
@@ -308,7 +307,7 @@ export default function FootballPitch({
             <div className="relative">
               {/* 포지션 배경 */}
               <div
-                className={`w-8 h-10 sm:w-10 sm:h-12 md:w-12 md:h-14 rounded-lg border-2 shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl ${
+                className={`w-10 h-12 sm:w-12 sm:h-16 md:w-16 md:h-20 lg:w-18 lg:h-22 rounded-lg border-2 shadow-lg overflow-hidden transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl ${
                   selectedPlayer?.player_id === player.player_id
                     ? 'border-yellow-400 ring-2 ring-yellow-400 ring-opacity-50 scale-105'
                     : 'border-white'
@@ -321,18 +320,18 @@ export default function FootballPitch({
                     alt={player.name}
                     fill
                     className="object-contain"
-                    sizes="(max-width: 640px) 32px, (max-width: 768px) 40px, 48px"
+                    sizes="(max-width: 640px) 40px, (max-width: 768px) 48px, (max-width: 1024px) 64px, 72px"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white">
-                    <Shield className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 md:w-7 md:h-7 lg:w-8 lg:h-8" />
                   </div>
                 )}
               </div>
 
               {/* 등번호 */}
               {player.jersey_number && (
-                <div className="absolute -bottom-0.5 -right-0.5 bg-white text-black text-xs font-bold rounded-full w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 flex items-center justify-center shadow-md border border-gray-300">
+                <div className="absolute -bottom-0.5 -right-0.5 bg-white text-black text-xs font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 flex items-center justify-center shadow-md border border-gray-300">
                   {player.jersey_number}
                 </div>
               )}
@@ -366,7 +365,7 @@ export default function FootballPitch({
                   top: `${pos.y}%`,
                 }}
               >
-                <div className="w-8 h-10 sm:w-10 sm:h-12 rounded-lg border-2 border-white border-dashed bg-white bg-opacity-20 flex items-center justify-center shadow-lg">
+                <div className="w-10 h-12 sm:w-12 sm:h-16 md:w-16 md:h-20 rounded-lg border-2 border-white border-dashed bg-white bg-opacity-20 flex items-center justify-center shadow-lg">
                   <div
                     className="text-xs font-bold text-white bg-opacity-90 px-1 py-0.5 rounded"
                     style={{ backgroundColor: POSITION_COLORS[pos.position] }}
