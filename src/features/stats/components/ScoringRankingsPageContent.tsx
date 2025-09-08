@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue} from '@/components/ui';
 import InfiniteSeasonSelect from '@/features/stats/components/InfiniteSeasonSelect';
+import ScoringRankingsPageContentSkeleton from '@/features/stats/components/ScoringRankingsPageContentSkeleton';
 import type { ScoringRankingsResponse } from '@/features/stats/types';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { shortenSeasonName } from '@/lib/utils';
@@ -542,7 +543,7 @@ function ScoringRankingsPageContentInner() {
 
 export default function ScoringRankingsPageContent() {
   return (
-    <GoalWrapper fallback={<div className="animate-pulse">로딩 중...</div>}>
+    <GoalWrapper fallback={<ScoringRankingsPageContentSkeleton />}>
       <ScoringRankingsPageContentInner />
     </GoalWrapper>
   );

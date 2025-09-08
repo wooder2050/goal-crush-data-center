@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui';
 import InfiniteSeasonSelect from '@/features/stats/components/InfiniteSeasonSelect';
+import TeamRankingsPageContentSkeleton from '@/features/stats/components/TeamRankingsPageContentSkeleton';
 import { useGoalQuery } from '@/hooks/useGoalQuery';
 import { shortenSeasonName } from '@/lib/utils';
 
@@ -171,6 +172,8 @@ function TeamRankingsPageContentInner() {
                     </SelectItem>
                     <SelectItem value="goals_for">득점 많은 순</SelectItem>
                     <SelectItem value="goals_against">실점 적은 순</SelectItem>
+                    <SelectItem value="goals_for_per_match">경기당 득점 많은 순</SelectItem>
+                    <SelectItem value="goals_against_per_match">경기당 실점 적은 순</SelectItem>
                     <SelectItem value="matches_played">경기 많은 순</SelectItem>
                   </SelectContent>
                 </Select>
@@ -204,7 +207,15 @@ function TeamRankingsPageContentInner() {
                   ? '승률'
                   : sortBy === 'goal_difference'
                     ? '득실차'
-                    : '통계'}
+                    : sortBy === 'goals_for'
+                      ? '득점'
+                      : sortBy === 'goals_against'
+                        ? '실점'
+                        : sortBy === 'goals_for_per_match'
+                          ? '경기당득점'
+                          : sortBy === 'goals_against_per_match'
+                            ? '경기당실점'
+                            : '통계'}
               </div>
               <div className="text-sm text-gray-500">정렬 기준</div>
             </CardContent>
@@ -243,6 +254,12 @@ function TeamRankingsPageContentInner() {
                       실점
                     </th>
                     <th className="px-3 py-3 text-center font-medium text-gray-700">
+                      경기당득점
+                    </th>
+                    <th className="px-3 py-3 text-center font-medium text-gray-700">
+                      경기당실점
+                    </th>
+                    <th className="px-3 py-3 text-center font-medium text-gray-700">
                       득실차
                     </th>
                   </tr>
@@ -251,7 +268,7 @@ function TeamRankingsPageContentInner() {
                   {isLoading ? (
                     <tr>
                       <td
-                        colSpan={9}
+                        colSpan={11}
                         className="px-3 py-8 text-center text-gray-500"
                       >
                         <div className="flex items-center justify-center">
@@ -263,7 +280,7 @@ function TeamRankingsPageContentInner() {
                   ) : data?.rankings?.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={9}
+                        colSpan={11}
                         className="px-3 py-8 text-center text-gray-500"
                       >
                         조건에 맞는 팀이 없습니다.
@@ -350,6 +367,16 @@ function TeamRankingsPageContentInner() {
                         <td className="px-3 py-3 text-center">
                           <span className="font-medium text-red-600">
                             {team.goals_against}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          <span className="font-medium text-blue-600">
+                            {team.goals_for_per_match}
+                          </span>
+                        </td>
+                        <td className="px-3 py-3 text-center">
+                          <span className="font-medium text-red-600">
+                            {team.goals_against_per_match}
                           </span>
                         </td>
                         <td className="px-3 py-3 text-center">
@@ -514,7 +541,7 @@ function TeamRankingsPageContentInner() {
 
 export default function TeamRankingsPageContent() {
   return (
-    <GoalWrapper fallback={<div className="animate-pulse">로딩 중...</div>}>
+    <GoalWrapper fallback={<TeamRankingsPageContentSkeleton />}>
       <TeamRankingsPageContentInner />
     </GoalWrapper>
   );
