@@ -191,6 +191,10 @@ export async function GET(request: NextRequest) {
           return b.goals_for - a.goals_for;
         case 'goals_against':
           return a.goals_against - b.goals_against; // 적을수록 좋음
+        case 'goals_for_per_match':
+          return parseFloat(b.goals_for_per_match) - parseFloat(a.goals_for_per_match);
+        case 'goals_against_per_match':
+          return parseFloat(a.goals_against_per_match) - parseFloat(b.goals_against_per_match); // 적을수록 좋음
         case 'matches_played':
           return b.matches_played - a.matches_played;
         case 'win_rate':
