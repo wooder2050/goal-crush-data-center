@@ -54,7 +54,7 @@ interface TeamRankingsResponse {
 async function getTeamRankings(
   seasonId?: number,
   page: number = 1,
-  limit: number = 11,
+  limit: number = 12,
   sortBy: string = 'win_rate'
 ): Promise<TeamRankingsResponse> {
   const params = new URLSearchParams({
@@ -81,7 +81,7 @@ function TeamRankingsPageContentInner() {
 
   const { data, isLoading, error, refetch } = useGoalQuery(
     getTeamRankings,
-    [seasonId, page, 11, sortBy],
+    [seasonId, page, 12, sortBy],
     {
       staleTime: 5 * 60 * 1000, // 5분
     }
@@ -172,8 +172,12 @@ function TeamRankingsPageContentInner() {
                     </SelectItem>
                     <SelectItem value="goals_for">득점 많은 순</SelectItem>
                     <SelectItem value="goals_against">실점 적은 순</SelectItem>
-                    <SelectItem value="goals_for_per_match">경기당 득점 많은 순</SelectItem>
-                    <SelectItem value="goals_against_per_match">경기당 실점 적은 순</SelectItem>
+                    <SelectItem value="goals_for_per_match">
+                      경기당 득점 많은 순
+                    </SelectItem>
+                    <SelectItem value="goals_against_per_match">
+                      경기당 실점 적은 순
+                    </SelectItem>
                     <SelectItem value="matches_played">경기 많은 순</SelectItem>
                   </SelectContent>
                 </Select>
@@ -268,7 +272,7 @@ function TeamRankingsPageContentInner() {
                   {isLoading ? (
                     <tr>
                       <td
-                        colSpan={11}
+                        colSpan={12}
                         className="px-3 py-8 text-center text-gray-500"
                       >
                         <div className="flex items-center justify-center">
@@ -280,7 +284,7 @@ function TeamRankingsPageContentInner() {
                   ) : data?.rankings?.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={11}
+                        colSpan={12}
                         className="px-3 py-8 text-center text-gray-500"
                       >
                         조건에 맞는 팀이 없습니다.
