@@ -6,12 +6,13 @@ import React from 'react';
 import { GoalWrapper } from '@/common/GoalWrapper';
 import { Badge } from '@/components/ui/badge';
 import { useGoalSuspenseQuery } from '@/hooks/useGoalQuery';
-import type { Assist } from '@/lib/types';
+import type { Assist, Goal } from '@/lib/types';
 import { MatchWithTeams } from '@/lib/types/database';
 
 import {
   getLastMatchLineupsPrisma,
   getMatchAssistsPrisma,
+  getMatchGoalsPrisma,
   getMatchLineupsPrisma,
   getPredictedMatchLineupsPrisma,
   getSeasonPlayersPrisma,
@@ -32,6 +33,8 @@ interface LineupPlayer {
   red_cards: number;
   card_type: 'none' | 'yellow' | 'red_direct' | 'red_accumulated';
   assists?: number;
+  own_goals?: number;
+  regular_goals?: number;
   // Optional fields for different data sources
   stat_id?: number;
   match_id?: number;
@@ -154,6 +157,11 @@ function TeamLineupsSectionInner({
     [match.match_id]
   );
 
+  // Fetch goal data via Suspense Query
+  const { data: goals = [] } = useGoalSuspenseQuery(getMatchGoalsPrisma, [
+    match.match_id,
+  ]);
+
   const homeTeamKey = `${match.match_id}_${match.home_team_id}`;
   const awayTeamKey = `${match.match_id}_${match.away_team_id}`;
   const homeLineups = lineups[homeTeamKey] || [];
@@ -169,19 +177,36 @@ function TeamLineupsSectionInner({
     {} as Record<number, number>
   );
 
-  // Add assist info to lineup
-  const addAssistsToLineup = (lineup: LineupPlayer[]): LineupPlayer[] => {
+  // Calculate own goals per player
+  const ownGoalsByPlayer = goals.reduce(
+    (acc: Record<number, number>, goal: Goal) => {
+      if (goal.goal_type === 'own_goal') {
+        const playerId = goal.player_id;
+        acc[playerId] = (acc[playerId] || 0) + 1;
+      }
+      return acc;
+    },
+    {} as Record<number, number>
+  );
+
+  // Add assist and goal info to lineup
+  const addStatsToLineup = (lineup: LineupPlayer[]): LineupPlayer[] => {
     return lineup.map((player) => {
       const assists = assistsByPlayer[player.player_id] || 0;
+      const own_goals = ownGoalsByPlayer[player.player_id] || 0;
+      // 일반 골 = 전체 골 - 자책골
+      const regular_goals = Math.max(0, (player.goals || 0) - own_goals);
       return {
         ...player,
         assists,
+        own_goals,
+        regular_goals,
       };
     });
   };
 
-  const homeLineupWithAssists = addAssistsToLineup(homeLineups);
-  const awayLineupWithAssists = addAssistsToLineup(awayLineups);
+  const homeLineupWithStats = addStatsToLineup(homeLineups);
+  const awayLineupWithStats = addStatsToLineup(awayLineups);
 
   // Resolve team colors (with defaults)
   const homeTeamPrimaryColor = match.home_team?.primary_color || '#000000';
@@ -259,7 +284,7 @@ function TeamLineupsSectionInner({
                 </div>
                 <div className="space-y-1">
                   {sortByPosition(
-                    homeLineupWithAssists.filter(
+                    homeLineupWithStats.filter(
                       (player) => player.participation_status === 'starting'
                     )
                   ).map((player, index) => (
@@ -293,13 +318,22 @@ function TeamLineupsSectionInner({
                           >
                             {player.player_name}
                           </Link>
-                          <div className="flex gap-1 ml-2">
-                            {!!player.goals && player.goals > 0 && (
+                          <div className="flex ml-2">
+                            {!!player.regular_goals &&
+                              player.regular_goals > 0 && (
+                                <Badge
+                                  variant="secondary"
+                                  className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-800"
+                                >
+                                  ⚽ {player.regular_goals}
+                                </Badge>
+                              )}
+                            {!!player.own_goals && player.own_goals > 0 && (
                               <Badge
                                 variant="secondary"
-                                className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-800"
+                                className="text-xs px-1.5 py-0.5 bg-orange-100 text-orange-800"
                               >
-                                ⚽ {player.goals}
+                                🔴 {player.own_goals}
                               </Badge>
                             )}
                             {!!player.assists && player.assists > 0 && (
@@ -343,7 +377,7 @@ function TeamLineupsSectionInner({
               </div>
 
               {/* Substitutes */}
-              {homeLineupWithAssists.filter(
+              {homeLineupWithStats.filter(
                 (player) => player.participation_status === 'substitute'
               ).length > 0 && (
                 <div className="mb-3 sm:mb-4">
@@ -352,7 +386,7 @@ function TeamLineupsSectionInner({
                   </div>
                   <div className="space-y-1">
                     {sortByPosition(
-                      homeLineupWithAssists.filter(
+                      homeLineupWithStats.filter(
                         (player) => player.participation_status === 'substitute'
                       )
                     ).map((player, index) => (
@@ -386,13 +420,22 @@ function TeamLineupsSectionInner({
                             >
                               {player.player_name}
                             </Link>
-                            <div className="flex gap-1 ml-2">
-                              {!!player.goals && player.goals > 0 && (
+                            <div className="flex ml-2">
+                              {!!player.regular_goals &&
+                                player.regular_goals > 0 && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-800"
+                                  >
+                                    ⚽ {player.regular_goals}
+                                  </Badge>
+                                )}
+                              {!!player.own_goals && player.own_goals > 0 && (
                                 <Badge
                                   variant="secondary"
-                                  className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-800"
+                                  className="text-xs px-1.5 py-0.5 bg-orange-100 text-orange-800"
                                 >
-                                  ⚽ {player.goals}
+                                  🤦‍♀️ {player.own_goals}
                                 </Badge>
                               )}
                               {!!player.assists && player.assists > 0 && (
@@ -437,7 +480,7 @@ function TeamLineupsSectionInner({
               )}
 
               {/* Bench */}
-              {homeLineupWithAssists.filter(
+              {homeLineupWithStats.filter(
                 (player) => player.participation_status === 'bench'
               ).length > 0 && (
                 <div>
@@ -446,7 +489,7 @@ function TeamLineupsSectionInner({
                   </div>
                   <div className="space-y-1">
                     {sortByPosition(
-                      homeLineupWithAssists.filter(
+                      homeLineupWithStats.filter(
                         (player) => player.participation_status === 'bench'
                       )
                     ).map((player, index) => (
@@ -518,7 +561,7 @@ function TeamLineupsSectionInner({
                 </div>
                 <div className="space-y-1">
                   {sortByPosition(
-                    awayLineupWithAssists.filter(
+                    awayLineupWithStats.filter(
                       (player) => player.participation_status === 'starting'
                     )
                   ).map((player, index) => (
@@ -552,13 +595,22 @@ function TeamLineupsSectionInner({
                           >
                             {player.player_name}
                           </Link>
-                          <div className="flex gap-1 ml-2">
-                            {!!player.goals && player.goals > 0 && (
+                          <div className="flex ml-2">
+                            {!!player.regular_goals &&
+                              player.regular_goals > 0 && (
+                                <Badge
+                                  variant="secondary"
+                                  className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-800"
+                                >
+                                  ⚽ {player.regular_goals}
+                                </Badge>
+                              )}
+                            {!!player.own_goals && player.own_goals > 0 && (
                               <Badge
                                 variant="secondary"
-                                className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-800"
+                                className="text-xs px-1.5 py-0.5 bg-orange-100 text-orange-800"
                               >
-                                ⚽ {player.goals}
+                                🔴 {player.own_goals}
                               </Badge>
                             )}
                             {!!player.assists && player.assists > 0 && (
@@ -602,7 +654,7 @@ function TeamLineupsSectionInner({
               </div>
 
               {/* Substitutes */}
-              {awayLineupWithAssists.filter(
+              {awayLineupWithStats.filter(
                 (player) => player.participation_status === 'substitute'
               ).length > 0 && (
                 <div className="mb-3 sm:mb-4">
@@ -611,7 +663,7 @@ function TeamLineupsSectionInner({
                   </div>
                   <div className="space-y-1">
                     {sortByPosition(
-                      awayLineupWithAssists.filter(
+                      awayLineupWithStats.filter(
                         (player) => player.participation_status === 'substitute'
                       )
                     ).map((player, index) => (
@@ -645,13 +697,22 @@ function TeamLineupsSectionInner({
                             >
                               {player.player_name}
                             </Link>
-                            <div className="flex gap-1 ml-2">
-                              {!!player.goals && player.goals > 0 && (
+                            <div className="flex ml-2">
+                              {!!player.regular_goals &&
+                                player.regular_goals > 0 && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-800"
+                                  >
+                                    ⚽ {player.regular_goals}
+                                  </Badge>
+                                )}
+                              {!!player.own_goals && player.own_goals > 0 && (
                                 <Badge
                                   variant="secondary"
-                                  className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-800"
+                                  className="text-xs px-1.5 py-0.5 bg-orange-100 text-orange-800"
                                 >
-                                  ⚽ {player.goals}
+                                  🤦‍♀️ {player.own_goals}
                                 </Badge>
                               )}
                               {!!player.assists && player.assists > 0 && (
@@ -696,7 +757,7 @@ function TeamLineupsSectionInner({
               )}
 
               {/* Bench */}
-              {awayLineupWithAssists.filter(
+              {awayLineupWithStats.filter(
                 (player) => player.participation_status === 'bench'
               ).length > 0 && (
                 <div>
@@ -705,7 +766,7 @@ function TeamLineupsSectionInner({
                   </div>
                   <div className="space-y-1">
                     {sortByPosition(
-                      awayLineupWithAssists.filter(
+                      awayLineupWithStats.filter(
                         (player) => player.participation_status === 'bench'
                       )
                     ).map((player, index) => (
